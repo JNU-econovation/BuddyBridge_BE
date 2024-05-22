@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: BuddyBridge
+
+# Register P6LogFactory to log JDBC events
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true

@@ -32,6 +32,9 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     implementation 'org.springframework.session:spring-session-core'
 
+    // p6spy 의존성 추가 - SQL 로그 확인
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
