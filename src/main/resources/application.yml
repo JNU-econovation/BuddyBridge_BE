@@ -2,8 +2,37 @@ spring:
   application:
     name: BuddyBridge
 
+  datasource:
+    url: jdbc:mariadb://${MARIA_HOST}:${MARIA_PORT}/${MARIA_DATABASE}
+    username: ${MARIA_USER}
+    password: ${MARIA_PASSWORD}
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+
+logging:
+  level:
+    org.springframework:
+      transaction.interceptor: trace    # 트랜잭션 로그 설정
+
+    p6spy: info
+
+    study.learnsocket.auth.kakao: debug # FeignClient 로그 레벨 설정
+
+
 # Register P6LogFactory to log JDBC events
 decorator:
   datasource:
     p6spy:
       enable-logging: true
+
+
+
+
+
+

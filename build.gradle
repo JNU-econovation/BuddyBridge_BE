@@ -35,6 +35,9 @@ dependencies {
     // p6spy 의존성 추가 - SQL 로그 확인
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 
+    // .env 파일을 사용하기 위한 의존성
+    implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
