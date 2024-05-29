@@ -24,7 +24,7 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // @ManyToOne(cascade = CascadeType.REMOVE)
+//    @ManyToOne(cascade = CascadeType.REMOVE)
     @ManyToOne()
     @JoinColumn(name="author_id")
     private Member author;
@@ -58,7 +58,11 @@ public class Post {
     private LocalDateTime modifiedAt;
 
     private PostStatus postStatus; // 모집 중, 모집 완료
-    
+
+    protected void setStatus(PostStatus status){ // 상태 변경
+        this.postStatus = status;
+    }
+
     @Builder
     public Post(Member author,String title,AssistanceType assistanceType,
                 DurationPeriod durationPeriod,ScheduleType scheduleType, String scheduleDetail,
@@ -72,5 +76,6 @@ public class Post {
         this.district = district;
         this.content = content;
         this.postType = postType;
+        this.postStatus = PostStatus.RECRUITING;
     }
 }
