@@ -10,8 +10,7 @@ public enum DisabilityType {
     PHYSICAL_DISABILITY("지체장애"),
     ASD("자폐성장애"),
     BRAIN_DISABILITY("뇌병변장애"),
-    MENTAL_DISABILITY("정신장애"),
-    OTHER_DISABILITY("기타");
+    MENTAL_DISABILITY("정신장애");
 
     public final String disabilityType;
 

@@ -60,4 +60,9 @@ public class Member {
         this.disabilityType = disabilityType;
         this.gender = gender;
     }
+    
+    // test 용도
+    public void setId(Long id){
+        this.id = id;
+    }
 }
