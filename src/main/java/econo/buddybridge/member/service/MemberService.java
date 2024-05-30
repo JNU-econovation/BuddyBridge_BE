@@ -18,10 +18,14 @@ public class MemberService {
     @Transactional
     public void join(MemberDto memberDto){
         Member member = Member.builder()
+            .name(memberDto.name())
             .nickname(memberDto.nickname())
+            .profileImageUrl(memberDto.profileImageUrl())
             .email(memberDto.email())
             .age(memberDto.age())
-            .profileImageUrl(memberDto.profileImageUrl())
+//            .phone(memberDto.phone())
+//            .disabilityType(memberDto.disabilityType())
+//            .gender(memberDto.gender())
             .build();
         memberRepository.save(member);
     }

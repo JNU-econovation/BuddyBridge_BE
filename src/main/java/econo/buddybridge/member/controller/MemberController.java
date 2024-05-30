@@ -17,8 +17,8 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping()
-    public String testMember(@RequestBody MemberDto member){
-        memberService.join(member);
+    public String testMember(@RequestBody MemberDto memberDto){
+        memberService.join(memberDto);
         return "create success";
     }
 }
