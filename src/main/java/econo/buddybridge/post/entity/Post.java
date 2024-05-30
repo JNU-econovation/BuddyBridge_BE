@@ -35,9 +35,6 @@ public class Post {
     private AssistanceType assistanceType;
 
     @Embedded
-    private DurationPeriod durationPeriod; // startTime & endTime
-
-    @Embedded
     private Schedule schedule;
 
     @Enumerated(EnumType.STRING)
@@ -63,14 +60,12 @@ public class Post {
 
     @Builder
     public Post(Member author,String title,AssistanceType assistanceType,
-                DurationPeriod durationPeriod,ScheduleType scheduleType, String scheduleDetail,
+                Schedule schedule,
                 District district,String content,PostType postType){
         this.author = author;
         this.title = title;
         this.assistanceType = assistanceType;
-        this.durationPeriod = durationPeriod;
-        this.scheduleType = scheduleType;
-        this.scheduleDetail = scheduleDetail;
+        this.schedule = schedule;
         this.district = district;
         this.content = content;
         this.postType = postType;
