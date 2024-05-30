@@ -1,5 +1,6 @@
 package econo.buddybridge.member.controller;
 
+import econo.buddybridge.member.dto.MemberDto;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
