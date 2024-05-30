@@ -37,10 +37,8 @@ public class Post {
     @Embedded
     private DurationPeriod durationPeriod; // startTime & endTime
 
-    @Enumerated(EnumType.STRING)
-    private ScheduleType scheduleType;
-
-    private String scheduleDetail; // 정기 비정기 옆, 상세 정보 입력
+    @Embedded
+    private Schedule schedule;
 
     @Enumerated(EnumType.STRING)
     private District district;
