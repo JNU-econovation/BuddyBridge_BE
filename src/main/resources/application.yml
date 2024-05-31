@@ -14,6 +14,31 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
+  session:
+    store-type: redis
+    redis:
+      namespace: test:session
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      password: ${REDIS_PASSWORD}
+      port: ${REDIS_PORT}
+
+
+server:
+  ssl:
+    key-store: keystore.p12
+    key-store-type: PKCS12
+    key-store-password: ${KEY_STORE_PASSWORD}
+
+  servlet:
+    session:
+      cookie:
+        name: JSESSIONID
+        same-site: none
+        secure: true
+
 
 oauth:
   kakao:
