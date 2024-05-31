@@ -5,6 +5,7 @@ build/
 !**/src/test/**/build/
 
 .env
+keystore.p12
 
 ### STS ###
 .apt_generated
