@@ -15,6 +15,16 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
 
+oauth:
+  kakao:
+    client-id: ${OAUTH_KAKAO_CLIENT_ID}
+    url:
+      auth-url: ${OAUTH_KAKAO_AUTH_URL}
+      api-url: ${OAUTH_KAKAO_API_URL}
+      redirect-url: ${OAUTH_KAKAO_REDIRECT_URI}
+      logout-redirect-url:  ${OAUTH_KAKAO_LOGOUT_REDIRECT_URI}
+
+
 logging:
   level:
     org.springframework:
