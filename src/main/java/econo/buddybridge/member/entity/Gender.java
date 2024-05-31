@@ -4,10 +4,20 @@ import lombok.Getter;
 
 @Getter
 public enum Gender {
-    MALE("남성"),
-    FEMALE("여성");
+    남자("male"), 여자("female");
 
-    private final String gender;
+    private final String englishName;
 
-    Gender(String gender){ this.gender = gender; }
+    Gender(String englishName) {
+        this.englishName = englishName;
+    }
+
+    public static Gender fromEnglishName(String englishName) {
+        for (Gender gender : Gender.values()) {
+            if (gender.getEnglishName().equalsIgnoreCase(englishName)) {
+                return gender;
+            }
+        }
+        throw new IllegalArgumentException("Unknown gender: " + englishName);
+    }
 }

@@ -6,13 +6,13 @@ import lombok.Builder;
 
 @Builder
 public record MemberDto (
+        Long memberId,
         String name,
         String nickname,
         String profileImageUrl,
         String email,
-        Integer age
-//        String phone,
-//        DisabilityType disabilityType,
-//        Gender gender
+        Integer age,
+        Gender gender,
+        DisabilityType disabilityType
 ) {
 }

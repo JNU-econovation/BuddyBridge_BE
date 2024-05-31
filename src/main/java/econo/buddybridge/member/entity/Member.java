@@ -1,24 +1,18 @@
 package econo.buddybridge.member.entity;
 
+import econo.buddybridge.common.persistence.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.context.event.EventListener;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
-
 
 @Entity
 @Getter
 @Table(name = "MEMBER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EntityListeners(AuditingEntityListener.class)
-public class Member {
+public class Member extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
@@ -42,15 +36,9 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime modifiedAt;
-
     @Builder
-    public Member(String name, String nickname, String profileImageUrl, String email, Integer age, String phone,
-                  DisabilityType disabilityType, Gender gender) {
+    public Member(String name, String nickname, String profileImageUrl, String email,
+            Integer age, String phone, DisabilityType disabilityType, Gender gender) {
         this.name = name;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
@@ -59,10 +47,5 @@ public class Member {
         this.phone = phone;
         this.disabilityType = disabilityType;
         this.gender = gender;
-    }
-    
-    // test 용도
-    public void setId(Long id){
-        this.id = id;
     }
 }
