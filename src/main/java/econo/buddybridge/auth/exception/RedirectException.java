@@ -1,4 +1,4 @@
-package econo.buddybridge.utils.exception;
+package econo.buddybridge.auth.exception;
 
 import lombok.Getter;
 
