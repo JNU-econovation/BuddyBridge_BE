@@ -1,24 +1,22 @@
 package econo.buddybridge.post.entity;
 
 
+import econo.buddybridge.common.persistence.BaseEntity;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.post.dto.PostReqDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Table(name = "POST")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(value = AuditingEntityListener.class)
-public class Post {
+public class Post extends BaseEntity {
     @Id
     @Column(name = "post_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,16 +44,21 @@ public class Post {
     @Enumerated(EnumType.STRING)
     private PostType postType;
 
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime modifiedAt;
-
     private PostStatus postStatus; // 모집 중, 모집 완료
 
     protected void setStatus(PostStatus status){ // 상태 변경
         this.postStatus = status;
+    }
+
+    // 업데이트 로직 -> 이렇게 하는게 맞는지
+    public void updatePost(Member author, PostReqDto postReqDto){
+        this.author = author;
+        this.title = postReqDto.title();
+        this.assistanceType = postReqDto.assistanceType();
+        this.schedule = postReqDto.schedule();
+        this.district = postReqDto.district();
+        this.content = postReqDto.content();
+        this.postType = postReqDto.postType();
     }
 
     @Builder
