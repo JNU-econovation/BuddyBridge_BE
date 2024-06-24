@@ -34,8 +34,13 @@ public class SessionInterceptor implements HandlerInterceptor {
             @NonNull HttpServletResponse response,
             @NonNull Object handler
     ) throws Exception {
-        String sessionId = request.getRequestedSessionId();
+        
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return handleInvalidSession(response, "session is null");
+        }
 
+        String sessionId = request.getRequestedSessionId();
         if (sessionId == null) {
             return handleInvalidSession(response, "sessionId is null");
         }
@@ -43,11 +48,6 @@ public class SessionInterceptor implements HandlerInterceptor {
         String sessionKey = namespace + SESSION_PREFIX + sessionId;
         if (Boolean.FALSE.equals(redisTemplate.hasKey(sessionKey))) {
             return handleInvalidSession(response, "Redis key " + sessionKey + " does not exist");
-        }
-
-        HttpSession session = request.getSession(false);
-        if (session == null) {
-            return handleInvalidSession(response, "session is null");
         }
 
         log.info("SessionInterceptor: session ID {}", session.getId());
