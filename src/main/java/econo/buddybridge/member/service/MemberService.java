@@ -31,6 +31,11 @@ public class MemberService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public boolean existsById(Long memberId) {
+        return memberRepository.existsById(memberId);
+    }
+
     // 존재하는 회원인지 확인
     @Transactional(readOnly = true)
     public Member validateVerifyMember(Long memberId) {
