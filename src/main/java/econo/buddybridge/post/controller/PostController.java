@@ -19,18 +19,13 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
     private final PostService postService;
 
-    @GetMapping("/test")
-    public String test(){
-        return "test";
-    }
-
     // 전체 조회
     @GetMapping()
     public ApiResponse<ApiResponse.CustomBody<Page<PostResDto>>> getAllPosts(
-            @PageableDefault(size=10,sort="createdAt",direction= Sort.Direction.DESC) Pageable pageable){
+            @PageableDefault(size=8,sort="createdAt",direction= Sort.Direction.DESC) Pageable pageable) {
         Page<PostResDto> posts = postService.getAllPosts(pageable);
-        return ApiResponseGenerator.success(posts,HttpStatus.OK);
-    } 
+        return ApiResponseGenerator.success(posts, HttpStatus.OK);
+    }
     
     // 포스트 생성
     @PostMapping()
@@ -40,23 +35,23 @@ public class PostController {
     }
 
     // 포스트 상세 정보 조회
-    @GetMapping("/{post_id}")
-    public ApiResponse<ApiResponse.CustomBody<PostResDto>> getPost(@PathVariable Long post_id){
-        PostResDto postResDto = postService.findPost(post_id);
+    @GetMapping("/{post-id}")
+    public ApiResponse<ApiResponse.CustomBody<PostResDto>> getPost(@PathVariable("post-id") Long postId){
+        PostResDto postResDto = postService.findPost(postId);
         return ApiResponseGenerator.success(postResDto,HttpStatus.OK);
     }
 
     // 포스트 업데이트
-    @PutMapping("/{post_id}")
-    public ApiResponse<ApiResponse.CustomBody<PostResDto>> updatePost(@PathVariable Long post_id,@RequestBody PostReqDto postReqDto){
-        PostResDto postResDto = postService.updatePost(post_id,postReqDto);
+    @PutMapping("/{post-id}")
+    public ApiResponse<ApiResponse.CustomBody<PostResDto>> updatePost(@PathVariable("post-id") Long postId,@RequestBody PostReqDto postReqDto){
+        PostResDto postResDto = postService.updatePost(postId,postReqDto);
         return ApiResponseGenerator.success(postResDto,HttpStatus.OK);
     }
 
     // 포스트 삭제
-    @DeleteMapping("/{post_id}")
-    public ApiResponse<ApiResponse.CustomBody<Void>> deletePost(@PathVariable Long post_id){
-        postService.deletePost(post_id);
+    @DeleteMapping("/{post-id}")
+    public ApiResponse<ApiResponse.CustomBody<Void>> deletePost(@PathVariable("post-id") Long postId){
+        postService.deletePost(postId);
         return ApiResponseGenerator.success(HttpStatus.NO_CONTENT);
     }
 
