@@ -5,12 +5,16 @@ import econo.buddybridge.member.repository.MemberRepository;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostResDto;
 import econo.buddybridge.post.entity.Post;
+import econo.buddybridge.post.entity.Schedule;
+import econo.buddybridge.post.entity.ScheduleType;
 import econo.buddybridge.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 
 @Service
@@ -69,7 +73,10 @@ public class PostService {
                 .author(post.getAuthor())
                 .title(post.getTitle())
                 .assistanceType(post.getAssistanceType())
-                .schedule(post.getSchedule())
+                .startTime(post.getSchedule().getStartTime())
+                .endTime(post.getSchedule().getEndTime())
+                .scheduleType(post.getSchedule().getScheduleType())
+                .scheduleDetails(post.getSchedule().getScheduleDetails())
                 .district(post.getDistrict())
                 .content(post.getContent())
                 .postType(post.getPostType())
@@ -82,11 +89,19 @@ public class PostService {
     // PostReqDto를 바탕으로 Post생성
     public Post postReqToPost(PostReqDto postReqDto){
         Member author = getAuthor(postReqDto);
+
+        LocalDateTime startTime = postReqDto.startTime();
+        LocalDateTime endTime = postReqDto.endTime();
+        ScheduleType scheduleType = postReqDto.scheduleType();
+        String scheduleDetails = postReqDto.scheduleDetails();
+
+        Schedule schedule = new Schedule(startTime,endTime,scheduleType,scheduleDetails);
+
         return Post.builder()
                 .author(author)
                 .title(postReqDto.title())
                 .assistanceType(postReqDto.assistanceType())
-                .schedule(postReqDto.schedule())
+                .schedule(schedule)
                 .district(postReqDto.district())
                 .content(postReqDto.content())
                 .postType(postReqDto.postType())
