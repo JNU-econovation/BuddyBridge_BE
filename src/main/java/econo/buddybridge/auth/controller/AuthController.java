@@ -38,7 +38,7 @@ public class AuthController {
     }
 
     @PostMapping("/api/oauth/login")
-    public ApiResponse<CustomBody<MemberDto>> login(@RequestBody KakaoLoginParams params, HttpServletRequest request) {
+    public ApiResponse<?> login(@RequestBody KakaoLoginParams params, final HttpServletRequest request) {
         HttpSession session = request.getSession(false);
 
         MemberDto memberDto;
@@ -59,14 +59,14 @@ public class AuthController {
     }
 
     private MemberDto handleExistingSession(HttpSession session) {
-        Object memberIdObj = session.getAttribute("memberId");
-        if (memberIdObj == null || memberIdObj.toString().isEmpty()) {
+        String memberIdStr = String.valueOf(session.getAttribute("memberId"));
+        if (memberIdStr == null || memberIdStr.isEmpty()) {
             throw new IllegalArgumentException("세션에 유효한 memberId가 없습니다.");
         }
 
         Long memberId;
         try {
-            memberId = Long.parseLong(memberIdObj.toString());
+            memberId = Long.parseLong(memberIdStr);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("세션의 memberId 형식이 잘못되었습니다.", e);
         }
