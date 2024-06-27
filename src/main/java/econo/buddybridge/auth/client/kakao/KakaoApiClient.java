@@ -22,10 +22,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class KakaoApiClient implements OAuthApiClient {
 
-    private static final String GRANT_TYPE = "authorization_code";
-
     private final KakaoLoginFeignClient kakaoLoginFeignClient;
     private final KakaoInfoFeignClient kakaoInfoFeignClient;
+
+    private static final String GRANT_TYPE = "authorization_code";
+    private static final String TOKEN_PREFIX = "Bearer ";
 
     @Value("${oauth.kakao.url.api-url}")
     private String apiUrl;
@@ -53,13 +54,15 @@ public class KakaoApiClient implements OAuthApiClient {
 
     @Override
     public OAuthInfoResponse getUserInfo(String accessToken) {
+        String propertyKeys = getPropertyKeys();
+
+        return kakaoInfoFeignClient.getUserInfo(TOKEN_PREFIX + accessToken, propertyKeys);
+    }
+
+    private String getPropertyKeys() {
         KakaoPropertyKeys kakaoPropertyKeys = new KakaoPropertyKeys();
         kakaoPropertyKeys.addKeysFromClass(KakaoAccount.class);
-
-        String propertyKeysString = kakaoPropertyKeys.getPropertyKeysString();
-
-        return kakaoInfoFeignClient.getUserInfo("Bearer " + accessToken,
-                propertyKeysString);
+        return kakaoPropertyKeys.getPropertyKeysString();
     }
 
     @Override
