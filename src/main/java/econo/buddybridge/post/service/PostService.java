@@ -5,6 +5,7 @@ import econo.buddybridge.member.repository.MemberRepository;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostResDto;
 import econo.buddybridge.post.entity.Post;
+import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.entity.Schedule;
 import econo.buddybridge.post.entity.ScheduleType;
 import econo.buddybridge.post.repository.PostRepository;
@@ -38,10 +39,15 @@ public class PostService {
         Post post = postRepository.findById(id).orElseThrow(()->new IllegalArgumentException("포스트가 존재하지 않습니다."));
         return postToPostRes(post);
     }
-
-    @Transactional(readOnly = true)
-    public Page<PostResDto> getAllPosts(Pageable pageable){
-        Page<Post> postPage = postRepository.findAll(pageable);
+    
+    @Transactional(readOnly = true) // 전체 포스트
+    public Page<PostResDto> getAllPosts(Pageable pageable, PostType postType){
+        Page<Post> postPage;
+        if(postType != null) {
+            postPage = postRepository.findByPostType(pageable,postType);
+        } else {
+            postPage = postRepository.findAll(pageable);
+        }
         return postPage.map(PostResDto::new);
     }
 
