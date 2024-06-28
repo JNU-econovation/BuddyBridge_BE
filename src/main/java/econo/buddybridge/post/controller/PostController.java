@@ -2,6 +2,7 @@ package econo.buddybridge.post.controller;
 
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostResDto;
+import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.service.PostService;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
@@ -31,8 +32,9 @@ public class PostController {
     // 커스텀 페이지네이션을 사용한 조회
     @GetMapping()
     public ApiResponse<ApiResponse.CustomBody<PostCustomPage<PostResDto>>> getAllPostsTest(
+            @RequestParam(value="post-type",required = false) PostType postType,
             @PageableDefault(size=8,sort="createdAt",direction= Sort.Direction.DESC) Pageable pageable) {
-        Page<PostResDto> posts = postService.getAllPosts(pageable);
+        Page<PostResDto> posts = postService.getAllPosts(pageable,postType);
 
         // customPage 만들기
         PostCustomPage<PostResDto> postCustomPage = new PostCustomPage<>(posts.getContent(),posts.isLast(),posts.getTotalElements());
