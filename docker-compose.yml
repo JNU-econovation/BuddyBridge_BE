@@ -1,0 +1,52 @@
+version: "3.7"
+
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MARIA_PASSWORD}
+      MYSQL_DATABASE: ${MARIA_DATABASE}
+      MYSQL_USER: ${MARIA_USER}
+      MYSQL_PASSWORD: ${MARIA_PASSWORD}
+    command:
+      [
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+        "--lower_case_table_names=1",
+        "--max_connections=2048",
+        "--wait_timeout=3600"
+      ]
+    ports:
+      - "${MARIA_PORT}:${MARIA_PORT}"
+    restart: always
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_HOST: ${REDIS_HOST}
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    restart: always
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mariadb
+      - redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://${MARIA_HOST}:${MARIA_PORT}/${MARIA_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${MARIA_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MARIA_PASSWORD}
+      SPRING_DATASOURCE_REDIS_HOST: ${REDIS_HOST}
+      SPRING_DATASOURCE_REDIS_PORT: ${REDIS_PORT}
+      SERVER_SSL_ENABLED: "true"
+      SERVER_SSL_KEY_STORE: ${SERVER_SSL_KEY_STORE}
+      SERVER_SSL_KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
+      SERVER_SSL_KEY_STORE_TYPE: PKCS12
