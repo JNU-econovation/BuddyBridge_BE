@@ -1,5 +1,6 @@
 package econo.buddybridge.post.service;
 
+import econo.buddybridge.member.dto.MemberDto;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
 import econo.buddybridge.post.dto.PostReqDto;
@@ -48,6 +49,7 @@ public class PostService {
         } else {
             postPage = postRepository.findAll(pageable);
         }
+
         return postPage.map(PostResDto::new);
     }
 
@@ -76,7 +78,7 @@ public class PostService {
     public PostResDto postToPostRes(Post post){
         return PostResDto.builder()
                 .id(post.getId())
-                .author(post.getAuthor())
+                .author(toMemberDto(post.getAuthor()))
                 .title(post.getTitle())
                 .assistanceType(post.getAssistanceType())
                 .startTime(post.getSchedule().getStartTime())
@@ -118,5 +120,17 @@ public class PostService {
     public Member getAuthor(PostReqDto postReqDto){
         return memberRepository.findById(postReqDto.memberId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+    }
+    public static MemberDto toMemberDto(Member member) {
+        return MemberDto.builder()
+                .memberId(member.getId())
+                .name(member.getName())
+                .nickname(member.getNickname())
+                .profileImageUrl(member.getProfileImageUrl())
+                .email(member.getEmail())
+                .age(member.getAge())
+                .gender(member.getGender())
+                .disabilityType(member.getDisabilityType())
+                .build();
     }
 }
