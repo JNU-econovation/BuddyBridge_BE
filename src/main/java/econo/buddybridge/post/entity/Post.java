@@ -23,7 +23,7 @@ public class Post extends BaseEntity {
     private Long id;
 
 //    @ManyToOne(cascade = CascadeType.REMOVE)
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="author_id")
     private Member author;
 
