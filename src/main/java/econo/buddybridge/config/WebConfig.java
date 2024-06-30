@@ -27,9 +27,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/api/oauth/login",
-                        "/api/oauth/logout",
-                        "/test/login",
-                        "/test/logout"
+                        "/api/oauth/logout"
                 );
     }
 }
