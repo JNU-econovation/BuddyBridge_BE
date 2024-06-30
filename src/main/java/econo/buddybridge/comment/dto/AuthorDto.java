@@ -9,10 +9,8 @@ public record AuthorDto(
         String nickname,
         String profileImg
 ) {
+
     @QueryProjection
-    public AuthorDto(Long memberId, String nickname, String profileImg) {
-        this.memberId = memberId;
-        this.nickname = nickname;
-        this.profileImg = profileImg;
+    public AuthorDto {
     }
 }

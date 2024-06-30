@@ -15,12 +15,6 @@ public record CommentResDto(
 ) {
 
     @QueryProjection
-    public CommentResDto(Long commentId, Long postId, AuthorDto author, String content, LocalDateTime createdAt, LocalDateTime modifiedAt) {
-        this.commentId = commentId;
-        this.postId = postId;
-        this.author = author;
-        this.content = content;
-        this.createdAt = createdAt;
-        this.modifiedAt = modifiedAt;
+    public CommentResDto {
     }
 }
