@@ -5,6 +5,6 @@ import java.util.List;
 public record CommentCustomPage(
     List<CommentResDto> content,
     Long cursor,
-    Boolean isLast
+    Boolean nextPage
 ) {
 }

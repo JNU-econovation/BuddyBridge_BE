@@ -44,15 +44,15 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .limit(pageSize + 1)
                 .fetch();
 
-        Boolean isLast = true;
+        Boolean nextPage = false;
         if (content.size() > pageSize) {
             content.removeLast();
-            isLast = false;
+            nextPage = true;
         }
 
-        Long nextCursor = isLast ? -1L : content.getLast().commentId();
+        Long nextCursor = nextPage ? content.getLast().commentId() : -1L;
 
-        return new CommentCustomPage(content, nextCursor, isLast);
+        return new CommentCustomPage(content, nextCursor, nextPage);
     }
 
     private Order getPageOrder(Pageable page) {
