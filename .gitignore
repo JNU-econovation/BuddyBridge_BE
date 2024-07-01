@@ -6,6 +6,8 @@ build/
 
 .env
 keystore.p12
+schema.sql
+data.sql
 
 ### STS ###
 .apt_generated
