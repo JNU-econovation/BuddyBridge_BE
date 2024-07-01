@@ -13,6 +13,7 @@ spring:
       ddl-auto: create
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    defer-datasource-initialization: true
 
   session:
     store-type: redis
@@ -25,6 +26,10 @@ spring:
       password: ${REDIS_PASSWORD}
       port: ${REDIS_PORT}
 
+  sql:
+    init:
+      data-locations: classpath:data.sql
+      mode: always
 
 server:
   ssl:
