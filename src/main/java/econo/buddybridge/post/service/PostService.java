@@ -28,20 +28,23 @@ public class PostService {
     
     
     // 검증 과정 필요성 고려
-    @Transactional // 포스트 생성
-    public Long createPost(PostReqDto postReqDto) {
-        Post post = postReqToPost(postReqDto);
-        postRepository.save(post);
-        return post.getId();
+    @Transactional // 게시글 생성
+    public Long createPost(PostReqDto postReqDto, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        Post post = postReqToPost(postReqDto,member);
+
+        return postRepository.save(post).getId();
     }
 
-    @Transactional(readOnly = true) // 단일 포스트
-    public PostResDto findPost(Long id) {
-        Post post = postRepository.findById(id).orElseThrow(()->new IllegalArgumentException("포스트가 존재하지 않습니다."));
+    @Transactional(readOnly = true) // 단일 게시글
+    public PostResDto findPost(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(()->new IllegalArgumentException("존재하지 않는 게시글입니다."));
         return postToPostRes(post);
     }
     
-    @Transactional(readOnly = true) // 전체 포스트
+    @Transactional(readOnly = true) // 전체 게시글
     public Page<PostResDto> getAllPosts(Pageable pageable, PostType postType){
         Page<Post> postPage;
         if(postType != null) {
@@ -49,29 +52,32 @@ public class PostService {
         } else {
             postPage = postRepository.findAll(pageable);
         }
-
         return postPage.map(PostResDto::new);
     }
 
 
-    @Transactional // 포스트 수정
-    public PostResDto updatePost(Long id,PostReqDto postReqDto){
-        Post post = postRepository.findById(id)
-                .orElseThrow(()->new IllegalArgumentException("포스트가 존재하지 않습니다."));
-        Member author = getAuthor(postReqDto);
+    @Transactional // 게시글 수정
+    public Long updatePost(Long postId,PostReqDto postReqDto, Long memberId){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
-        post.updatePost(author,postReqDto);
+        if(!post.getAuthor().getId().equals(memberId)){
+            throw new IllegalArgumentException("본인의 게시글만 수정할 수 있습니다.");
+        }
 
-        postRepository.save(post);
-        return postToPostRes(post);
+        post.updatePost(postReqDto);
+
+        return post.getId();
     }
 
-    @Transactional // 포스트 삭제
-    public void deletePost(Long id){
-        if(!postRepository.existsById(id)){
-            throw new IllegalArgumentException("포스트가 존재하지 않습니다.");
+    @Transactional // 게시글 삭제
+    public void deletePost(Long postId,Long memberId){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 게시글입니다."));
+        if(!post.getAuthor().getId().equals(memberId)){
+            throw new IllegalArgumentException("본인의 게시글만 수정할 수 있습니다.");
         }
-        postRepository.deleteById(id);
+        postRepository.deleteById(postId);
     }
 
     // Post를 사용하여 PostResDto 생성
@@ -95,9 +101,7 @@ public class PostService {
     }
 
     // PostReqDto를 바탕으로 Post생성
-    public Post postReqToPost(PostReqDto postReqDto){
-        Member author = getAuthor(postReqDto);
-
+    public Post postReqToPost(PostReqDto postReqDto, Member member){
         LocalDateTime startTime = postReqDto.startTime();
         LocalDateTime endTime = postReqDto.endTime();
         ScheduleType scheduleType = postReqDto.scheduleType();
@@ -106,7 +110,7 @@ public class PostService {
         Schedule schedule = new Schedule(startTime,endTime,scheduleType,scheduleDetails);
 
         return Post.builder()
-                .author(author)
+                .author(member)
                 .title(postReqDto.title())
                 .assistanceType(postReqDto.assistanceType())
                 .schedule(schedule)
@@ -116,11 +120,8 @@ public class PostService {
                 .build();
     }
 
-    // PostReqDto로 들어온 멤버ID로 검색 후 Member객체 반환
-    public Member getAuthor(PostReqDto postReqDto){
-        return memberRepository.findById(postReqDto.memberId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-    }
+
+    // 지연 로딩 시 생성되는 프록시 맴버 객체를 멤버 DTO로 변환
     public static MemberDto toMemberDto(Member member) {
         return MemberDto.builder()
                 .memberId(member.getId())

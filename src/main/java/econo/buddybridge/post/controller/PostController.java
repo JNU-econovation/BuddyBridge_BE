@@ -6,7 +6,9 @@ import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.service.PostService;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
-import econo.buddybridge.utils.api.PostCustomPage;
+import econo.buddybridge.post.custompage.PostCustomPage;
+import econo.buddybridge.utils.session.SessionUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +31,7 @@ public class PostController {
 //        return ApiResponseGenerator.success(posts, HttpStatus.OK);
 //    }
 
-    // 커스텀 페이지네이션을 사용한 조회
+    // 커스텀 페이지네이션을 사용한 전체 게시글 조회
     @GetMapping()
     public ApiResponse<ApiResponse.CustomBody<PostCustomPage<PostResDto>>> getAllPostsTest(
             @RequestParam(value="post-type",required = false) PostType postType,
@@ -41,31 +43,41 @@ public class PostController {
         return ApiResponseGenerator.success(postCustomPage, HttpStatus.OK);
     }
 
-    // 포스트 생성
+    // 게시글 생성
     @PostMapping()
-    public ApiResponse<ApiResponse.CustomBody<Long>> createPost(@RequestBody PostReqDto postReqDto) {
-        Long postId = postService.createPost(postReqDto);
-        return ApiResponseGenerator.success(postId, HttpStatus.CREATED);
+    public ApiResponse<ApiResponse.CustomBody<Long>> createPost(
+            @RequestBody PostReqDto postReqDto,
+            HttpServletRequest request) {
+        Long memberId = SessionUtils.getMemberId(request);
+        Long createdPostId = postService.createPost(postReqDto,memberId);
+        return ApiResponseGenerator.success(createdPostId, HttpStatus.CREATED);
     }
 
-    // 포스트 상세 정보 조회
+    // 단일 게시글 조회
     @GetMapping("/{post-id}")
     public ApiResponse<ApiResponse.CustomBody<PostResDto>> getPost(@PathVariable("post-id") Long postId){
         PostResDto postResDto = postService.findPost(postId);
         return ApiResponseGenerator.success(postResDto,HttpStatus.OK);
     }
 
-    // 포스트 업데이트
+    // 게시글 업데이트
     @PutMapping("/{post-id}")
-    public ApiResponse<ApiResponse.CustomBody<PostResDto>> updatePost(@PathVariable("post-id") Long postId,@RequestBody PostReqDto postReqDto){
-        PostResDto postResDto = postService.updatePost(postId,postReqDto);
-        return ApiResponseGenerator.success(postResDto,HttpStatus.OK);
+    public ApiResponse<ApiResponse.CustomBody<Long>> updatePost(
+            @PathVariable("post-id") Long postId,
+            @RequestBody PostReqDto postReqDto,
+            HttpServletRequest request){
+        Long memberId = SessionUtils.getMemberId(request);
+        Long updatedPostId = postService.updatePost(postId,postReqDto,memberId);
+        return ApiResponseGenerator.success(updatedPostId,HttpStatus.OK);
     }
 
-    // 포스트 삭제
+    // 게시글 삭제
     @DeleteMapping("/{post-id}")
-    public ApiResponse<ApiResponse.CustomBody<Void>> deletePost(@PathVariable("post-id") Long postId){
-        postService.deletePost(postId);
+    public ApiResponse<ApiResponse.CustomBody<Void>> deletePost(
+            @PathVariable("post-id") Long postId,
+            HttpServletRequest request){
+        Long memberId = SessionUtils.getMemberId(request);
+        postService.deletePost(postId,memberId);
         return ApiResponseGenerator.success(HttpStatus.NO_CONTENT);
     }
 

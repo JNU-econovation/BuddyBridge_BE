@@ -51,11 +51,10 @@ public class Post extends BaseEntity {
     }
 
     // 업데이트 로직 -> 이렇게 하는게 맞는지
-    public void updatePost(Member author, PostReqDto postReqDto){
+    public void updatePost(PostReqDto postReqDto){
         Schedule schedule = new Schedule(postReqDto.startTime(),postReqDto.endTime(),
                 postReqDto.scheduleType(),postReqDto.scheduleDetails());
 
-        this.author = author;
         this.title = postReqDto.title();
         this.assistanceType = postReqDto.assistanceType();
         this.schedule = schedule;
