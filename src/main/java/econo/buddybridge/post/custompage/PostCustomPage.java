@@ -1,4 +1,4 @@
-package econo.buddybridge.utils.api;
+package econo.buddybridge.post.custompage;
 
 
 import lombok.Getter;
