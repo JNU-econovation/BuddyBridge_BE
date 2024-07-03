@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum DisabilityType {
+    없음("없음"),
     시각장애("시각장애"),
     청각장애("청각장애"),
     지적장애("지적장애"),
