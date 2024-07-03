@@ -1,6 +1,7 @@
 package econo.buddybridge.member.service;
 
 import econo.buddybridge.auth.dto.OAuthInfoResponse;
+import econo.buddybridge.member.dto.MemberReqDto;
 import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.member.entity.Member;
@@ -37,7 +38,6 @@ public class MemberService {
     }
 
     // 존재하는 회원인지 확인
-    @Transactional(readOnly = true)
     public Member validateVerifyMemberById(Long memberId) {
         Optional<Member> optionalMember = memberRepository.findById(memberId);
         return optionalMember.orElseThrow(
@@ -68,5 +68,13 @@ public class MemberService {
                 .profileImageUrl(info.getProfileImageUrl())
                 .build();
         return memberRepository.save(member);
+    }
+
+    @Transactional
+    public void updateMemberById(Long memberId, MemberReqDto memberReqDto) {
+        Member member = validateVerifyMemberById(memberId);
+
+        member.updateMemberInfo(memberReqDto.name(), memberReqDto.nickname(), memberReqDto.profileImageUrl(),
+                memberReqDto.email(), memberReqDto.age(), memberReqDto.disabilityType(), member.getGender());
     }
 }
