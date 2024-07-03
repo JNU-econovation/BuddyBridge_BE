@@ -71,6 +71,6 @@ public class AuthController {
             throw new IllegalArgumentException("세션의 memberId 형식이 잘못되었습니다.", e);
         }
 
-        return memberService.findMember(memberId);
+        return memberService.findMemberById(memberId);
     }
 }

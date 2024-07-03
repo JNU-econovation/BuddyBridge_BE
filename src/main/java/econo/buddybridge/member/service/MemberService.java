@@ -18,8 +18,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
-    public MemberDto findMember(Long memberId) {
-        Member member = validateVerifyMember(memberId);
+    public MemberDto findMemberById(Long memberId) {
+        Member member = validateVerifyMemberById(memberId);
         return MemberDto.builder()
                 .memberId(member.getId())
                 .nickname(member.getNickname())
@@ -38,7 +38,7 @@ public class MemberService {
 
     // 존재하는 회원인지 확인
     @Transactional(readOnly = true)
-    public Member validateVerifyMember(Long memberId) {
+    public Member validateVerifyMemberById(Long memberId) {
         Optional<Member> optionalMember = memberRepository.findById(memberId);
         return optionalMember.orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 회원입니다."));
