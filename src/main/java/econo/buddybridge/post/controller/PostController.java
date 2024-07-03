@@ -1,19 +1,15 @@
 package econo.buddybridge.post.controller;
 
+import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostResDto;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.service.PostService;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
-import econo.buddybridge.post.custompage.PostCustomPage;
 import econo.buddybridge.utils.session.SessionUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,24 +19,16 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
     private final PostService postService;
 
-    // 기존 전체 조회
-//    @GetMapping()
-//    public ApiResponse<ApiResponse.CustomBody<Page<PostResDto>>> getAllPosts(
-//            @PageableDefault(size=8,sort="createdAt",direction= Sort.Direction.DESC) Pageable pageable) {
-//        Page<PostResDto> posts = postService.getAllPosts(pageable);
-//        return ApiResponseGenerator.success(posts, HttpStatus.OK);
-//    }
-
     // 커스텀 페이지네이션을 사용한 전체 게시글 조회
     @GetMapping()
-    public ApiResponse<ApiResponse.CustomBody<PostCustomPage<PostResDto>>> getAllPostsTest(
+    public ApiResponse<ApiResponse.CustomBody<PostCustomPage>> getAllPosts(
             @RequestParam(value="post-type",required = false) PostType postType,
-            @PageableDefault(size=8,sort="createdAt",direction= Sort.Direction.DESC) Pageable pageable) {
-        Page<PostResDto> posts = postService.getAllPosts(pageable,postType);
-
-        // customPage 만들기
-        PostCustomPage<PostResDto> postCustomPage = new PostCustomPage<>(posts.getContent(),posts.isLast(),posts.getTotalElements());
-        return ApiResponseGenerator.success(postCustomPage, HttpStatus.OK);
+            @RequestParam("page") Integer page,
+            @RequestParam("size") Integer size,
+            @RequestParam(defaultValue="desc",required = false) String sort
+    ) {
+        PostCustomPage posts = postService.getPosts(page,size,sort,postType);
+        return ApiResponseGenerator.success(posts, HttpStatus.OK);
     }
 
     // 게시글 생성

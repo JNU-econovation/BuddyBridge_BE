@@ -1,9 +1,9 @@
 package econo.buddybridge.post.service;
 
-import econo.buddybridge.member.dto.MemberDto;
 import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
+import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostResDto;
 import econo.buddybridge.post.entity.Post;
@@ -13,11 +13,15 @@ import econo.buddybridge.post.entity.ScheduleType;
 import econo.buddybridge.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -26,7 +30,42 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
-    
+
+    @Transactional(readOnly = true) // 단일 게시글
+    public PostResDto findPost(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(()->new IllegalArgumentException("존재하지 않는 게시글입니다."));
+        return postToPostRes(post);
+    }
+
+
+    @Transactional(readOnly = true) // 전체 게시글
+    public PostCustomPage getPosts(int page, int size, String sort, PostType postType){
+
+        Sort.Direction direction;
+        try{
+            direction = Sort.Direction.valueOf(sort.toUpperCase());
+        } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException("올바르지 않은 정렬 방식입니다.");
+        }
+
+        Pageable pageable = PageRequest.of(Math.max(page-1,0), size, Sort.by(direction,"createdAt"));
+        Page<Post> postPage;
+
+        if(postType!=null){
+            postPage = postRepository.findByPostType(pageable,postType);
+        }
+        else{
+            postPage = postRepository.findAll(pageable);
+        }
+
+        List<PostResDto> postResDtoList = postPage.getContent().stream()
+                .map(this::postToPostRes).collect(Collectors.toList());
+
+        int totalPages = (int) Math.ceil((double) postPage.getTotalElements() / size);
+        boolean isLast = page >= totalPages;
+
+        return new PostCustomPage(postResDtoList,postPage.getTotalElements(),isLast);
+    }
     
     // 검증 과정 필요성 고려
     @Transactional // 게시글 생성
@@ -38,24 +77,6 @@ public class PostService {
 
         return postRepository.save(post).getId();
     }
-
-    @Transactional(readOnly = true) // 단일 게시글
-    public PostResDto findPost(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(()->new IllegalArgumentException("존재하지 않는 게시글입니다."));
-        return postToPostRes(post);
-    }
-    
-    @Transactional(readOnly = true) // 전체 게시글
-    public Page<PostResDto> getAllPosts(Pageable pageable, PostType postType){
-        Page<Post> postPage;
-        if(postType != null) {
-            postPage = postRepository.findByPostType(pageable,postType);
-        } else {
-            postPage = postRepository.findAll(pageable);
-        }
-        return postPage.map(PostResDto::new);
-    }
-
 
     @Transactional // 게시글 수정
     public Long updatePost(Long postId,PostReqDto postReqDto, Long memberId){
