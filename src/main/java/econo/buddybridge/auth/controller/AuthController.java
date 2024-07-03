@@ -3,7 +3,7 @@ package econo.buddybridge.auth.controller;
 import econo.buddybridge.auth.OAuthProvider;
 import econo.buddybridge.auth.dto.kakao.KakaoLoginParams;
 import econo.buddybridge.auth.service.OAuthLoginService;
-import econo.buddybridge.member.dto.MemberDto;
+import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponse.CustomBody;
@@ -38,10 +38,10 @@ public class AuthController {
     }
 
     @PostMapping("/api/oauth/login")
-    public ApiResponse<CustomBody<MemberDto>> login(@RequestBody KakaoLoginParams params, HttpServletRequest request) {
+    public ApiResponse<CustomBody<MemberResDto>> login(@RequestBody KakaoLoginParams params, HttpServletRequest request) {
         HttpSession session = request.getSession(false);
 
-        MemberDto memberDto;
+        MemberResDto memberDto;
         if (session == null) {
             memberDto = handleNewSession(params, request);
         } else {
@@ -51,14 +51,14 @@ public class AuthController {
         return ApiResponseGenerator.success(memberDto, HttpStatus.OK);
     }
 
-    private MemberDto handleNewSession(KakaoLoginParams params, HttpServletRequest request) {
-        MemberDto memberDto = oAuthLoginService.login(params);
+    private MemberResDto handleNewSession(KakaoLoginParams params, HttpServletRequest request) {
+        MemberResDto memberDto = oAuthLoginService.login(params);
         HttpSession session = request.getSession(true);
         session.setAttribute("memberId", memberDto.memberId());
         return memberDto;
     }
 
-    private MemberDto handleExistingSession(HttpSession session) {
+    private MemberResDto handleExistingSession(HttpSession session) {
         Object memberIdObj = session.getAttribute("memberId");
         if (memberIdObj == null || memberIdObj.toString().isEmpty()) {
             throw new IllegalArgumentException("세션에 유효한 memberId가 없습니다.");
@@ -71,6 +71,6 @@ public class AuthController {
             throw new IllegalArgumentException("세션의 memberId 형식이 잘못되었습니다.", e);
         }
 
-        return memberService.findMember(memberId);
+        return memberService.findMemberById(memberId);
     }
 }

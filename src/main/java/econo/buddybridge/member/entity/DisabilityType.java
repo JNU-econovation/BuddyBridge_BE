@@ -4,15 +4,18 @@ import lombok.Getter;
 
 @Getter
 public enum DisabilityType {
-    VISUAL_IMPAIRMENT("시각장애"),
-    HEARING_IMPAIRMENT("청각장애"),
-    INTELLECTUAL_DISABILITY("지적장애"),
-    PHYSICAL_DISABILITY("지체장애"),
-    ASD("자폐성장애"),
-    BRAIN_DISABILITY("뇌병변장애"),
-    MENTAL_DISABILITY("정신장애");
+    없음("없음"),
+    시각장애("시각장애"),
+    청각장애("청각장애"),
+    지적장애("지적장애"),
+    지체장애("지체장애"),
+    자폐성장애("자폐성장애"),
+    뇌병변장애("뇌병변장애"),
+    정신장애("정신장애");
 
-    public final String disabilityType;
+    private final String disabilityName;
 
-    DisabilityType(String disabilityType){ this.disabilityType = disabilityType; }
+    DisabilityType(String disabilityName) {
+        this.disabilityName = disabilityName;
+    }
 }

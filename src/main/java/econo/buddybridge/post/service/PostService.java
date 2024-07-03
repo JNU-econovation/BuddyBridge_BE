@@ -1,6 +1,7 @@
 package econo.buddybridge.post.service;
 
 import econo.buddybridge.member.dto.MemberDto;
+import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
 import econo.buddybridge.post.dto.PostReqDto;
@@ -122,8 +123,8 @@ public class PostService {
 
 
     // 지연 로딩 시 생성되는 프록시 맴버 객체를 멤버 DTO로 변환
-    public static MemberDto toMemberDto(Member member) {
-        return MemberDto.builder()
+    public static MemberResDto toMemberDto(Member member) {
+        return MemberResDto.builder()
                 .memberId(member.getId())
                 .name(member.getName())
                 .nickname(member.getNickname())

@@ -28,8 +28,6 @@ public class Member extends BaseEntity {
 
     private Integer age;
 
-    private String phone;
-
     @Enumerated(EnumType.STRING)
     private DisabilityType disabilityType;
 
@@ -38,13 +36,23 @@ public class Member extends BaseEntity {
 
     @Builder
     public Member(String name, String nickname, String profileImageUrl, String email,
-            Integer age, String phone, DisabilityType disabilityType, Gender gender) {
+            Integer age, DisabilityType disabilityType, Gender gender) {
         this.name = name;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
         this.email = email;
         this.age = age;
-        this.phone = phone;
+        this.disabilityType = disabilityType;
+        this.gender = gender;
+    }
+
+    public void updateMemberInfo(String name, String nickname, String profileImageUrl, String email, Integer age,
+            DisabilityType disabilityType, Gender gender) {
+        this.name = name;
+        this.nickname = nickname;
+        this.profileImageUrl = profileImageUrl;
+        this.email = email;
+        this.age = age;
         this.disabilityType = disabilityType;
         this.gender = gender;
     }

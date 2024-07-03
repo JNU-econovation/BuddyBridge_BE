@@ -1,7 +1,8 @@
 package econo.buddybridge.member.service;
 
 import econo.buddybridge.auth.dto.OAuthInfoResponse;
-import econo.buddybridge.member.dto.MemberDto;
+import econo.buddybridge.member.dto.MemberReqDto;
+import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
@@ -18,9 +19,9 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
-    public MemberDto findMember(Long memberId) {
-        Member member = validateVerifyMember(memberId);
-        return MemberDto.builder()
+    public MemberResDto findMemberById(Long memberId) {
+        Member member = validateVerifyMemberById(memberId);
+        return MemberResDto.builder()
                 .memberId(member.getId())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
@@ -37,18 +38,17 @@ public class MemberService {
     }
 
     // 존재하는 회원인지 확인
-    @Transactional(readOnly = true)
-    public Member validateVerifyMember(Long memberId) {
+    public Member validateVerifyMemberById(Long memberId) {
         Optional<Member> optionalMember = memberRepository.findById(memberId);
         return optionalMember.orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 회원입니다."));
     }
 
     @Transactional
-    public MemberDto findOrCreateMemberByEmail(OAuthInfoResponse info) {
+    public MemberResDto findOrCreateMemberByEmail(OAuthInfoResponse info) {
         Member member = memberRepository.findByEmail(info.getEmail())
                 .orElseGet(() -> newMember(info));
-        return MemberDto.builder()
+        return MemberResDto.builder()
                 .memberId(member.getId())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
@@ -68,5 +68,13 @@ public class MemberService {
                 .profileImageUrl(info.getProfileImageUrl())
                 .build();
         return memberRepository.save(member);
+    }
+
+    @Transactional
+    public void updateMemberById(Long memberId, MemberReqDto memberReqDto) {
+        Member member = validateVerifyMemberById(memberId);
+
+        member.updateMemberInfo(memberReqDto.name(), memberReqDto.nickname(), memberReqDto.profileImageUrl(),
+                memberReqDto.email(), memberReqDto.age(), memberReqDto.disabilityType(), member.getGender());
     }
 }
