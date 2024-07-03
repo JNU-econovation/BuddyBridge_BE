@@ -1,7 +1,7 @@
 package econo.buddybridge.member.service;
 
 import econo.buddybridge.auth.dto.OAuthInfoResponse;
-import econo.buddybridge.member.dto.MemberDto;
+import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
@@ -18,9 +18,9 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
-    public MemberDto findMemberById(Long memberId) {
+    public MemberResDto findMemberById(Long memberId) {
         Member member = validateVerifyMemberById(memberId);
-        return MemberDto.builder()
+        return MemberResDto.builder()
                 .memberId(member.getId())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
@@ -45,10 +45,10 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberDto findOrCreateMemberByEmail(OAuthInfoResponse info) {
+    public MemberResDto findOrCreateMemberByEmail(OAuthInfoResponse info) {
         Member member = memberRepository.findByEmail(info.getEmail())
                 .orElseGet(() -> newMember(info));
-        return MemberDto.builder()
+        return MemberResDto.builder()
                 .memberId(member.getId())
                 .nickname(member.getNickname())
                 .email(member.getEmail())

@@ -1,6 +1,6 @@
 package econo.buddybridge.post.dto;
 
-import econo.buddybridge.member.dto.MemberDto;
+import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.post.entity.*;
 import lombok.Builder;
 import econo.buddybridge.post.service.PostService;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 public record PostResDto(
         Long id,
-        MemberDto author,
+        MemberResDto author,
         String title,
         AssistanceType assistanceType,
 //        Schedule schedule,
@@ -28,7 +28,7 @@ public record PostResDto(
     public PostResDto(Post post) {
         this(
             post.getId(),
-            PostService.toMemberDto(post.getAuthor()),
+            PostService.toMemberResDto(post.getAuthor()),
             post.getTitle(),
             post.getAssistanceType(),
 //            post.getSchedule(),

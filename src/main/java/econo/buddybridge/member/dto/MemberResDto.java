@@ -5,7 +5,7 @@ import econo.buddybridge.member.entity.Gender;
 import lombok.Builder;
 
 @Builder
-public record MemberDto (
+public record MemberResDto(
         Long memberId,
         String name,
         String nickname,
