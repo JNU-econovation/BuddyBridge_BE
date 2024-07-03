@@ -28,7 +28,7 @@ public record PostResDto(
     public PostResDto(Post post) {
         this(
             post.getId(),
-            PostService.toMemberResDto(post.getAuthor()),
+            PostService.toMemberDto(post.getAuthor()),
             post.getTitle(),
             post.getAssistanceType(),
 //            post.getSchedule(),
