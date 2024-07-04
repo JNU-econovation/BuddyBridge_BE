@@ -13,7 +13,7 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 public class StompConfig extends AbstractSessionWebSocketMessageBrokerConfigurer<MapSession> {
     @Override
     protected void configureStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws") // ws로 연결설정
+        registry.addEndpoint("/socket/connect") // ws://{BASE_URL}/socket/connect 로 연결 설정
                 .setAllowedOriginPatterns("*") // CORS 허용
                 .addInterceptors(new HttpSessionHandshakeInterceptor())
                 .withSockJS(); // WebSocket과 유사한 통신 가능하게 해주는 라이브러리
