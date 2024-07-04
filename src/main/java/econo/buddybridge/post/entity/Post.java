@@ -2,6 +2,7 @@ package econo.buddybridge.post.entity;
 
 
 import econo.buddybridge.common.persistence.BaseEntity;
+import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.dto.PostReqDto;
 import jakarta.persistence.*;
@@ -46,6 +47,9 @@ public class Post extends BaseEntity {
 
     private PostStatus postStatus; // 모집 중, 모집 완료
 
+    @Enumerated(EnumType.STRING)
+    private DisabilityType disabilityType;
+
     protected void setStatus(PostStatus status){ // 상태 변경
         this.postStatus = status;
     }
@@ -75,5 +79,6 @@ public class Post extends BaseEntity {
         this.content = content;
         this.postType = postType;
         this.postStatus = PostStatus.RECRUITING;
+        this.disabilityType = author.getDisabilityType();
     }
 }

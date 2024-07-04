@@ -37,7 +37,6 @@ public class PostService {
         return postToPostRes(post);
     }
 
-
     @Transactional(readOnly = true) // 전체 게시글
     public PostCustomPage getPosts(int page, int size, String sort, PostType postType){
 
@@ -106,7 +105,7 @@ public class PostService {
     public PostResDto postToPostRes(Post post){
         return PostResDto.builder()
                 .id(post.getId())
-                .author(toMemberDto(post.getAuthor()))
+                .author(toMemberResDto(post.getAuthor()))
                 .title(post.getTitle())
                 .assistanceType(post.getAssistanceType())
                 .startTime(post.getSchedule().getStartTime())
@@ -119,6 +118,7 @@ public class PostService {
                 .createdAt(post.getCreatedAt())
                 .modifiedAt(post.getModifiedAt())
                 .postStatus(post.getPostStatus())
+                .disabilityType(post.getDisabilityType())
                 .build();
     }
 
@@ -131,20 +131,13 @@ public class PostService {
 
         Schedule schedule = new Schedule(startTime,endTime,scheduleType,scheduleDetails);
 
-        return Post.builder()
-                .author(member)
-                .title(postReqDto.title())
-                .assistanceType(postReqDto.assistanceType())
-                .schedule(schedule)
-                .district(postReqDto.district())
-                .content(postReqDto.content())
-                .postType(postReqDto.postType())
-                .build();
+        return new Post(member,postReqDto.title(),postReqDto.assistanceType(),schedule,postReqDto.district(),
+                postReqDto.content(),postReqDto.postType());
     }
 
 
     // 지연 로딩 시 생성되는 프록시 맴버 객체를 멤버 DTO로 변환
-    public static MemberResDto toMemberDto(Member member) {
+    public static MemberResDto toMemberResDto(Member member) {
         return MemberResDto.builder()
                 .memberId(member.getId())
                 .name(member.getName())
