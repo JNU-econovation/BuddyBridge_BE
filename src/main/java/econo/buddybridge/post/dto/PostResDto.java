@@ -1,6 +1,7 @@
 package econo.buddybridge.post.dto;
 
 import econo.buddybridge.member.dto.MemberResDto;
+import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.entity.*;
 import lombok.Builder;
 import econo.buddybridge.post.service.PostService;
@@ -23,12 +24,13 @@ public record PostResDto(
         PostType postType,
         LocalDateTime createdAt,
         LocalDateTime modifiedAt,
-        PostStatus postStatus
+        PostStatus postStatus,
+        DisabilityType disabilityType
 ) {
     public PostResDto(Post post) {
         this(
             post.getId(),
-            PostService.toMemberDto(post.getAuthor()),
+            PostService.toMemberResDto(post.getAuthor()),
             post.getTitle(),
             post.getAssistanceType(),
 //            post.getSchedule(),
@@ -41,7 +43,8 @@ public record PostResDto(
             post.getPostType(),
             post.getCreatedAt(),
             post.getModifiedAt(),
-            post.getPostStatus()
+            post.getPostStatus(),
+            post.getDisabilityType()
         );
     }
 
