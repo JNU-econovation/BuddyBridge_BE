@@ -1,5 +1,8 @@
 package econo.buddybridge.post.entity;
 
+import lombok.Getter;
+
+@Getter
 public enum District {
     광주광역시("광주광역시"),
     북구("광주광역시 북구"),
