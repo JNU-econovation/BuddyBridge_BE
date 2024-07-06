@@ -23,9 +23,6 @@ public class SessionInterceptor implements HandlerInterceptor {
     ) throws Exception {
 
         String requestURI = request.getRequestURI();
-        if (requestURI.equals("/error")) {        // 오류로 인해 요청이 /error로 들어오는 경우
-            return false;
-        }
 
         String requestMethod = request.getMethod();
         if (requestMethod.equals("OPTIONS")) {    // CORS preflight 요청 처리
