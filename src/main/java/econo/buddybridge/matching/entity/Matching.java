@@ -38,20 +38,20 @@ public class Matching extends BaseEntity {
     @JoinColumn(name = "room_id")
     private ChatRoom chatRoom;
 
-    // 매칭 상태 -> Boolean이 아닌 EnumType인지 상의 필요(DONE, FAILED, PENDING)
-    private Boolean isSuccess;
+    // 매칭 상태
+    private MatchingType matchingType;
 
     @Builder
-    public Matching(Post post,Member taker, Member giver,ChatRoom chatRoom,Boolean isSuccess){
+    public Matching(Post post,Member taker, Member giver,ChatRoom chatRoom,MatchingType matchingType){
         this.post = post;
         this.taker = taker;
         this.giver = giver;
         this.chatRoom = chatRoom;
-        this.isSuccess = isSuccess;
+        this.matchingType = matchingType;
     }
     
     // 매칭 상태 변경
-    public void updateMatching(Boolean isSuccess){
-        this.isSuccess = isSuccess;
+    public void updateMatching(MatchingType matchingType){
+        this.matchingType = matchingType;
     }
 }
