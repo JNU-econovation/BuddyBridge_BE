@@ -1,9 +1,12 @@
 package econo.buddybridge.matching.controller;
 
 import econo.buddybridge.matching.dto.MatchingReqDto;
+import econo.buddybridge.matching.dto.MatchingUpdateDto;
 import econo.buddybridge.matching.service.MatchingService;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
+import econo.buddybridge.utils.session.SessionUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,17 +20,24 @@ public class MatchingController {
 
     @PostMapping("/accept")
     public ApiResponse<ApiResponse.CustomBody<Long>> createMatching(
-            @RequestBody MatchingReqDto matchingReqDto
+            @RequestBody MatchingReqDto matchingReqDto,
+            HttpServletRequest request
     ){
-        matchingService.createMatchingById(matchingReqDto);
-        return ApiResponseGenerator.success(1L,HttpStatus.OK);
+        Long memberId = SessionUtils.getMemberId(request);
+        Long createdMatchingId = matchingService.createMatchingById(matchingReqDto,memberId);
+        return ApiResponseGenerator.success(createdMatchingId,HttpStatus.OK);
     }
 
-    // matching 완료 -> DONE 변경, 거절 -> FAILED 변경 // 임시 함수
+    // matching 완료 -> DONE 변경, 거절 -> FAILED 변경
     @PutMapping("/{matching-id}")
-    public ApiResponse<ApiResponse.CustomBody<Void>> updateMatching(){
-
-        return ApiResponseGenerator.success(HttpStatus.OK);
+    public ApiResponse<ApiResponse.CustomBody<Long>> updateMatching(
+            @PathVariable("matching-id") Long matchingId,
+            @RequestBody MatchingUpdateDto matchingUpdateDto,
+            HttpServletRequest request
+            ){
+        Long memberId = SessionUtils.getMemberId(request);
+        Long updatedMatchingId = matchingService.updateMatching(matchingId,matchingUpdateDto,memberId);
+        return ApiResponseGenerator.success(updatedMatchingId,HttpStatus.OK);
     }
 
     // matching 완전 삭제 -> 좋은 방법인가 고민 필요 // 임시 함수

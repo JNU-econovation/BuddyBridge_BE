@@ -25,10 +25,12 @@ public class Matching extends BaseEntity {
     @JoinColumn(name="post_id")
     private Post post;
 
+    // 도움이 필요한 사람
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "taker_id")
     private Member taker;
 
+    // 도움을 주는 사람
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "giver_id")
     private Member giver;

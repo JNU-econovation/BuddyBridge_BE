@@ -4,12 +4,14 @@ import econo.buddybridge.chat.chatroom.entity.ChatRoom;
 import econo.buddybridge.chat.chatroom.entity.RoomState;
 import econo.buddybridge.chat.chatroom.repository.ChatRoomRepository;
 import econo.buddybridge.matching.dto.MatchingReqDto;
+import econo.buddybridge.matching.dto.MatchingUpdateDto;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingType;
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
 import econo.buddybridge.post.entity.Post;
+import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,9 +28,8 @@ public class MatchingService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
-    @Transactional
-    public Long createMatchingById(MatchingReqDto matchingReqDto){
-
+    @Transactional // 매칭 생성
+    public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId){
         Post post = postRepository.findById(matchingReqDto.postId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
@@ -37,6 +38,8 @@ public class MatchingService {
 
         Member giver = memberRepository.findById(matchingReqDto.giverId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        validatePostAuthor(post,memberId);
 
         // test 데이터
         ChatRoom chatRoom = new ChatRoom(RoomState.ACCEPT,"test", LocalDateTime.now());
@@ -47,6 +50,24 @@ public class MatchingService {
         return matchingRepository.save(matching).getId();
     }
 
+    @Transactional // 매칭 업데이트
+    public Long updateMatching(Long matchingId, MatchingUpdateDto matchingUpdateDto, Long memberId){
+        Matching matching = matchingRepository.findById(matchingId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭입니다."));
+
+        validatePostAuthor(matching.getPost(),memberId);
+
+        matching.updateMatching(matchingUpdateDto.matchingType());
+
+        return matching.getId();
+    }
+
+    @Transactional // 매칭 삭제
+    public void deleteMatching(Long matchingId,Long memberId){
+
+    }
+
+    // MatchingReqDto -> Matching
     private Matching matchingReqToMatching(Post post,Member taker,Member giver,ChatRoom chatRoom){
         return Matching.builder()
                 .post(post)
@@ -57,4 +78,11 @@ public class MatchingService {
                 .build();
     }
 
+    // 게시글 작성 회원과 현재 로그인한 회원 일치 여부 판단
+    private void validatePostAuthor(Post post, Long memberId) {
+        if ((post.getPostType() == PostType.GIVER && !post.getAuthor().getId().equals(memberId)) ||
+                (post.getPostType() == PostType.TAKER && !post.getAuthor().getId().equals(memberId))) {
+            throw new IllegalArgumentException("회원님이 작성한 게시글이 아닙니다.");
+        }
+    }
 }
