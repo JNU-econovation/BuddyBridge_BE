@@ -28,7 +28,7 @@ public class MatchingService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
-    @Transactional // 매칭 생성
+    @Transactional // 매칭 생성 -> 예외처리 필요
     public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId){
         Post post = postRepository.findById(matchingReqDto.postId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
@@ -41,6 +41,19 @@ public class MatchingService {
 
         validatePostAuthor(post,memberId);
 
+        // takerId와 giverId가 현재 로그인한 회원의 ID와 일치하지 않거나 PostType에 따라 맞지 않는 경우 예외 발생
+        if ((!taker.getId().equals(memberId) && !giver.getId().equals(memberId)) ||
+                (post.getPostType() == PostType.GIVER && !giver.getId().equals(memberId)) ||
+                (post.getPostType() == PostType.TAKER && !taker.getId().equals(memberId))) {
+            if (post.getPostType() == PostType.GIVER) {
+                throw new IllegalArgumentException("게시글 타입이 GIVER(도와줄게요)이므로 giverId가 현재 로그인한 사용자의 ID와 일치해야 합니다.");
+            } else if (post.getPostType() == PostType.TAKER) {
+                throw new IllegalArgumentException("게시글 타입이 TAKER(도와주세요)이므로 takerId가 현재 로그인한 사용자의 ID와 일치해야 합니다.");
+            } else {
+                throw new IllegalArgumentException("매칭 요청의 takerId 또는 giverId가 현재 로그인한 사용자의 ID와 일치하지 않습니다.");
+            }
+        }
+        
         // test 데이터
         ChatRoom chatRoom = new ChatRoom(RoomState.ACCEPT,"test", LocalDateTime.now());
         chatRoomRepository.save(chatRoom);
@@ -64,7 +77,12 @@ public class MatchingService {
 
     @Transactional // 매칭 삭제
     public void deleteMatching(Long matchingId,Long memberId){
+        Matching matching = matchingRepository.findById(matchingId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭입니다."));
 
+        validatePostAuthor(matching.getPost(),memberId);
+
+        matchingRepository.delete(matching);
     }
 
     // MatchingReqDto -> Matching
