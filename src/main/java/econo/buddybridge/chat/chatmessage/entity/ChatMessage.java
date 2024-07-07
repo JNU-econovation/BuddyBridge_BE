@@ -47,5 +47,5 @@ public class ChatMessage extends BaseEntity {
     public void deleteChatMessage(ChatMessage chatMessage){
         chatMessage.messageType = MessageType.DELETE;
     }
-ㅎ
+
 }
