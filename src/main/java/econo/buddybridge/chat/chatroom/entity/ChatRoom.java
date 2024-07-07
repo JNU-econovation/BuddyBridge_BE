@@ -19,7 +19,6 @@ public class ChatRoom extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 어떤 타입들이 있는지 이야기할 필요성
     @Enumerated(EnumType.STRING)
     private RoomState roomState;
 
