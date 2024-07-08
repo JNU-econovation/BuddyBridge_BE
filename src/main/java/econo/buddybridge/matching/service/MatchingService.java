@@ -1,7 +1,6 @@
 package econo.buddybridge.matching.service;
 
 import econo.buddybridge.chat.chatroom.entity.ChatRoom;
-import econo.buddybridge.chat.chatroom.entity.RoomState;
 import econo.buddybridge.chat.chatroom.repository.ChatRoomRepository;
 import econo.buddybridge.matching.dto.MatchingReqDto;
 import econo.buddybridge.matching.dto.MatchingUpdateDto;
@@ -55,7 +54,7 @@ public class MatchingService {
         }
         
         // test 데이터
-        ChatRoom chatRoom = new ChatRoom(RoomState.ACCEPT,"test", LocalDateTime.now());
+        ChatRoom chatRoom = new ChatRoom("채팅을 시작합니다.", LocalDateTime.now());
         chatRoomRepository.save(chatRoom);
 
         Matching matching = matchingReqToMatching(post,taker,giver,chatRoom);

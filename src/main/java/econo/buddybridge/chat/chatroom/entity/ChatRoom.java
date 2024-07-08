@@ -19,22 +19,18 @@ public class ChatRoom extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private RoomState roomState;
-
     private String lastMessage;
 
     private LocalDateTime lastMessageTime;
 
     @Builder
-    public ChatRoom(RoomState roomState, String lastMessage, LocalDateTime lastMessageTime){
-        this.roomState = roomState;
+    public ChatRoom(String lastMessage, LocalDateTime lastMessageTime){
         this.lastMessage = lastMessage;
         this.lastMessageTime = lastMessageTime;
     }
 
-    public void updateChatRoom(RoomState roomState,String lastMessage,LocalDateTime lastMessageTime){
-        this.roomState = roomState;
+    // 채팅 메시지 보낼때 자동 업데이트 적용
+    public void updateChatRoom(String lastMessage,LocalDateTime lastMessageTime){
         this.lastMessage = lastMessage;
         this.lastMessageTime = lastMessageTime;
     }
