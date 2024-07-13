@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+// TODO: 채팅방 -> 매칭으로 통합
 @Entity
 @Getter
 @NoArgsConstructor(access=AccessLevel.PROTECTED)
@@ -20,7 +21,6 @@ public class ChatRoom extends BaseEntity {
     private Long id;
 
     private String lastMessage;
-
     private LocalDateTime lastMessageTime;
 
     @Builder
@@ -35,3 +35,4 @@ public class ChatRoom extends BaseEntity {
         this.lastMessageTime = lastMessageTime;
     }
 }
+
