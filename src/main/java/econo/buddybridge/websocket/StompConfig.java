@@ -15,15 +15,18 @@ public class StompConfig extends AbstractSessionWebSocketMessageBrokerConfigurer
     protected void configureStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/socket/connect") // ws://{BASE_URL}/socket/connect 로 연결 설정
                 .setAllowedOriginPatterns("*") // CORS 허용
-                .addInterceptors(new HttpSessionHandshakeInterceptor())
-                .withSockJS(); // WebSocket과 유사한 통신 가능하게 해주는 라이브러리
+                .addInterceptors(new HttpSessionHandshakeInterceptor());
+//                .withSockJS(); // WebSocket과 유사한 통신 가능하게 해주는 라이브러리
     }
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry){
-        registry.enableSimpleBroker("/topic","/api/queue");
-        registry.setApplicationDestinationPrefixes("/api/app");
+
+        registry.enableSimpleBroker("/api/queue"); // /api/queue/chat/{room-id} // 메시지 받기
+        // 구독 경로 설정에 사용(서버 -> 클라이언트)
+
+        registry.setApplicationDestinationPrefixes("/api/app"); // /api/app/chat/{room-id} // 메시지 보내기
+        // 발행 경로에 사용(클라이언트 -> 서버)
+
         registry.setPreservePublishOrder(true); // 발행 순서 보장
     }
-
-
 }
