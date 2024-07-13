@@ -8,7 +8,7 @@ import econo.buddybridge.chat.chatroom.repository.ChatRoomRepository;
 import econo.buddybridge.matching.dto.MatchingReqDto;
 import econo.buddybridge.matching.dto.MatchingUpdateDto;
 import econo.buddybridge.matching.entity.Matching;
-import econo.buddybridge.matching.entity.MatchingType;
+import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
@@ -68,7 +68,7 @@ public class MatchingService {
 
         validatePostAuthor(matching.getPost(),memberId);
 
-        matching.updateMatching(matchingUpdateDto.matchingType());
+        matching.updateMatching(matchingUpdateDto.matchingStatus());
 
         return matching.getId();
     }
@@ -90,7 +90,7 @@ public class MatchingService {
                 .taker(taker)
                 .giver(giver)
                 .chatRoom(chatRoom)
-                .matchingType(MatchingType.PENDING) // 매칭 생성시 PENDING
+                .matchingStatus(MatchingStatus.PENDING) // 매칭 생성시 PENDING
                 .build();
     }
 

@@ -51,5 +51,4 @@ public class MatchingController {
         matchingService.deleteMatching(matchingId,memberId);
         return ApiResponseGenerator.success(HttpStatus.NO_CONTENT);
     }
-
 }

@@ -25,12 +25,12 @@ public class Matching extends BaseEntity {
     @JoinColumn(name="post_id")
     private Post post;
 
-    // 도움이 필요한 사람
+    // 게시글 작성자 -> 고정
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "taker_id")
     private Member taker;
 
-    // 도움을 주는 사람
+    // 댓글 작성자 -> 고정
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "giver_id")
     private Member giver;
@@ -41,19 +41,20 @@ public class Matching extends BaseEntity {
     private ChatRoom chatRoom;
 
     // 매칭 상태
-    private MatchingType matchingType;
+    @Enumerated(EnumType.STRING)
+    private MatchingStatus matchingStatus;
 
     @Builder
-    public Matching(Post post,Member taker, Member giver,ChatRoom chatRoom,MatchingType matchingType){
+    public Matching(Post post, Member taker, Member giver, ChatRoom chatRoom, MatchingStatus matchingStatus){
         this.post = post;
         this.taker = taker;
         this.giver = giver;
         this.chatRoom = chatRoom;
-        this.matchingType = matchingType;
+        this.matchingStatus = matchingStatus;
     }
     
     // 매칭 상태 변경
-    public void updateMatching(MatchingType matchingType){
-        this.matchingType = matchingType;
+    public void updateMatching(MatchingStatus matchingStatus){
+        this.matchingStatus = matchingStatus;
     }
 }

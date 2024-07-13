@@ -1,8 +1,8 @@
 package econo.buddybridge.matching.dto;
 
-import econo.buddybridge.matching.entity.MatchingType;
+import econo.buddybridge.matching.entity.MatchingStatus;
 
 public record MatchingUpdateDto(
-        MatchingType matchingType
+        MatchingStatus matchingStatus
 ) {
 }
