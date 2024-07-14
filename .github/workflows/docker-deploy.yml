@@ -36,6 +36,7 @@ jobs:
           fi
           touch ./application.yml
           echo "${{ secrets.PROPERTIES }}" > ./application.yml
+          echo ./application.yml
       shell: bash	 
       env:
         MARIA_HOST: ${{ secrets.MARIA_HOST }}
