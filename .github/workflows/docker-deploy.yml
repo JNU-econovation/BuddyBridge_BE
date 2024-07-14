@@ -64,20 +64,6 @@ jobs:
       run: |
         chmod +x ./gradlew
         ./gradlew clean build -x test
-      env:
-        MARIA_HOST: ${{ secrets.MARIA_HOST }}
-        MARIA_PORT: ${{ secrets.MARIA_PORT }}
-        MARIA_DATABASE: ${{ secrets.MARIA_DATABASE }}
-        MARIA_USER: ${{ secrets.MARIA_USER }}
-        MARIA_PASSWORD: ${{ secrets.MARIA_PASSWORD }}
-        REDIS_HOST: ${{ secrets.REDIS_HOST }}
-        REDIS_PORT: ${{ secrets.REDIS_PORT }}
-        REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-        OAUTH_KAKAO_CLIENT_ID: ${{ secrets.OAUTH_KAKAO_CLIENT_ID }}
-        OAUTH_KAKAO_AUTH_URL: ${{ secrets.OAUTH_KAKAO_AUTH_URL }}
-        OAUTH_KAKAO_API_URL: ${{ secrets.OAUTH_KAKAO_API_URL }}
-        OAUTH_KAKAO_REDIRECT_URI: ${{ secrets.OAUTH_KAKAO_REDIRECT_URI }}
-        OAUTH_KAKAO_LOGOUT_REDIRECT_URI: ${{ secrets.OAUTH_KAKAO_LOGOUT_REDIRECT_URI }}
 
     # dockerfile을 통해 이미지 빌드, 이를 docker repo로 push    
     - name: Build the Docker image
