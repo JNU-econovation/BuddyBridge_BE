@@ -25,7 +25,15 @@ jobs:
       with:
         java-version: '21'
         distribution: 'corretto'
-
+        
+    # Github secrets로부터 데이터를 받아서, .env 파일 생성
+    - name: Make application.properties
+      run: |
+          cd ./src/main/resources
+          touch ./.env
+          echo "${{ secrets.ENV }}" > ./.env
+      shell: bash	 
+   
     # Gradle 빌드
     - name: Build with Gradle
       run: |
