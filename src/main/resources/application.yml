@@ -31,20 +31,6 @@ spring:
       data-locations: classpath:data.sql
       mode: always
 
-server:
-  ssl:
-    key-store: keystore.p12
-    key-store-type: PKCS12
-    key-store-password: ${KEY_STORE_PASSWORD}
-
-  servlet:
-    session:
-      cookie:
-        name: JSESSIONID
-        same-site: none
-        secure: true
-
-
 oauth:
   kakao:
     client-id: ${OAUTH_KAKAO_CLIENT_ID}
