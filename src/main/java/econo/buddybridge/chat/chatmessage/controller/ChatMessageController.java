@@ -15,28 +15,28 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 public class ChatMessageController {
 
     private final ChatMessageService chatMessageService;
 
-    @MessageMapping("/chat/{room-id}") // 메시지 보내기 // /api/app/chat/{room-id} - pub
-    @SendTo("/api/queue/chat/{room-id}") // 구독 경로 - sub
+    @MessageMapping("/chat/{matching-id}") // 메시지 보내기 // /api/app/chat/{room-id} - pub
+    @SendTo("/api/queue/chat/{matching-id}") // 구독 경로 - sub
     public ChatMessageResDto sendMessage(
-            @DestinationVariable("room-id") Long chatRoomId,
+            @DestinationVariable("matching-id") Long matchingId,
             @Payload ChatMessageReqDto chatMessageReqDto
+            // HttpServletRequest request
             ){
-        return chatMessageService.save(chatMessageReqDto,chatRoomId);
+        return chatMessageService.save(chatMessageReqDto,matchingId);
     }
 
-    @GetMapping("/api/queue/chat/{room-id}")
-    public ApiResponse<ApiResponse.CustomBody<List<ChatMessageResDto>>> getMessages(
-            @PathVariable("room-id") Long chatRoomId
+    // 마지막 메시지 1개만 받아오기
+    @GetMapping("/api/queue/chat/{matching-id}")
+    public ApiResponse<ApiResponse.CustomBody<ChatMessageResDto>> getMessages(
+            @PathVariable("matching-id") Long matchingId
     ){
-        List<ChatMessageResDto> resDto = chatMessageService.getChatMessages(chatRoomId);
+        ChatMessageResDto resDto = chatMessageService.getLastChatMessage(matchingId);
         return ApiResponseGenerator.success(resDto, HttpStatus.OK);
     }
 }
