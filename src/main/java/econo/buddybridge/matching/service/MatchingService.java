@@ -3,8 +3,6 @@ package econo.buddybridge.matching.service;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
 import econo.buddybridge.chat.chatmessage.entity.MessageType;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
-import econo.buddybridge.chat.chatroom.entity.ChatRoom;
-import econo.buddybridge.chat.chatroom.repository.ChatRoomRepository;
 import econo.buddybridge.matching.dto.MatchingReqDto;
 import econo.buddybridge.matching.dto.MatchingUpdateDto;
 import econo.buddybridge.matching.entity.Matching;
@@ -19,14 +17,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
 @RequiredArgsConstructor
 public class MatchingService {
     private final ChatMessageRepository chatMessageRepository;
     private final MatchingRepository matchingRepository;
-    private final ChatRoomRepository chatRoomRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
@@ -42,21 +37,18 @@ public class MatchingService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         validatePostAuthor(post,memberId);
-        
-        // test 데이터
-        ChatRoom chatRoom = new ChatRoom("대화를 시작합니다.", LocalDateTime.now());
 
-        chatRoomRepository.save(chatRoom);
+        Matching matching = matchingReqToMatching(post,taker,giver);
+
+        // TODO: 채팅 메시지 생성 부분 나중에 수정해주기
         chatMessageRepository.save(
                 ChatMessage.builder()
-                        .chatRoom(chatRoom)
-                        .content(chatRoom.getLastMessage())
+                        .matching(matching)
+                        .content("매칭이 생성되었습니다. 채팅을 통해 상대방과 연락해보세요!")
                         .messageType(MessageType.INFO)
                         .sender(taker)
                         .build()
         );
-
-        Matching matching = matchingReqToMatching(post,taker,giver,chatRoom);
 
         return matchingRepository.save(matching).getId();
     }
@@ -84,12 +76,11 @@ public class MatchingService {
     }
 
     // MatchingReqDto -> Matching
-    private Matching matchingReqToMatching(Post post,Member taker,Member giver,ChatRoom chatRoom){
+    private Matching matchingReqToMatching(Post post,Member taker,Member giver){
         return Matching.builder()
                 .post(post)
                 .taker(taker)
                 .giver(giver)
-                .chatRoom(chatRoom)
                 .matchingStatus(MatchingStatus.PENDING) // 매칭 생성시 PENDING
                 .build();
     }
