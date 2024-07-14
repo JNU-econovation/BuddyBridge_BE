@@ -27,7 +27,7 @@ jobs:
         distribution: 'corretto'
         
     # Github secrets로부터 데이터를 받아서, .env 파일 생성
-    - name: Make application.properties
+    - name: Make .env file
       run: |
           cd ./src/main/resources
           touch ./.env
