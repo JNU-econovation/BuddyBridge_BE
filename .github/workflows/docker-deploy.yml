@@ -25,19 +25,19 @@ jobs:
       with:
         java-version: '21'
         distribution: 'corretto'
-        
-    # Github secrets로부터 데이터를 받아서, 워크 플로우에 파일을 생성
-    - name: Make application.yml
+
+    # data.sql 생성
+    - name: Create data.sql
       run: |
-          cd ./src/main/resources
-          if [ -f "./application.yml" ]; then
-            rm ./application.yml
-            echo "Existing application.yml removed."
-          fi
-          touch ./application.yml
-          echo "${{ secrets.PROPERTIES }}" > ./application.yml
-          echo ./application.yml
-      shell: bash	 
+        cd ./src/main/resources
+        touch ./data.sql
+        echo "${{ secrets.DATA_SQL }}" > ./data.sql
+
+    # Gradle 빌드
+    - name: Build with Gradle
+      run: |
+        chmod +x ./gradlew
+        ./gradlew clean build -x test
       env:
         MARIA_HOST: ${{ secrets.MARIA_HOST }}
         MARIA_PORT: ${{ secrets.MARIA_PORT }}
@@ -52,12 +52,6 @@ jobs:
         OAUTH_KAKAO_API_URL: ${{ secrets.OAUTH_KAKAO_API_URL }}
         OAUTH_KAKAO_REDIRECT_URI: ${{ secrets.OAUTH_KAKAO_REDIRECT_URI }}
         OAUTH_KAKAO_LOGOUT_REDIRECT_URI: ${{ secrets.OAUTH_KAKAO_LOGOUT_REDIRECT_URI }}
-
-    # Gradle 빌드
-    - name: Build with Gradle
-      run: |
-        chmod +x ./gradlew
-        ./gradlew clean build -x test
 
     # dockerfile을 통해 이미지 빌드, 이를 docker repo로 push    
     - name: Build the Docker image
