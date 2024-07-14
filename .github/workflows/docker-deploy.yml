@@ -83,4 +83,4 @@ jobs:
         envs: GITHUB_SHA
         script: |
           cd ./buddies
-          sh deploy.sh
+          bash deploy.sh
