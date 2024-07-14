@@ -32,6 +32,7 @@ services:
     restart: always
 
   backend:
+    image: ${DOCKER_REPO}
     build:
       context: .
       dockerfile: Dockerfile
@@ -46,7 +47,4 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${MARIA_PASSWORD}
       SPRING_DATASOURCE_REDIS_HOST: ${REDIS_HOST}
       SPRING_DATASOURCE_REDIS_PORT: ${REDIS_PORT}
-      SERVER_SSL_ENABLED: "true"
-      SERVER_SSL_KEY_STORE: ${SERVER_SSL_KEY_STORE}
-      SERVER_SSL_KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
-      SERVER_SSL_KEY_STORE_TYPE: PKCS12
+
