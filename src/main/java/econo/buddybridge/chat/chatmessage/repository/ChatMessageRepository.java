@@ -10,7 +10,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage,Long> {
 
     ChatMessage findLastMessageByMatchingId(Long matchingId);
 
-    // TODO: 메시지 페이지네이션 커서 기반
     @Query("SELECT cm FROM ChatMessage cm WHERE cm.matching.id = :matchingId ORDER BY cm.id ASC")
     Slice<ChatMessage> findByMatchingId(Long matchingId, Pageable pageable);
 
