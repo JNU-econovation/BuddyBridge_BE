@@ -31,6 +31,14 @@ spring:
       data-locations: classpath:data.sql
       mode: always
 
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        secure: true
+        http-only: true
+
 oauth:
   kakao:
     client-id: ${OAUTH_KAKAO_CLIENT_ID}
