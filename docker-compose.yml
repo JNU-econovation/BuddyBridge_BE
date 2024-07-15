@@ -32,6 +32,7 @@ services:
     restart: always
 
   backend:
+    image: ${DOCKER_REPO}
     build:
       context: .
       dockerfile: Dockerfile

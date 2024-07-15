@@ -1,0 +1,86 @@
+name: CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+permissions:
+  contents: read
+
+jobs:
+
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    # 지정한 저장소(현재 REPO)에서 코드를 워크플로우 환경으로 가져오도록 하는 github action
+    - uses: actions/checkout@v4
+
+    # open jdk 21 버전 환경 세팅
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'corretto'
+
+    # Github secrets로부터 데이터를 받아서, 워크 플로우에 파일을 생성
+    - name: Make application.yml
+      run: |
+          cd ./src/main/resources
+          if [ -f "./application.yml" ]; then
+            rm ./application.yml
+            echo "Existing application.yml removed."
+          fi
+          touch ./application.yml
+          echo "${{ secrets.PROPERTIES }}" > ./application.yml
+      shell: bash	 
+      env:
+        MARIA_HOST: ${{ secrets.MARIA_HOST }}
+        MARIA_PORT: ${{ secrets.MARIA_PORT }}
+        MARIA_DATABASE: ${{ secrets.MARIA_DATABASE }}
+        MARIA_USER: ${{ secrets.MARIA_USER }}
+        MARIA_PASSWORD: ${{ secrets.MARIA_PASSWORD }}
+        REDIS_HOST: ${{ secrets.REDIS_HOST }}
+        REDIS_PORT: ${{ secrets.REDIS_PORT }}
+        REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+        OAUTH_KAKAO_CLIENT_ID: ${{ secrets.OAUTH_KAKAO_CLIENT_ID }}
+        OAUTH_KAKAO_AUTH_URL: ${{ secrets.OAUTH_KAKAO_AUTH_URL }}
+        OAUTH_KAKAO_API_URL: ${{ secrets.OAUTH_KAKAO_API_URL }}
+        OAUTH_KAKAO_REDIRECT_URI: ${{ secrets.OAUTH_KAKAO_REDIRECT_URI }}
+        OAUTH_KAKAO_LOGOUT_REDIRECT_URI: ${{ secrets.OAUTH_KAKAO_LOGOUT_REDIRECT_URI }}
+
+    # data.sql 생성
+    - name: Create data.sql
+      run: |
+        cd ./src/main/resources
+        touch ./data.sql
+        echo "${{ secrets.DATA_SQL }}" > ./data.sql
+
+    # Gradle 빌드
+    - name: Build with Gradle
+      run: |
+        chmod +x ./gradlew
+        ./gradlew clean build -x test
+
+    # dockerfile을 통해 이미지 빌드, 이를 docker repo로 push    
+    - name: Build the Docker image
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }} .
+        docker push ${{ secrets.DOCKER_REPO }}
+
+    # appleboy/ssh-action@master 액션으로 EC2 컨테이너 ssh 접속, 스크립트 실행
+    - name: Deploy to server
+      uses: appleboy/ssh-action@master
+      id: deploy
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        envs: GITHUB_SHA
+        script: |
+          cd ./buddies
+          bash deploy.sh
