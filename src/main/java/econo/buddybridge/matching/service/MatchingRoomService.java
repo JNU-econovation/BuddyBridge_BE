@@ -69,7 +69,15 @@ public class MatchingRoomService {
     }
 
     @Transactional // 메시지 조회
-    public List<ChatMessageResDto> getMatchingRoomMessages(Long matchingId){
+    public List<ChatMessageResDto> getMatchingRoomMessages(Long memberId,Long matchingId){
+
+        // 사용자 확인 // ToDO: 예외처리 필요, 사용자가 매칭방에 속해있지 않을 경우 500 발생
+        Matching matching = matchingRepository.findById(matchingId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭방입니다."));
+
+        if(!matching.getGiver().getId().equals(memberId) && !matching.getTaker().getId().equals(memberId)){
+            throw new IllegalArgumentException("사용자가 매칭방에 속해있지 않습니다.");
+        }
 
         List<ChatMessage> chatMessageList = chatMessageRepository.findChatMessagesByMatchingId(matchingId);
 

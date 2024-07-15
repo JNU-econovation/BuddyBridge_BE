@@ -40,7 +40,6 @@ public class MatchingService {
 
         Matching matching = matchingReqToMatching(post,taker,giver);
 
-        // TODO: 채팅 메시지 생성 부분 나중에 수정해주기
         chatMessageRepository.save(
                 ChatMessage.builder()
                         .matching(matching)
