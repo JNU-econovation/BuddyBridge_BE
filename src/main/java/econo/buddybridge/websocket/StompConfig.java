@@ -16,8 +16,8 @@ public class StompConfig extends AbstractSessionWebSocketMessageBrokerConfigurer
         registry.addEndpoint("/socket/connect") // ws://{BASE_URL}/socket/connect 로 연결 설정
                 .setAllowedOriginPatterns("*") // CORS 허용
                 .addInterceptors(new HttpSessionHandshakeInterceptor());
-//                .withSockJS(); // WebSocket과 유사한 통신 가능하게 해주는 라이브러리
     }
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry){
 
