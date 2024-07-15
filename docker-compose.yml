@@ -41,10 +41,4 @@ services:
     depends_on:
       - mariadb
       - redis
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mariadb://${MARIA_HOST}:${MARIA_PORT}/${MARIA_DATABASE}
-      SPRING_DATASOURCE_USERNAME: ${MARIA_USER}
-      SPRING_DATASOURCE_PASSWORD: ${MARIA_PASSWORD}
-      SPRING_DATASOURCE_REDIS_HOST: ${REDIS_HOST}
-      SPRING_DATASOURCE_REDIS_PORT: ${REDIS_PORT}
 

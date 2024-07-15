@@ -4,9 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum MessageType {
-    JOIN("JOIN"),
+    INFO("INFO"), // JOIN, LEAVE, ETC...
     CHAT("CHAT"),
-    LEAVE("LEAVE"),
     DELETE("DELETE");
 
     private final String messageType;

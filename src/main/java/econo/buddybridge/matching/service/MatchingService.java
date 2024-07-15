@@ -1,12 +1,12 @@
 package econo.buddybridge.matching.service;
 
-import econo.buddybridge.chat.chatroom.entity.ChatRoom;
-import econo.buddybridge.chat.chatroom.entity.RoomState;
-import econo.buddybridge.chat.chatroom.repository.ChatRoomRepository;
+import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
+import econo.buddybridge.chat.chatmessage.entity.MessageType;
+import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
 import econo.buddybridge.matching.dto.MatchingReqDto;
 import econo.buddybridge.matching.dto.MatchingUpdateDto;
 import econo.buddybridge.matching.entity.Matching;
-import econo.buddybridge.matching.entity.MatchingType;
+import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
@@ -17,14 +17,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
 @RequiredArgsConstructor
 public class MatchingService {
-
+    private final ChatMessageRepository chatMessageRepository;
     private final MatchingRepository matchingRepository;
-    private final ChatRoomRepository chatRoomRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
@@ -41,24 +38,16 @@ public class MatchingService {
 
         validatePostAuthor(post,memberId);
 
-        // takerId와 giverId가 현재 로그인한 회원의 ID와 일치하지 않거나 PostType에 따라 맞지 않는 경우 예외 발생
-        if ((!taker.getId().equals(memberId) && !giver.getId().equals(memberId)) ||
-                (post.getPostType() == PostType.GIVER && !giver.getId().equals(memberId)) ||
-                (post.getPostType() == PostType.TAKER && !taker.getId().equals(memberId))) {
-            if (post.getPostType() == PostType.GIVER) {
-                throw new IllegalArgumentException("게시글 타입이 GIVER(도와줄게요)이므로 giverId가 현재 로그인한 사용자의 ID와 일치해야 합니다.");
-            } else if (post.getPostType() == PostType.TAKER) {
-                throw new IllegalArgumentException("게시글 타입이 TAKER(도와주세요)이므로 takerId가 현재 로그인한 사용자의 ID와 일치해야 합니다.");
-            } else {
-                throw new IllegalArgumentException("매칭 요청의 takerId 또는 giverId가 현재 로그인한 사용자의 ID와 일치하지 않습니다.");
-            }
-        }
-        
-        // test 데이터
-        ChatRoom chatRoom = new ChatRoom(RoomState.ACCEPT,"test", LocalDateTime.now());
-        chatRoomRepository.save(chatRoom);
+        Matching matching = matchingReqToMatching(post,taker,giver);
 
-        Matching matching = matchingReqToMatching(post,taker,giver,chatRoom);
+        chatMessageRepository.save(
+                ChatMessage.builder()
+                        .matching(matching)
+                        .content("매칭이 생성되었습니다. 채팅을 통해 상대방과 연락해보세요!")
+                        .messageType(MessageType.INFO)
+                        .sender(taker)
+                        .build()
+        );
 
         return matchingRepository.save(matching).getId();
     }
@@ -70,7 +59,7 @@ public class MatchingService {
 
         validatePostAuthor(matching.getPost(),memberId);
 
-        matching.updateMatching(matchingUpdateDto.matchingType());
+        matching.updateMatching(matchingUpdateDto.matchingStatus());
 
         return matching.getId();
     }
@@ -86,13 +75,12 @@ public class MatchingService {
     }
 
     // MatchingReqDto -> Matching
-    private Matching matchingReqToMatching(Post post,Member taker,Member giver,ChatRoom chatRoom){
+    private Matching matchingReqToMatching(Post post,Member taker,Member giver){
         return Matching.builder()
                 .post(post)
                 .taker(taker)
                 .giver(giver)
-                .chatRoom(chatRoom)
-                .matchingType(MatchingType.PENDING) // 매칭 생성시 PENDING
+                .matchingStatus(MatchingStatus.PENDING) // 매칭 생성시 PENDING
                 .build();
     }
 

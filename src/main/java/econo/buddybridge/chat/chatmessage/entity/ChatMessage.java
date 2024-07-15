@@ -1,7 +1,7 @@
 package econo.buddybridge.chat.chatmessage.entity;
 
-import econo.buddybridge.chat.chatroom.entity.ChatRoom;
 import econo.buddybridge.common.persistence.BaseEntity;
+import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -19,8 +19,8 @@ public class ChatMessage extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id")
-    private ChatRoom chatRoom;
+    @JoinColumn(name = "matching_id")
+    private Matching matching;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id")
@@ -32,8 +32,8 @@ public class ChatMessage extends BaseEntity {
     private MessageType messageType;
 
     @Builder
-    public ChatMessage(ChatRoom chatRoom, Member sender, String content, MessageType messageType){
-        this.chatRoom = chatRoom;
+    public ChatMessage(Matching matching, Member sender, String content, MessageType messageType){
+        this.matching = matching;
         this.sender = sender;
         this.content = content;
         this.messageType = messageType;
