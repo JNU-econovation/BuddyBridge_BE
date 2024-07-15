@@ -1,5 +1,6 @@
 package econo.buddybridge.matching.service;
 
+import econo.buddybridge.chat.chatmessage.dto.ChatMessageCustomPage;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
@@ -64,12 +65,21 @@ public class MatchingRoomService {
 
         boolean nextPage = matchingList.size() > size;
 
-        LocalDateTime nextCursor = nextPage && !matchingResDtoList.isEmpty() ? matchingResDtoList.get(matchingResDtoList.size() - 1).lastMessageTime() : null;
+        LocalDateTime nextCursor = nextPage && !matchingResDtoList.isEmpty() ? matchingResDtoList.get(matchingResDtoList.size() - 1).lastMessageTime() : LocalDateTime.MIN;
         return new MatchingCustomPage(matchingResDtoList,nextCursor,nextPage);
     }
 
     @Transactional // 메시지 조회
-    public List<ChatMessageResDto> getMatchingRoomMessages(Long memberId,Long matchingId){
+    public ChatMessageCustomPage getMatchingRoomMessages(Long memberId, Long matchingId, Integer size, Long cursor){
+
+        Pageable pageable = PageRequest.of(0,size+1);
+        Slice<ChatMessage> chatMessagesSlice;
+
+        if(cursor == null){
+            chatMessagesSlice = chatMessageRepository.findByMatchingId(matchingId,pageable);
+        } else {
+            chatMessagesSlice = chatMessageRepository.findByMatchingIdAndIdGreaterThan(matchingId,cursor,pageable);
+        }
 
         // 사용자 확인 // ToDO: 예외처리 필요, 사용자가 매칭방에 속해있지 않을 경우 500 발생
         Matching matching = matchingRepository.findById(matchingId)
@@ -79,9 +89,9 @@ public class MatchingRoomService {
             throw new IllegalArgumentException("사용자가 매칭방에 속해있지 않습니다.");
         }
 
-        List<ChatMessage> chatMessageList = chatMessageRepository.findChatMessagesByMatchingId(matchingId);
+        List<ChatMessage> chatMessageList = chatMessagesSlice.getContent();
 
-        return chatMessageList.stream()
+        List<ChatMessageResDto> chatMessageResDtoList = chatMessageList.stream().limit(size)
                 .map(chatMessage -> ChatMessageResDto.builder()
                         .messageId(chatMessage.getId())
                         .senderId(chatMessage.getSender().getId())
@@ -89,6 +99,12 @@ public class MatchingRoomService {
                         .messageType(chatMessage.getMessageType())
                         .createdAt(chatMessage.getCreatedAt())
                         .build()).toList();
+
+        boolean nextPage=chatMessageList.size() > size;
+
+//        Long nextCursor = nextPage ? chatMessageResDtoList.getLast().messageId() : -1L;
+        Long nextCursor = nextPage ? chatMessageResDtoList.isEmpty() ? -1L : chatMessageResDtoList.get(chatMessageResDtoList.size() - 1).messageId() : -1L;
+        return new ChatMessageCustomPage(chatMessageResDtoList,nextCursor,nextPage);
     }
 
     private Member getReceiver(Matching matching, Long memberId) {

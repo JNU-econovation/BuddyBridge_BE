@@ -39,4 +39,6 @@ public class ChatMessageController {
         ChatMessageResDto resDto = chatMessageService.getLastChatMessage(matchingId);
         return ApiResponseGenerator.success(resDto, HttpStatus.OK);
     }
+
+    //TODO: 채팅 메시지 삭제(업데이트로 MessageType: DELETE로 변경)
 }
