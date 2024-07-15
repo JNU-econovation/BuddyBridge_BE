@@ -1,6 +1,6 @@
 package econo.buddybridge.matching.controller;
 
-import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
+import econo.buddybridge.chat.chatmessage.dto.ChatMessageCustomPage;
 import econo.buddybridge.matching.dto.MatchingCustomPage;
 import econo.buddybridge.matching.service.MatchingRoomService;
 import econo.buddybridge.utils.api.ApiResponse;
@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,13 +35,14 @@ public class MatchingRoomController {
 
     // GET 매칭방 상세 조회(대화 내용 조회)
     @GetMapping("/{matching-id}")
-    public ApiResponse<ApiResponse.CustomBody<List<ChatMessageResDto>>> getChatMessages(
+    public ApiResponse<ApiResponse.CustomBody<ChatMessageCustomPage>> getChatMessages(
             @PathVariable("matching-id") Long matchingId,
+            @RequestParam("limit") Integer size,
+            @RequestParam(value="cursor", required=false) Long cursor,
             HttpServletRequest request
     ){
         Long memberId = SessionUtils.getMemberId(request);
-        List<ChatMessageResDto> chatMessages = matchingRoomService.getMatchingRoomMessages(memberId,matchingId);
-
+        ChatMessageCustomPage chatMessages = matchingRoomService.getMatchingRoomMessages(memberId,matchingId,size,cursor);
         return ApiResponseGenerator.success(chatMessages,HttpStatus.OK);
     }
 
