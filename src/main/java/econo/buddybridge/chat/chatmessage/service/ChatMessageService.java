@@ -20,8 +20,8 @@ public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
 
     @Transactional // 메시지 저장
-    public ChatMessageResDto save(ChatMessageReqDto chatMessageReqDto, Long matchingId){
-        Member sender = memberRepository.findById(chatMessageReqDto.senderId())
+    public ChatMessageResDto save(Long senderId,ChatMessageReqDto chatMessageReqDto, Long matchingId){
+        Member sender = memberRepository.findById(senderId)
                 .orElseThrow(()->new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         Matching matching = matchingRepository.findById(matchingId)
@@ -38,7 +38,7 @@ public class ChatMessageService {
 
         return ChatMessageResDto.builder()
                 .messageId(chatMessage.getId())
-                .senderId(chatMessageReqDto.senderId()) // senderId 받아오기
+                .senderId(chatMessage.getSender().getId())
                 .content(chatMessageReqDto.content())
                 .messageType(chatMessageReqDto.messageType())
                 .createdAt(chatMessage.getCreatedAt())
