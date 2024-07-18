@@ -61,6 +61,7 @@ public class AuthController {
     private MemberResDto handleExistingSession(HttpSession session) {
         Object memberIdObj = session.getAttribute("memberId");
         if (memberIdObj == null || memberIdObj.toString().isEmpty()) {
+            session.invalidate();
             throw new IllegalArgumentException("세션에 유효한 memberId가 없습니다.");
         }
 
@@ -68,6 +69,7 @@ public class AuthController {
         try {
             memberId = Long.parseLong(memberIdObj.toString());
         } catch (NumberFormatException e) {
+            session.invalidate();
             throw new IllegalArgumentException("세션의 memberId 형식이 잘못되었습니다.", e);
         }
 
