@@ -1,5 +1,6 @@
 package econo.buddybridge.post.controller;
 
+import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostResDto;
@@ -20,7 +21,8 @@ public class PostController {
     private final PostService postService;
 
     // 커스텀 페이지네이션을 사용한 전체 게시글 조회
-    @GetMapping()
+    @GetMapping
+    @AllowAnonymous
     public ApiResponse<ApiResponse.CustomBody<PostCustomPage>> getAllPosts(
             @RequestParam(value="post-type",required = false) PostType postType,
             @RequestParam("page") Integer page,
@@ -32,7 +34,7 @@ public class PostController {
     }
 
     // 게시글 생성
-    @PostMapping()
+    @PostMapping
     public ApiResponse<ApiResponse.CustomBody<Long>> createPost(
             @RequestBody PostReqDto postReqDto,
             HttpServletRequest request) {
