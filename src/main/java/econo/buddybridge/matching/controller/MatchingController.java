@@ -34,7 +34,7 @@ public class MatchingController {
             @PathVariable("matching-id") Long matchingId,
             @RequestBody MatchingUpdateDto matchingUpdateDto,
             HttpServletRequest request
-            ){
+    ){
         Long memberId = SessionUtils.getMemberId(request);
         Long updatedMatchingId = matchingService.updateMatching(matchingId,matchingUpdateDto,memberId);
         return ApiResponseGenerator.success(updatedMatchingId,HttpStatus.OK);
