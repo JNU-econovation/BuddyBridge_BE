@@ -9,6 +9,7 @@ import econo.buddybridge.matching.dto.MatchingResDto;
 import econo.buddybridge.matching.dto.ReceiverDto;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.repository.MatchingRepository;
+import econo.buddybridge.matching.repository.MatchingRepositoryCustom;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class MatchingRoomService {
     private final MemberRepository memberRepository;
     private final MatchingRepository matchingRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final MatchingRepositoryCustom matchingRepositoryCustom;
 
     // 페이지네이션 적용
     @Transactional
@@ -36,9 +38,9 @@ public class MatchingRoomService {
         Slice<Matching> matchingSlice;
 
         if(cursor == null){
-            matchingSlice = matchingRepository.findMatchingByTakerIdOrGiverId(memberId,pageable);
+            matchingSlice = matchingRepositoryCustom.findMatchingByTakerIdOrGiverId(memberId,pageable);
         } else { // 마지막 채팅 메시지 생성일자 기준 내림차순, cursor 값 이후에 생성된 내용 조회
-            matchingSlice = matchingRepository.findMatchingByTakerIdOrGiverIdAndIdLessThan(memberId,cursor,pageable);
+            matchingSlice = matchingRepositoryCustom.findMatchingByTakerIdOrGiverIdAndIdLessThan(memberId,cursor,pageable);
         }
 
         List<Matching> matchingList = matchingSlice.getContent();
