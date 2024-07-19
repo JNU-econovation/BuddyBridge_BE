@@ -6,7 +6,6 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Component
 @FeignClient(name = "kakaoInfo", url = "${oauth.kakao.url.api-url}", configuration = OpenFeignConfig.class)
@@ -14,7 +13,6 @@ public interface KakaoInfoFeignClient {
 
     @PostMapping(value = "/v2/user/me")
     KakaoInfoResponse getUserInfo(
-            @RequestHeader("Authorization") String accessToken,
-            @RequestParam("property_keys") String propertyKeys
+            @RequestHeader("Authorization") String accessToken
     );
 }

@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -29,6 +30,7 @@ public class Member extends BaseEntity {
     private Integer age;
 
     @Enumerated(EnumType.STRING)
+    @ColumnDefault("'없음'")
     private DisabilityType disabilityType;
 
     @Enumerated(EnumType.STRING)
