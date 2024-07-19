@@ -45,6 +45,7 @@ public class PostController {
 
     // 단일 게시글 조회
     @GetMapping("/{post-id}")
+    @AllowAnonymous
     public ApiResponse<ApiResponse.CustomBody<PostResDto>> getPost(@PathVariable("post-id") Long postId){
         PostResDto postResDto = postService.findPost(postId);
         return ApiResponseGenerator.success(postResDto,HttpStatus.OK);
