@@ -6,8 +6,6 @@ import econo.buddybridge.auth.client.kakao.feign.KakaoInfoFeignClient;
 import econo.buddybridge.auth.client.kakao.feign.KakaoLoginFeignClient;
 import econo.buddybridge.auth.dto.OAuthInfoResponse;
 import econo.buddybridge.auth.dto.OAuthLoginParams;
-import econo.buddybridge.auth.dto.kakao.KakaoInfoResponse.KakaoAccount;
-import econo.buddybridge.auth.dto.kakao.KakaoPropertyKeys;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -54,15 +52,7 @@ public class KakaoApiClient implements OAuthApiClient {
 
     @Override
     public OAuthInfoResponse getUserInfo(String accessToken) {
-        String propertyKeys = getPropertyKeys();
-
-        return kakaoInfoFeignClient.getUserInfo(TOKEN_PREFIX + accessToken, propertyKeys);
-    }
-
-    private String getPropertyKeys() {
-        KakaoPropertyKeys kakaoPropertyKeys = new KakaoPropertyKeys();
-        kakaoPropertyKeys.addKeysFromClass(KakaoAccount.class);
-        return kakaoPropertyKeys.getPropertyKeysString();
+        return kakaoInfoFeignClient.getUserInfo(TOKEN_PREFIX + accessToken);
     }
 
     @Override
