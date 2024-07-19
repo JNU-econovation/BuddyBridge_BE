@@ -7,6 +7,8 @@ import econo.buddybridge.comment.repository.CommentRepository;
 import econo.buddybridge.comment.repository.CommentRepositoryCustom;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
+import econo.buddybridge.notification.entity.NotificationType;
+import econo.buddybridge.notification.service.EmitterService;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final CommentRepositoryCustom commentRepositoryCustom;
+    private final EmitterService emitterService;
 
     @Transactional(readOnly = true) // 댓글 조회
     public CommentCustomPage getComments(Long postId, Integer size, String order, Long cursor) {
@@ -52,6 +55,11 @@ public class CommentService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
         Comment comment = commentReqToComment(commentReqDto, post, member);
+
+        // 댓글 알림은 게시글 작성자에게 전송
+        // 알림 내용은 댓글 작성자 이름과 댓글 내용
+        String notificationContent = member.getName() + "님이 댓글을 남겼습니다. - " + comment.getContent();
+        emitterService.send(post.getAuthor(), notificationContent, "/api/posts/" + postId, NotificationType.COMMENT);
 
         return commentRepository.save(comment).getId();
     }

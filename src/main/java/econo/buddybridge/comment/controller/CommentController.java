@@ -3,6 +3,7 @@ package econo.buddybridge.comment.controller;
 import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentReqDto;
 import econo.buddybridge.comment.service.CommentService;
+import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponse.CustomBody;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
@@ -28,6 +29,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping("/{post-id}")
+    @AllowAnonymous
     public ApiResponse<CustomBody<CommentCustomPage>> getComments(
             @PathVariable("post-id") Long postId,
             @RequestParam("limit") Integer size,
