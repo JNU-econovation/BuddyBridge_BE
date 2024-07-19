@@ -19,6 +19,9 @@ public class KakaoInfoResponse implements OAuthInfoResponse {
         @JsonProperty("profile")
         private KakaoProfile profile;
 
+        @JsonProperty("name")
+        private String name;
+
         @JsonProperty("email")
         private String email;
 
@@ -37,6 +40,11 @@ public class KakaoInfoResponse implements OAuthInfoResponse {
 
         @JsonProperty("profile_image_url")
         private String profileImageUrl;
+    }
+
+    @Override
+    public String getName() {
+        return kakaoAccount.getName();
     }
 
     @Override

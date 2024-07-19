@@ -3,6 +3,7 @@ package econo.buddybridge.member.service;
 import econo.buddybridge.auth.dto.OAuthInfoResponse;
 import econo.buddybridge.member.dto.MemberReqDto;
 import econo.buddybridge.member.dto.MemberResDto;
+import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
@@ -23,6 +24,7 @@ public class MemberService {
         Member member = validateVerifyMemberById(memberId);
         return MemberResDto.builder()
                 .memberId(member.getId())
+                .name(member.getName())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
                 .age(member.getAge())
@@ -50,6 +52,7 @@ public class MemberService {
                 .orElseGet(() -> newMember(info));
         return MemberResDto.builder()
                 .memberId(member.getId())
+                .name(member.getName())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
                 .age(member.getAge())
@@ -62,9 +65,11 @@ public class MemberService {
     private Member newMember(OAuthInfoResponse info) {
         Member member = Member.builder()
                 .email(info.getEmail())
+                .name(info.getName())
                 .nickname(info.getNickname())
                 .age(info.getAge())
                 .gender(Gender.fromEnglishName(info.getGender()))
+                .disabilityType(DisabilityType.없음)
                 .profileImageUrl(info.getProfileImageUrl())
                 .build();
         return memberRepository.save(member);
