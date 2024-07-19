@@ -3,6 +3,7 @@ package econo.buddybridge.chat.chatmessage.controller;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageReqDto;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
 import econo.buddybridge.chat.chatmessage.service.ChatMessageService;
+import econo.buddybridge.utils.session.SessionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,17 +22,8 @@ public class ChatMessageController {
             @Payload ChatMessageReqDto chatMessageReqDto,
             @Header ("simpSessionAttributes") Map<String, Object> attributes
     ){
-
-        // TODO: 세션 유틸에 타입유형 검사하는 로직 만들기
-        Long senderId = null;
         Object memberIdObject = attributes.get("memberId");
-        if(memberIdObject instanceof Integer){
-            senderId = ((Integer) memberIdObject).longValue();
-        } else if(memberIdObject instanceof Long){
-            senderId = (Long) memberIdObject;
-        } else{
-            throw new IllegalArgumentException("적절하지 않은 memberId 입니다.");
-        }
+        Long senderId = SessionUtils.validateMemberId(memberIdObject);
         return chatMessageService.save(senderId,chatMessageReqDto,matchingId);
     }
 
