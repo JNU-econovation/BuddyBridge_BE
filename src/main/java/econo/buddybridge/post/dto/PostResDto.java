@@ -14,7 +14,6 @@ public record PostResDto(
         MemberResDto author,
         String title,
         AssistanceType assistanceType,
-//        Schedule schedule,
         LocalDateTime startTime,
         LocalDateTime endTime,
         ScheduleType scheduleType,

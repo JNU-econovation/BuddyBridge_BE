@@ -32,14 +32,14 @@ public class ChatMessage extends BaseEntity {
     private MessageType messageType;
 
     @Builder
-    public ChatMessage(Matching matching, Member sender, String content, MessageType messageType){
+    public ChatMessage(Matching matching, Member sender, String content, MessageType messageType) {
         this.matching = matching;
         this.sender = sender;
         this.content = content;
         this.messageType = messageType;
     }
 
-    public void updateChatMessage(String content,MessageType messageType){
+    public void updateChatMessage(String content, MessageType messageType) {
         this.content = content;
         this.messageType = messageType;
     }

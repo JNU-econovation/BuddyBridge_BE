@@ -27,7 +27,7 @@ public class MatchingRoomController {
             @RequestParam("limit") Integer size,
             @RequestParam(value="cursor", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime cursor,
             HttpServletRequest request
-    ){
+    ) {
         Long memberId = SessionUtils.getMemberId(request);
         MatchingCustomPage matchings = matchingRoomService.getMatchingRoomsByMemberId(memberId, size, cursor);
         return ApiResponseGenerator.success(matchings, HttpStatus.OK);
@@ -40,10 +40,10 @@ public class MatchingRoomController {
             @RequestParam("limit") Integer size,
             @RequestParam(value="cursor", required=false) Long cursor,
             HttpServletRequest request
-    ){
+    ) {
         Long memberId = SessionUtils.getMemberId(request);
-        ChatMessageCustomPage chatMessages = matchingRoomService.getMatchingRoomMessages(memberId,matchingId,size,cursor);
-        return ApiResponseGenerator.success(chatMessages,HttpStatus.OK);
+        ChatMessageCustomPage chatMessages = matchingRoomService.getMatchingRoomMessages(memberId, matchingId, size, cursor);
+        return ApiResponseGenerator.success(chatMessages, HttpStatus.OK);
     }
 
 }

@@ -34,20 +34,20 @@ public class MatchingRoomService {
     // 페이지네이션 적용
     @Transactional
     public MatchingCustomPage getMatchingRoomsByMemberId(Long memberId, Integer size, LocalDateTime cursor){
-        Pageable pageable = PageRequest.of(0,size+1);
+        Pageable pageable = PageRequest.of(0, size+1);
         Slice<Matching> matchingSlice;
 
-        if(cursor == null){
-            matchingSlice = matchingRepositoryCustom.findMatchingByTakerIdOrGiverId(memberId,pageable);
+        if(cursor == null) {
+            matchingSlice = matchingRepositoryCustom.findMatchingByTakerIdOrGiverId(memberId, pageable);
         } else { // 마지막 채팅 메시지 생성일자 기준 내림차순, cursor 값 이후에 생성된 내용 조회
-            matchingSlice = matchingRepositoryCustom.findMatchingByTakerIdOrGiverIdAndIdLessThan(memberId,cursor,pageable);
+            matchingSlice = matchingRepositoryCustom.findMatchingByTakerIdOrGiverIdAndIdLessThan(memberId, cursor, pageable);
         }
 
         List<Matching> matchingList = matchingSlice.getContent();
 
         List<MatchingResDto> matchingResDtoList = matchingList.stream().limit(size)
                 .map(matching -> {
-                    Member receiver = getReceiver(matching,memberId);
+                    Member receiver = getReceiver(matching, memberId);
                     ChatMessage lastMessage = chatMessageRepository.findLastMessageByMatchingId(matching.getId());
                     return MatchingResDto.builder()
                             .matchingId(matching.getId())
@@ -69,19 +69,19 @@ public class MatchingRoomService {
         boolean nextPage = matchingList.size() > size;
 
         LocalDateTime nextCursor = nextPage && !matchingResDtoList.isEmpty() ? matchingResDtoList.get(matchingResDtoList.size() - 1).lastMessageTime() : LocalDateTime.MIN;
-        return new MatchingCustomPage(matchingResDtoList,nextCursor,nextPage);
+        return new MatchingCustomPage(matchingResDtoList, nextCursor, nextPage);
     }
 
     @Transactional // 메시지 조회
     public ChatMessageCustomPage getMatchingRoomMessages(Long memberId, Long matchingId, Integer size, Long cursor){
 
-        Pageable pageable = PageRequest.of(0,size+1);
+        Pageable pageable = PageRequest.of(0, size+1);
         Slice<ChatMessage> chatMessagesSlice;
 
-        if(cursor == null){
-            chatMessagesSlice = chatMessageRepository.findByMatchingId(matchingId,pageable);
+        if(cursor == null) {
+            chatMessagesSlice = chatMessageRepository.findByMatchingId(matchingId, pageable);
         } else {
-            chatMessagesSlice = chatMessageRepository.findByMatchingIdAndIdGreaterThan(matchingId,cursor,pageable);
+            chatMessagesSlice = chatMessageRepository.findByMatchingIdAndIdGreaterThan(matchingId, cursor, pageable);
         }
 
         // 사용자 확인 // ToDO: 예외처리 필요, 사용자가 매칭방에 속해있지 않을 경우 500 발생
@@ -103,11 +103,10 @@ public class MatchingRoomService {
                         .createdAt(chatMessage.getCreatedAt())
                         .build()).toList();
 
-        boolean nextPage=chatMessageList.size() > size;
+        boolean nextPage = chatMessageList.size() > size;
 
-//        Long nextCursor = nextPage ? chatMessageResDtoList.getLast().messageId() : -1L;
         Long nextCursor = nextPage ? chatMessageResDtoList.isEmpty() ? -1L : chatMessageResDtoList.get(chatMessageResDtoList.size() - 1).messageId() : -1L;
-        return new ChatMessageCustomPage(chatMessageResDtoList,nextCursor,nextPage);
+        return new ChatMessageCustomPage(chatMessageResDtoList, nextCursor, nextPage);
     }
 
     private Member getReceiver(Matching matching, Long memberId) {

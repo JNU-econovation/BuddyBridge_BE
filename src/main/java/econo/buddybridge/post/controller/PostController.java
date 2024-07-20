@@ -29,7 +29,7 @@ public class PostController {
             @RequestParam("size") Integer size,
             @RequestParam(defaultValue="desc",required = false) String sort
     ) {
-        PostCustomPage posts = postService.getPosts(page,size,sort,postType);
+        PostCustomPage posts = postService.getPosts(page,size, sort, postType);
         return ApiResponseGenerator.success(posts, HttpStatus.OK);
     }
 
@@ -37,18 +37,21 @@ public class PostController {
     @PostMapping
     public ApiResponse<ApiResponse.CustomBody<Long>> createPost(
             @RequestBody PostReqDto postReqDto,
-            HttpServletRequest request) {
+            HttpServletRequest request
+    ) {
         Long memberId = SessionUtils.getMemberId(request);
-        Long createdPostId = postService.createPost(postReqDto,memberId);
+        Long createdPostId = postService.createPost(postReqDto, memberId);
         return ApiResponseGenerator.success(createdPostId, HttpStatus.CREATED);
     }
 
     // 단일 게시글 조회
     @GetMapping("/{post-id}")
     @AllowAnonymous
-    public ApiResponse<ApiResponse.CustomBody<PostResDto>> getPost(@PathVariable("post-id") Long postId){
+    public ApiResponse<ApiResponse.CustomBody<PostResDto>> getPost(
+            @PathVariable("post-id") Long postId
+    ) {
         PostResDto postResDto = postService.findPost(postId);
-        return ApiResponseGenerator.success(postResDto,HttpStatus.OK);
+        return ApiResponseGenerator.success(postResDto, HttpStatus.OK);
     }
 
     // 게시글 업데이트
@@ -56,19 +59,21 @@ public class PostController {
     public ApiResponse<ApiResponse.CustomBody<Long>> updatePost(
             @PathVariable("post-id") Long postId,
             @RequestBody PostReqDto postReqDto,
-            HttpServletRequest request){
+            HttpServletRequest request
+    ) {
         Long memberId = SessionUtils.getMemberId(request);
-        Long updatedPostId = postService.updatePost(postId,postReqDto,memberId);
-        return ApiResponseGenerator.success(updatedPostId,HttpStatus.OK);
+        Long updatedPostId = postService.updatePost(postId, postReqDto, memberId);
+        return ApiResponseGenerator.success(updatedPostId, HttpStatus.OK);
     }
 
     // 게시글 삭제
     @DeleteMapping("/{post-id}")
     public ApiResponse<ApiResponse.CustomBody<Void>> deletePost(
             @PathVariable("post-id") Long postId,
-            HttpServletRequest request){
+            HttpServletRequest request
+    ) {
         Long memberId = SessionUtils.getMemberId(request);
-        postService.deletePost(postId,memberId);
+        postService.deletePost(postId, memberId);
         return ApiResponseGenerator.success(HttpStatus.NO_CONTENT);
     }
 
