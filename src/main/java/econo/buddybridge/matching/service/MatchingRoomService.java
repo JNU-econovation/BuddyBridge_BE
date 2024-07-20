@@ -48,7 +48,13 @@ public class MatchingRoomService {
         List<MatchingResDto> matchingResDtoList = matchingList.stream().limit(size)
                 .map(matching -> {
                     Member receiver = getReceiver(matching, memberId);
-                    ChatMessage lastMessage = chatMessageRepository.findLastMessageByMatchingId(matching.getId());
+                    List<ChatMessage> massageList = chatMessageRepository.findLastMessageByMatchingId(matching.getId(), PageRequest.of(0, 1));
+                    if(massageList.isEmpty()) {
+                        throw new IllegalArgumentException("마지막 메시지가 존재하지 않습니다.");
+                    }
+
+                    ChatMessage lastMessage = massageList.getFirst();
+
                     return MatchingResDto.builder()
                             .matchingId(matching.getId())
                             .postType(matching.getPost().getPostType())
@@ -56,7 +62,7 @@ public class MatchingRoomService {
                             .lastMessageTime(lastMessage.getCreatedAt())
                             .messageType(lastMessage.getMessageType())
                             .matchingStatus(matching.getMatchingStatus())
-                            .receiverDto(
+                            .receiver(
                                     ReceiverDto.builder()
                                             .receiverId(receiver.getId())
                                             .receiverName(receiver.getNickname())
