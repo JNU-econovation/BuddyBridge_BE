@@ -15,7 +15,7 @@ public record MatchingResDto(
         LocalDateTime lastMessageTime,
         MessageType messageType,
         MatchingStatus matchingStatus,
-        ReceiverDto receiverDto
+        ReceiverDto receiver
 ) {
 
 }
