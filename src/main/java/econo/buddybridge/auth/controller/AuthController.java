@@ -13,35 +13,20 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/oauth")
 public class AuthController {
 
     private final OAuthLoginService oAuthLoginService;
     private final MemberService memberService;
 
-    // 테스트용 로그인 엔드포인트
-    @GetMapping("/login/{member-id}")
-    public ApiResponse<CustomBody<MemberResDto>> testLogin(
-            @PathVariable("member-id") Long memberId,
-            HttpServletRequest request
-    ) {
-        HttpSession session = request.getSession(false);
-
-        MemberResDto member = memberService.findMemberById(memberId);
-        if (session == null) {
-            session = request.getSession(true);
-            session.setAttribute("memberId", member.memberId());
-        } else {
-        }
-        return ApiResponseGenerator.success(member, HttpStatus.OK);
-    }
-
-    @GetMapping("/logout")
+    @GetMapping("/api/oauth/logout")
     public ApiResponse<CustomBody<String>> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
@@ -52,7 +37,7 @@ public class AuthController {
         return ApiResponseGenerator.success("이미 로그아웃 상태입니다.", HttpStatus.OK);
     }
 
-    @PostMapping("/login")
+    @PostMapping("/api/oauth/login")
     public ApiResponse<CustomBody<MemberResDto>> login(@RequestBody KakaoLoginParams params, HttpServletRequest request) {
         HttpSession session = request.getSession(false);
 

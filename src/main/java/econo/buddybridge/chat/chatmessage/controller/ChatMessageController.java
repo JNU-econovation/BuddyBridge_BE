@@ -27,6 +27,14 @@ public class ChatMessageController {
         return chatMessageService.save(senderId,chatMessageReqDto,matchingId);
     }
 
+    // 마지막 메시지 1개만 받아오기
+//    @GetMapping("/api/queue/chat/{matching-id}")
+//    public ApiResponse<ApiResponse.CustomBody<ChatMessageResDto>> getMessages(
+//            @PathVariable("matching-id") Long matchingId
+//    ){
+//        ChatMessageResDto resDto = chatMessageService.getLastChatMessage(matchingId);
+//        return ApiResponseGenerator.success(resDto, HttpStatus.OK);
+//    }
 
     //TODO: 채팅 메시지 삭제(업데이트로 MessageType: DELETE로 변경)
 }

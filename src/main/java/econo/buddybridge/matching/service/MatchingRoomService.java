@@ -51,7 +51,6 @@ public class MatchingRoomService {
                     ChatMessage lastMessage = chatMessageRepository.findLastMessageByMatchingId(matching.getId());
                     return MatchingResDto.builder()
                             .matchingId(matching.getId())
-                            .postType(matching.getPost().getPostType())
                             .lastMessage(lastMessage.getContent())
                             .lastMessageTime(lastMessage.getCreatedAt())
                             .messageType(lastMessage.getMessageType())
