@@ -36,7 +36,6 @@ public class AuthController {
         if (session == null) {
             session = request.getSession(true);
             session.setAttribute("memberId", member.memberId());
-        } else {
         }
         return ApiResponseGenerator.success(member, HttpStatus.OK);
     }
