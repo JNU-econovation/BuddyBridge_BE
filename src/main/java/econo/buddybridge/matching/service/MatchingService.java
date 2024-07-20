@@ -26,7 +26,7 @@ public class MatchingService {
     private final MemberRepository memberRepository;
 
     @Transactional // 매칭 생성 -> 예외처리 필요
-    public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId){
+    public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId) {
         Post post = postRepository.findById(matchingReqDto.postId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
@@ -36,9 +36,9 @@ public class MatchingService {
         Member giver = memberRepository.findById(matchingReqDto.giverId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-        validatePostAuthor(post,memberId);
+        validatePostAuthor(post, memberId);
 
-        Matching matching = matchingReqToMatching(post,taker,giver);
+        Matching matching = matchingReqToMatching(post, taker, giver);
 
         chatMessageRepository.save(
                 ChatMessage.builder()
@@ -53,11 +53,11 @@ public class MatchingService {
     }
 
     @Transactional // 매칭 업데이트
-    public Long updateMatching(Long matchingId, MatchingUpdateDto matchingUpdateDto, Long memberId){
+    public Long updateMatching(Long matchingId, MatchingUpdateDto matchingUpdateDto, Long memberId) {
         Matching matching = matchingRepository.findById(matchingId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭입니다."));
 
-        validatePostAuthor(matching.getPost(),memberId);
+        validatePostAuthor(matching.getPost(), memberId);
 
         matching.updateMatching(matchingUpdateDto.matchingStatus());
 
@@ -65,17 +65,17 @@ public class MatchingService {
     }
 
     @Transactional // 매칭 삭제
-    public void deleteMatching(Long matchingId,Long memberId){
+    public void deleteMatching(Long matchingId, Long memberId) {
         Matching matching = matchingRepository.findById(matchingId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭입니다."));
 
-        validatePostAuthor(matching.getPost(),memberId);
+        validatePostAuthor(matching.getPost(), memberId);
 
         matchingRepository.delete(matching);
     }
 
     // MatchingReqDto -> Matching
-    private Matching matchingReqToMatching(Post post,Member taker,Member giver){
+    private Matching matchingReqToMatching(Post post, Member taker, Member giver) {
         return Matching.builder()
                 .post(post)
                 .taker(taker)

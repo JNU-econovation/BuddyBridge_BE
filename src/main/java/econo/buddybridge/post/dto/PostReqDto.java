@@ -10,7 +10,6 @@ public record PostReqDto(
         Long memberId,
         String title,
         AssistanceType assistanceType,
-//        Schedule schedule,
         LocalDateTime startTime,
         LocalDateTime endTime,
         ScheduleType scheduleType,

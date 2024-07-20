@@ -25,7 +25,7 @@ public class Post extends BaseEntity {
 
 //    @ManyToOne(cascade = CascadeType.REMOVE)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="author_id")
+    @JoinColumn(name = "author_id")
     private Member author;
 
     private String title;
@@ -54,10 +54,9 @@ public class Post extends BaseEntity {
         this.postStatus = status;
     }
 
-    // 업데이트 로직 -> 이렇게 하는게 맞는지
     public void updatePost(PostReqDto postReqDto){
-        Schedule schedule = new Schedule(postReqDto.startTime(),postReqDto.endTime(),
-                postReqDto.scheduleType(),postReqDto.scheduleDetails());
+        Schedule schedule = new Schedule(postReqDto.startTime(), postReqDto.endTime(),
+                postReqDto.scheduleType(), postReqDto.scheduleDetails());
 
         this.title = postReqDto.title();
         this.assistanceType = postReqDto.assistanceType();
@@ -68,9 +67,10 @@ public class Post extends BaseEntity {
     }
 
     @Builder
-    public Post(Member author,String title,AssistanceType assistanceType,
-                Schedule schedule,
-                District district,String content,PostType postType){
+    public Post(Member author, String title, AssistanceType assistanceType,
+                Schedule schedule, District district,
+                String content, PostType postType
+    ) {
         this.author = author;
         this.title = title;
         this.assistanceType = assistanceType;

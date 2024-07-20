@@ -72,6 +72,6 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
         if(hasNext){
             matchingList.removeLast();
         }
-        return new SliceImpl<>(matchingList,pageable,hasNext);
+        return new SliceImpl<>(matchingList, pageable, hasNext);
     }
 }

@@ -22,10 +22,10 @@ public class MatchingController {
     public ApiResponse<ApiResponse.CustomBody<Long>> createMatching(
             @RequestBody MatchingReqDto matchingReqDto,
             HttpServletRequest request
-    ){
+    ) {
         Long memberId = SessionUtils.getMemberId(request);
-        Long createdMatchingId = matchingService.createMatchingById(matchingReqDto,memberId);
-        return ApiResponseGenerator.success(createdMatchingId,HttpStatus.OK);
+        Long createdMatchingId = matchingService.createMatchingById(matchingReqDto, memberId);
+        return ApiResponseGenerator.success(createdMatchingId, HttpStatus.OK);
     }
 
     // matching 완료 -> DONE 변경, 거절 -> FAILED 변경
@@ -34,10 +34,10 @@ public class MatchingController {
             @PathVariable("matching-id") Long matchingId,
             @RequestBody MatchingUpdateDto matchingUpdateDto,
             HttpServletRequest request
-    ){
+    ) {
         Long memberId = SessionUtils.getMemberId(request);
-        Long updatedMatchingId = matchingService.updateMatching(matchingId,matchingUpdateDto,memberId);
-        return ApiResponseGenerator.success(updatedMatchingId,HttpStatus.OK);
+        Long updatedMatchingId = matchingService.updateMatching(matchingId, matchingUpdateDto, memberId);
+        return ApiResponseGenerator.success(updatedMatchingId, HttpStatus.OK);
     }
 
     // matching 완전 삭제 -> 좋은 방법인가
@@ -46,9 +46,9 @@ public class MatchingController {
     public ApiResponse<ApiResponse.CustomBody<Void>> deleteMatching(
             @PathVariable("matching-id") Long matchingId,
             HttpServletRequest request
-    ){
+    ) {
         Long memberId = SessionUtils.getMemberId(request);
-        matchingService.deleteMatching(matchingId,memberId);
+        matchingService.deleteMatching(matchingId, memberId);
         return ApiResponseGenerator.success(HttpStatus.NO_CONTENT);
     }
 }

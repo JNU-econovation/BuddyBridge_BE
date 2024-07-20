@@ -8,12 +8,12 @@ public class SessionUtils {
         return Long.parseLong(request.getSession().getAttribute("memberId").toString());
     }
 
-    public static Long validateMemberId(Object memberId){
-        if(memberId instanceof Integer){
+    public static Long validateMemberId(Object memberId) {
+        if(memberId instanceof Integer) {
             return ((Integer) memberId).longValue();
-        } else if(memberId instanceof Long){
+        } else if(memberId instanceof Long) {
             return (Long) memberId;
-        } else{
+        } else {
             throw new IllegalArgumentException("적절하지 않은 memberId 입니다.");
         }
     }

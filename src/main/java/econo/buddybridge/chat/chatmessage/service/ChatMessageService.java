@@ -20,7 +20,7 @@ public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
 
     @Transactional // 메시지 저장
-    public ChatMessageResDto save(Long senderId,ChatMessageReqDto chatMessageReqDto, Long matchingId){
+    public ChatMessageResDto save(Long senderId, ChatMessageReqDto chatMessageReqDto, Long matchingId) {
         Member sender = memberRepository.findById(senderId)
                 .orElseThrow(()->new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
