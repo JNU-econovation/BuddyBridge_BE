@@ -9,8 +9,11 @@ import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +50,12 @@ public class ChatMessageService {
 
     @Transactional // 마지막 메시지 조회
     public ChatMessageResDto getLastChatMessage(Long matchingId){
-        ChatMessage chatMessage = chatMessageRepository.findLastMessageByMatchingId(matchingId);
+        List<ChatMessage> chatMessageList = chatMessageRepository.findLastMessageByMatchingId(matchingId, PageRequest.of(0, 1));
+        if(chatMessageList.isEmpty()) {
+            throw new IllegalArgumentException("마지막 메시지가 존재하지 않습니다.");
+        }
+
+        ChatMessage chatMessage = chatMessageList.getFirst();
 
         return ChatMessageResDto.builder()
                 .messageId(chatMessage.getId())

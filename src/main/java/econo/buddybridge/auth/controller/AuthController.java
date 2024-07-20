@@ -3,6 +3,7 @@ package econo.buddybridge.auth.controller;
 import econo.buddybridge.auth.OAuthProvider;
 import econo.buddybridge.auth.dto.kakao.KakaoLoginParams;
 import econo.buddybridge.auth.service.OAuthLoginService;
+import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.utils.api.ApiResponse;
@@ -26,6 +27,7 @@ public class AuthController {
 
     // 테스트용 로그인 엔드포인트
     @GetMapping("/login/{member-id}")
+    @AllowAnonymous // 추가
     public ApiResponse<CustomBody<MemberResDto>> testLogin(
             @PathVariable("member-id") Long memberId,
             HttpServletRequest request

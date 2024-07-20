@@ -6,9 +6,12 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface ChatMessageRepository extends JpaRepository<ChatMessage,Long> {
 
-    ChatMessage findLastMessageByMatchingId(Long matchingId);
+    @Query("SELECT cm FROM ChatMessage cm WHERE cm.matching.id = :matchingId ORDER BY cm.id DESC")
+    List<ChatMessage> findLastMessageByMatchingId(Long matchingId, Pageable pageable);
 
     @Query("SELECT cm FROM ChatMessage cm WHERE cm.matching.id = :matchingId ORDER BY cm.id ASC")
     Slice<ChatMessage> findByMatchingId(Long matchingId, Pageable pageable);
