@@ -10,7 +10,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +70,7 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
     private Slice<Matching> createSlice(List<Matching> matchingList, Pageable pageable){
         boolean hasNext = matchingList.size() > pageable.getPageSize();
         if(hasNext){
-            matchingList.remove(matchingList.size() - 1);
+            matchingList.removeLast();
         }
         return new SliceImpl<>(matchingList,pageable,hasNext);
     }
