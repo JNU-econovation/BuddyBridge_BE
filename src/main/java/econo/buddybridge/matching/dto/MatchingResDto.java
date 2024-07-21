@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public record MatchingResDto(
         Long matchingId,
         PostType postType,
+        Long postId,
         String lastMessage,
         LocalDateTime lastMessageTime,
         MessageType messageType,

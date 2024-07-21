@@ -37,7 +37,7 @@ public class MatchingRoomService {
         Pageable pageable = PageRequest.of(0, size+1);
         Slice<Matching> matchingSlice;
 
-        if(cursor == null) {
+        if (cursor == null) {
             matchingSlice = matchingRepositoryCustom.findMatchingByTakerIdOrGiverId(memberId, pageable);
         } else { // 마지막 채팅 메시지 생성일자 기준 내림차순, cursor 값 이후에 생성된 내용 조회
             matchingSlice = matchingRepositoryCustom.findMatchingByTakerIdOrGiverIdAndIdLessThan(memberId, cursor, pageable);
@@ -49,7 +49,7 @@ public class MatchingRoomService {
                 .map(matching -> {
                     Member receiver = getReceiver(matching, memberId);
                     List<ChatMessage> massageList = chatMessageRepository.findLastMessageByMatchingId(matching.getId(), PageRequest.of(0, 1));
-                    if(massageList.isEmpty()) {
+                    if (massageList.isEmpty()) {
                         throw new IllegalArgumentException("마지막 메시지가 존재하지 않습니다.");
                     }
 
@@ -58,6 +58,7 @@ public class MatchingRoomService {
                     return MatchingResDto.builder()
                             .matchingId(matching.getId())
                             .postType(matching.getPost().getPostType())
+                            .postId(matching.getPost().getId())
                             .lastMessage(lastMessage.getContent())
                             .lastMessageTime(lastMessage.getCreatedAt())
                             .messageType(lastMessage.getMessageType())
@@ -84,7 +85,7 @@ public class MatchingRoomService {
         Pageable pageable = PageRequest.of(0, size+1);
         Slice<ChatMessage> chatMessagesSlice;
 
-        if(cursor == null) {
+        if (cursor == null) {
             chatMessagesSlice = chatMessageRepository.findByMatchingId(matchingId, pageable);
         } else {
             chatMessagesSlice = chatMessageRepository.findByMatchingIdAndIdGreaterThan(matchingId, cursor, pageable);
@@ -94,7 +95,7 @@ public class MatchingRoomService {
         Matching matching = matchingRepository.findById(matchingId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭방입니다."));
 
-        if(!matching.getGiver().getId().equals(memberId) && !matching.getTaker().getId().equals(memberId)){
+        if (!matching.getGiver().getId().equals(memberId) && !matching.getTaker().getId().equals(memberId)){
             throw new IllegalArgumentException("사용자가 매칭방에 속해있지 않습니다.");
         }
 
@@ -117,7 +118,7 @@ public class MatchingRoomService {
 
     private Member getReceiver(Matching matching, Long memberId) {
         Long receiverId;
-        if(matching.getGiver().getId().equals(memberId)){
+        if (matching.getGiver().getId().equals(memberId)){
             receiverId = matching.getTaker().getId();
         } else {
             receiverId = matching.getGiver().getId();
