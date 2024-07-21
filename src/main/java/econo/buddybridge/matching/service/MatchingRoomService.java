@@ -12,6 +12,7 @@ import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.matching.repository.MatchingRepositoryCustom;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
+import econo.buddybridge.post.entity.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +38,7 @@ public class MatchingRoomService {
         Pageable pageable = PageRequest.of(0, size+1);
         Slice<Matching> matchingSlice;
 
-        if(cursor == null) {
+        if (cursor == null) {
             matchingSlice = matchingRepositoryCustom.findMatchingByTakerIdOrGiverId(memberId, pageable);
         } else { // 마지막 채팅 메시지 생성일자 기준 내림차순, cursor 값 이후에 생성된 내용 조회
             matchingSlice = matchingRepositoryCustom.findMatchingByTakerIdOrGiverIdAndIdLessThan(memberId, cursor, pageable);
@@ -49,7 +50,7 @@ public class MatchingRoomService {
                 .map(matching -> {
                     Member receiver = getReceiver(matching, memberId);
                     List<ChatMessage> massageList = chatMessageRepository.findLastMessageByMatchingId(matching.getId(), PageRequest.of(0, 1));
-                    if(massageList.isEmpty()) {
+                    if (massageList.isEmpty()) {
                         throw new IllegalArgumentException("마지막 메시지가 존재하지 않습니다.");
                     }
 
@@ -58,6 +59,7 @@ public class MatchingRoomService {
                     return MatchingResDto.builder()
                             .matchingId(matching.getId())
                             .postType(matching.getPost().getPostType())
+                            .postId(matching.getPost().getId())
                             .lastMessage(lastMessage.getContent())
                             .lastMessageTime(lastMessage.getCreatedAt())
                             .messageType(lastMessage.getMessageType())
@@ -84,19 +86,29 @@ public class MatchingRoomService {
         Pageable pageable = PageRequest.of(0, size+1);
         Slice<ChatMessage> chatMessagesSlice;
 
-        if(cursor == null) {
+        if (cursor == null) {
             chatMessagesSlice = chatMessageRepository.findByMatchingId(matchingId, pageable);
         } else {
             chatMessagesSlice = chatMessageRepository.findByMatchingIdAndIdGreaterThan(matchingId, cursor, pageable);
         }
 
-        // 사용자 확인 // ToDO: 예외처리 필요, 사용자가 매칭방에 속해있지 않을 경우 500 발생
+        // 사용자 확인 // TODO: 예외처리 필요, 사용자가 매칭방에 속해있지 않을 경우 500 발생
         Matching matching = matchingRepository.findById(matchingId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭방입니다."));
 
-        if(!matching.getGiver().getId().equals(memberId) && !matching.getTaker().getId().equals(memberId)){
+        if (!matching.getGiver().getId().equals(memberId) && !matching.getTaker().getId().equals(memberId)){
             throw new IllegalArgumentException("사용자가 매칭방에 속해있지 않습니다.");
         }
+
+        Post post = matching.getPost();
+
+        Member receiver = getReceiver(matching, memberId);
+
+        ReceiverDto receiverDto = ReceiverDto.builder()
+                .receiverId(receiver.getId())
+                .receiverName(receiver.getNickname())
+                .receiverProfileImg(receiver.getProfileImageUrl())
+                .build();
 
         List<ChatMessage> chatMessageList = chatMessagesSlice.getContent();
 
@@ -112,12 +124,12 @@ public class MatchingRoomService {
         boolean nextPage = chatMessageList.size() > size;
 
         Long nextCursor = nextPage ? chatMessageResDtoList.isEmpty() ? -1L : chatMessageResDtoList.get(chatMessageResDtoList.size() - 1).messageId() : -1L;
-        return new ChatMessageCustomPage(chatMessageResDtoList, nextCursor, nextPage);
+        return new ChatMessageCustomPage(post.getPostType(), post.getId(), receiverDto, chatMessageResDtoList, nextCursor, nextPage);
     }
 
     private Member getReceiver(Matching matching, Long memberId) {
         Long receiverId;
-        if(matching.getGiver().getId().equals(memberId)){
+        if (matching.getGiver().getId().equals(memberId)){
             receiverId = matching.getTaker().getId();
         } else {
             receiverId = matching.getGiver().getId();
