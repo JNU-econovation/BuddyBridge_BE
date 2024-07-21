@@ -12,6 +12,7 @@ import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.matching.repository.MatchingRepositoryCustom;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
+import econo.buddybridge.post.entity.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -99,6 +100,16 @@ public class MatchingRoomService {
             throw new IllegalArgumentException("사용자가 매칭방에 속해있지 않습니다.");
         }
 
+        Post post = matching.getPost();
+
+        Member receiver = getReceiver(matching, memberId);
+
+        ReceiverDto receiverDto = ReceiverDto.builder()
+                .receiverId(receiver.getId())
+                .receiverName(receiver.getNickname())
+                .receiverProfileImg(receiver.getProfileImageUrl())
+                .build();
+
         List<ChatMessage> chatMessageList = chatMessagesSlice.getContent();
 
         List<ChatMessageResDto> chatMessageResDtoList = chatMessageList.stream().limit(size)
@@ -113,7 +124,7 @@ public class MatchingRoomService {
         boolean nextPage = chatMessageList.size() > size;
 
         Long nextCursor = nextPage ? chatMessageResDtoList.isEmpty() ? -1L : chatMessageResDtoList.get(chatMessageResDtoList.size() - 1).messageId() : -1L;
-        return new ChatMessageCustomPage(chatMessageResDtoList, nextCursor, nextPage);
+        return new ChatMessageCustomPage(post.getPostType(), post.getId(), receiverDto, chatMessageResDtoList, nextCursor, nextPage);
     }
 
     private Member getReceiver(Matching matching, Long memberId) {
