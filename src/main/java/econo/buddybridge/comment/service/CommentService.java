@@ -10,6 +10,7 @@ import econo.buddybridge.member.repository.MemberRepository;
 import econo.buddybridge.notification.entity.NotificationType;
 import econo.buddybridge.notification.service.EmitterService;
 import econo.buddybridge.post.entity.Post;
+import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -56,12 +57,26 @@ public class CommentService {
 
         Comment comment = commentReqToComment(commentReqDto, post, member);
 
-        // 댓글 알림은 게시글 작성자에게 전송
         // 알림 내용은 댓글 작성자 이름과 댓글 내용
         String notificationContent = member.getName() + "님이 댓글을 남겼습니다. - " + comment.getContent();
-        emitterService.send(post.getAuthor(), notificationContent, "/api/posts/" + postId, NotificationType.COMMENT);
+        String notificationUrl = getCommentNotificationUrl(post.getPostType(), post.getId());
+
+        // 댓글 알림은 게시글 작성자에게 전송
+        emitterService.send(post.getAuthor(), notificationContent, notificationUrl, NotificationType.COMMENT);
 
         return commentRepository.save(comment).getId();
+    }
+
+    private String getCommentNotificationUrl(PostType postType, Long postId) {
+        switch (postType) {
+            case TAKER -> { // 도와줄래요? 게시글
+                return "/help-me" + postId;
+            }
+            case GIVER -> { // 도와줄게요! 게시글
+                return "/help-you/" + postId;
+            }
+        }
+        return "";
     }
 
     @Transactional  // 댓글 수정
