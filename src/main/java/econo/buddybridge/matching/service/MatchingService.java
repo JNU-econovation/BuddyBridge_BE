@@ -25,16 +25,25 @@ public class MatchingService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
-    @Transactional // 매칭 생성 -> 예외처리 필요
+    @Transactional // TODO: 매칭 생성 -> 예외처리 필요 + 댓글에서 사용자 정보 가져오기 고려
     public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId) {
         Post post = postRepository.findById(matchingReqDto.postId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
-        Member taker = memberRepository.findById(matchingReqDto.takerId())
+        Member loginMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-        Member giver = memberRepository.findById(matchingReqDto.giverId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        Member taker, giver;
+
+        if (post.getPostType() == PostType.GIVER) {
+            giver = loginMember;
+            taker = memberRepository.findById(matchingReqDto.takerId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        } else {
+            giver = memberRepository.findById(matchingReqDto.giverId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+            taker = loginMember;
+        }
 
         validatePostAuthor(post, memberId);
 
