@@ -70,7 +70,7 @@ public class CommentService {
     private String getCommentNotificationUrl(PostType postType, Long postId) {
         switch (postType) {
             case TAKER -> { // 도와줄래요? 게시글
-                return "/help-me" + postId;
+                return "/help-me/" + postId;
             }
             case GIVER -> { // 도와줄게요! 게시글
                 return "/help-you/" + postId;
