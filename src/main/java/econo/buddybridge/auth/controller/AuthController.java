@@ -11,8 +11,11 @@ import econo.buddybridge.utils.api.ApiResponse.CustomBody;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +28,9 @@ public class AuthController {
     private final OAuthLoginService oAuthLoginService;
     private final MemberService memberService;
 
+    @Value("${oauth.kakao.url.front-url}")
+    private String frontUrl;
+
     // 테스트용 로그인 엔드포인트
     @GetMapping("/login/{member-id}")
     @AllowAnonymous // 추가
@@ -32,13 +38,11 @@ public class AuthController {
             @PathVariable("member-id") Long memberId,
             HttpServletRequest request
     ) {
-        HttpSession session = request.getSession(false);
+        HttpSession session = request.getSession(true);
 
         MemberResDto member = memberService.findMemberById(memberId);
-        if (session == null) {
-            session = request.getSession(true);
-            session.setAttribute("memberId", member.memberId());
-        }
+        session.setAttribute("memberId", member.memberId());
+
         return ApiResponseGenerator.success(member, HttpStatus.OK);
     }
 
@@ -51,6 +55,26 @@ public class AuthController {
             return ApiResponseGenerator.success("로그아웃 성공", HttpStatus.OK);
         }
         return ApiResponseGenerator.success("이미 로그아웃 상태입니다.", HttpStatus.OK);
+    }
+
+    @GetMapping("/login")
+    public ApiResponse<CustomBody<MemberResDto>> login(@RequestParam("code") String code, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        KakaoLoginParams params = new KakaoLoginParams(code);
+
+        MemberResDto memberDto;
+        if (session == null) {
+            memberDto = handleNewSession(params, request);
+        } else {
+            memberDto = handleExistingSession(session);
+        }
+
+        // 프론트엔드 주소로 redirect
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(URI.create(frontUrl));
+
+        return ApiResponseGenerator.success(memberDto, httpHeaders, HttpStatus.PERMANENT_REDIRECT);
     }
 
     @PostMapping("/login")

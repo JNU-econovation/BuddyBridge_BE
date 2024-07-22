@@ -48,6 +48,7 @@ oauth:
       api-url: ${OAUTH_KAKAO_API_URL}
       redirect-url: ${OAUTH_KAKAO_REDIRECT_URI}
       logout-redirect-url:  ${OAUTH_KAKAO_LOGOUT_REDIRECT_URI}
+      front-url: ${OAUTH_KAKAO_FRONT_URL}
 
 
 logging:
