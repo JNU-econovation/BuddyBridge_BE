@@ -16,6 +16,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage,Long> {
     @Query("SELECT cm FROM ChatMessage cm WHERE cm.matching.id = :matchingId ORDER BY cm.id DESC")
     Slice<ChatMessage> findByMatchingId(Long matchingId, Pageable pageable);
 
-    @Query("SELECT cm FROM ChatMessage cm WHERE cm.matching.id = :matchingId AND cm.id > :cursor ORDER BY cm.id DESC")
+    @Query("SELECT cm FROM ChatMessage cm WHERE cm.matching.id = :matchingId AND cm.id < :cursor ORDER BY cm.id DESC")
     Slice<ChatMessage> findByMatchingIdAndIdGreaterThan(Long matchingId, Long cursor, Pageable pageable);
 }

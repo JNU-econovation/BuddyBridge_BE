@@ -83,6 +83,14 @@ public class MatchingRoomService {
     @Transactional // 메시지 조회
     public ChatMessageCustomPage getMatchingRoomMessages(Long memberId, Long matchingId, Integer size, Long cursor){
 
+        // 사용자 확인 // TODO: 예외처리 필요, 사용자가 매칭방에 속해있지 않을 경우 500 발생
+        Matching matching = matchingRepository.findById(matchingId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭방입니다."));
+
+        if (!matching.getGiver().getId().equals(memberId) && !matching.getTaker().getId().equals(memberId)){
+            throw new IllegalArgumentException("사용자가 매칭방에 속해있지 않습니다.");
+        }
+
         Pageable pageable = PageRequest.of(0, size+1);
         Slice<ChatMessage> chatMessagesSlice;
 
@@ -90,14 +98,6 @@ public class MatchingRoomService {
             chatMessagesSlice = chatMessageRepository.findByMatchingId(matchingId, pageable);
         } else {
             chatMessagesSlice = chatMessageRepository.findByMatchingIdAndIdGreaterThan(matchingId, cursor, pageable);
-        }
-
-        // 사용자 확인 // TODO: 예외처리 필요, 사용자가 매칭방에 속해있지 않을 경우 500 발생
-        Matching matching = matchingRepository.findById(matchingId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭방입니다."));
-
-        if (!matching.getGiver().getId().equals(memberId) && !matching.getTaker().getId().equals(memberId)){
-            throw new IllegalArgumentException("사용자가 매칭방에 속해있지 않습니다.");
         }
 
         Post post = matching.getPost();
@@ -123,7 +123,7 @@ public class MatchingRoomService {
 
         boolean nextPage = chatMessageList.size() > size;
 
-        Long nextCursor = nextPage ? chatMessageResDtoList.isEmpty() ? -1L : chatMessageResDtoList.get(chatMessageResDtoList.size() - 1).messageId() : -1L;
+        Long nextCursor = nextPage ? chatMessageResDtoList.isEmpty() ? -1L : chatMessageResDtoList.getLast().messageId() : -1L;
         return new ChatMessageCustomPage(post.getPostType(), post.getId(), receiverDto, chatMessageResDtoList, nextCursor, nextPage);
     }
 
