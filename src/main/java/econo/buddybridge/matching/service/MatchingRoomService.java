@@ -67,7 +67,7 @@ public class MatchingRoomService {
                             .receiver(
                                     ReceiverDto.builder()
                                             .receiverId(receiver.getId())
-                                            .receiverName(receiver.getNickname())
+                                            .receiverName(receiver.getName())
                                             .receiverProfileImg(receiver.getProfileImageUrl())
                                             .build()
                             )
@@ -106,7 +106,7 @@ public class MatchingRoomService {
 
         ReceiverDto receiverDto = ReceiverDto.builder()
                 .receiverId(receiver.getId())
-                .receiverName(receiver.getNickname())
+                .receiverName(receiver.getName())
                 .receiverProfileImg(receiver.getProfileImageUrl())
                 .build();
 
