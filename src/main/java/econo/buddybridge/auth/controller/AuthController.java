@@ -64,16 +64,12 @@ public class AuthController {
 
     @GetMapping("/login")
     public ApiResponse<CustomBody<MemberResDto>> login(@RequestParam("code") String code, HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-
         KakaoLoginParams params = new KakaoLoginParams(code);
 
-        MemberResDto memberDto;
-        if (session == null) {
-            memberDto = handleNewSession(params, request);
-        } else {
-            memberDto = handleExistingSession(session);
-        }
+        MemberResDto memberDto = oAuthLoginService.login(params);
+
+        HttpSession session = request.getSession(true);
+        session.setAttribute("memberId", memberDto.memberId());
 
         // 프론트엔드 주소로 redirect
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -84,40 +80,11 @@ public class AuthController {
 
     @PostMapping("/login")
     public ApiResponse<CustomBody<MemberResDto>> login(@RequestBody KakaoLoginParams params, HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-
-        MemberResDto memberDto;
-        if (session == null) {
-            memberDto = handleNewSession(params, request);
-        } else {
-            memberDto = handleExistingSession(session);
-        }
-
-        return ApiResponseGenerator.success(memberDto, HttpStatus.OK);
-    }
-
-    private MemberResDto handleNewSession(KakaoLoginParams params, HttpServletRequest request) {
         MemberResDto memberDto = oAuthLoginService.login(params);
+
         HttpSession session = request.getSession(true);
         session.setAttribute("memberId", memberDto.memberId());
-        return memberDto;
-    }
 
-    private MemberResDto handleExistingSession(HttpSession session) {
-        Object memberIdObj = session.getAttribute("memberId");
-        if (memberIdObj == null || memberIdObj.toString().isEmpty()) {
-            session.invalidate();
-            throw new IllegalArgumentException("세션에 유효한 memberId가 없습니다.");
-        }
-
-        Long memberId;
-        try {
-            memberId = Long.parseLong(memberIdObj.toString());
-        } catch (NumberFormatException e) {
-            session.invalidate();
-            throw new IllegalArgumentException("세션의 memberId 형식이 잘못되었습니다.", e);
-        }
-
-        return memberService.findMemberById(memberId);
+        return ApiResponseGenerator.success(memberDto, HttpStatus.OK);
     }
 }
