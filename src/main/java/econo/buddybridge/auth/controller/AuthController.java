@@ -38,7 +38,12 @@ public class AuthController {
             @PathVariable("member-id") Long memberId,
             HttpServletRequest request
     ) {
-        HttpSession session = request.getSession(true);
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate(); // 세션 정보를 삭제한다
+        }
+
+        session = request.getSession(true); // 새로운 세션을 생성한다
 
         MemberResDto member = memberService.findMemberById(memberId);
         session.setAttribute("memberId", member.memberId());
