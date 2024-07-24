@@ -1,15 +1,15 @@
 package econo.buddybridge.post.service;
 
+import econo.buddybridge.matching.entity.Matching;
+import econo.buddybridge.matching.entity.MatchingStatus;
+import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostResDto;
-import econo.buddybridge.post.entity.Post;
-import econo.buddybridge.post.entity.PostType;
-import econo.buddybridge.post.entity.Schedule;
-import econo.buddybridge.post.entity.ScheduleType;
+import econo.buddybridge.post.entity.*;
 import econo.buddybridge.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +30,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final MatchingRepository matchingRepository;
 
     @Transactional(readOnly = true) // 단일 게시글
     public PostResDto findPost(Long postId) {
@@ -103,6 +104,9 @@ public class PostService {
 
     // Post를 사용하여 PostResDto 생성
     public PostResDto postToPostRes(Post post) {
+        List<Matching> matchingList = matchingRepository.findByPostId(post.getId());
+        PostStatus postStatus = determinePostStatus(matchingList);
+
         return PostResDto.builder()
                 .id(post.getId())
                 .author(toMemberResDto(post.getAuthor()))
@@ -117,9 +121,21 @@ public class PostService {
                 .postType(post.getPostType())
                 .createdAt(post.getCreatedAt())
                 .modifiedAt(post.getModifiedAt())
-                .postStatus(post.getPostStatus())
+                .postStatus(postStatus)
                 .disabilityType(post.getDisabilityType())
                 .build();
+    }
+
+    // 매칭 상태에 따라 게시글 상태 결정
+    public PostStatus determinePostStatus(List<Matching> matchingList) {
+        if (matchingList.isEmpty()) {
+            return PostStatus.RECRUITING; // 모집중
+        }
+
+        boolean isCompleted = matchingList.stream()
+                .anyMatch(matching -> matching.getMatchingStatus() == MatchingStatus.DONE);
+
+        return isCompleted ? PostStatus.FINISHED : PostStatus.RECRUITING;
     }
 
     // PostReqDto를 바탕으로 Post생성
