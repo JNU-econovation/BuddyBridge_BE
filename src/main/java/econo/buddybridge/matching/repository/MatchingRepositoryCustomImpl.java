@@ -70,11 +70,11 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
                             matching.getMatchingStatus(),
                             new ReceiverDto(receiver)
                     );
-                }).toList();
+                }).collect(Collectors.toList());
 
         boolean nextPage = false;
         if (matchingResDtos.size() > pageSize) {
-            matchingResDtos.remove(matchingResDtos.size() - 1);
+            matchingResDtos.removeLast();
             nextPage = true;
         }
 
