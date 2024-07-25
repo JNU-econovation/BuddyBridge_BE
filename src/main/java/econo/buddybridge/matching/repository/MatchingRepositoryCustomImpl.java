@@ -49,7 +49,7 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
                 .map(matching1 -> {
                     ChatMessage lastMessage = queryFactory
                             .selectFrom(chatMessage)
-                            .where(chatMessage.matching.id.in(matchings.stream().map(Matching::getId).toList()))
+                            .where(chatMessage.matching.id.eq(matching1.getId()))
                             .orderBy(chatMessage.createdAt.desc())
                             .limit(1)
                             .fetchOne();
@@ -59,10 +59,6 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
                             .selectFrom(member)
                             .where(member.id.eq(receiverId))
                             .fetchOne();
-
-                    if (receiver == null) {
-                        return null;
-                    }
 
                     return new MatchingResDto(
                             matching1.getId(),
