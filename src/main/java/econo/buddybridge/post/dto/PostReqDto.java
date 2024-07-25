@@ -22,8 +22,7 @@ public record PostReqDto(
         String scheduleDetails,
         District district,
         String content,
-        PostType postType,
-        PostStatus postStatus
+        PostType postType
 ) {
 
     public Post toEntity(Member author) {
@@ -40,7 +39,7 @@ public record PostReqDto(
                 .district(district)
                 .content(content)
                 .postType(postType)
-                .postStatus(postStatus)
+                .postStatus(PostStatus.RECRUITING)
                 .build();
     }
 }
