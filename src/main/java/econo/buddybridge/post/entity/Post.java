@@ -5,9 +5,23 @@ import econo.buddybridge.common.persistence.BaseEntity;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.dto.PostReqDto;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -16,6 +30,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 @Table(name = "POST")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+@AllArgsConstructor
 @EntityListeners(value = AuditingEntityListener.class)
 public class Post extends BaseEntity {
     @Id
@@ -23,7 +39,6 @@ public class Post extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @ManyToOne(cascade = CascadeType.REMOVE)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     private Member author;
@@ -45,12 +60,14 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PostType postType;
 
-    private PostStatus postStatus; // 모집 중, 모집 완료
+    @Default
+    @Enumerated(EnumType.STRING)
+    private PostStatus postStatus = PostStatus.RECRUITING; // 모집 중, 모집 완료
 
     @Enumerated(EnumType.STRING)
     private DisabilityType disabilityType;
 
-    protected void setStatus(PostStatus status){ // 상태 변경
+    public void changeStatus(PostStatus status){ // 상태 변경
         this.postStatus = status;
     }
 
@@ -64,21 +81,5 @@ public class Post extends BaseEntity {
         this.district = postReqDto.district();
         this.content = postReqDto.content();
         this.postType = postReqDto.postType();
-    }
-
-    @Builder
-    public Post(Member author, String title, AssistanceType assistanceType,
-                Schedule schedule, District district,
-                String content, PostType postType
-    ) {
-        this.author = author;
-        this.title = title;
-        this.assistanceType = assistanceType;
-        this.schedule = schedule;
-        this.district = district;
-        this.content = content;
-        this.postType = postType;
-        this.postStatus = PostStatus.RECRUITING;
-        this.disabilityType = author.getDisabilityType();
     }
 }
