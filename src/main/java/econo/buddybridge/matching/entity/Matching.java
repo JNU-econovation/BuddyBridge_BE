@@ -49,13 +49,11 @@ public class Matching extends BaseEntity {
     public void updateMatching(MatchingStatus matchingStatus){
         this.matchingStatus = matchingStatus;
         switch (matchingStatus){
-            case PENDING:
+            case PENDING, FAILED:
                 post.changeStatus(PostStatus.RECRUITING);
+                break;
             case DONE:
                 post.changeStatus(PostStatus.FINISHED);
-                break;
-            case FAILED:
-                post.changeStatus(PostStatus.RECRUITING);
                 break;
         }
     }
