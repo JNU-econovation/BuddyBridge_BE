@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @AllArgsConstructor
 @EqualsAndHashCode
 public class Schedule {
