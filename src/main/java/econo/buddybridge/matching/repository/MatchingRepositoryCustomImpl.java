@@ -6,7 +6,9 @@ import static econo.buddybridge.member.entity.QMember.member;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import econo.buddybridge.chat.chatmessage.entity.QChatMessage;
 import econo.buddybridge.matching.dto.MatchingCustomPage;
 import econo.buddybridge.matching.dto.MatchingResDto;
 import econo.buddybridge.matching.dto.QMatchingResDto;
@@ -28,6 +30,8 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
     public MatchingCustomPage findMatchings(Long memberId, Integer size, LocalDateTime cursor, MatchingStatus matchingStatus, Pageable page) {
         int pageSize = page.getPageSize();
 
+        QChatMessage subChatMessage = new QChatMessage("subChatMessage");
+
         List<MatchingResDto> matchingResDtos = queryFactory
                 .select(new QMatchingResDto(
                         matching.id,
@@ -44,7 +48,11 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
                         )
                 ))
                 .from(matching)
-                .leftJoin(chatMessage).on(chatMessage.matching.id.eq(matching.id))
+                .leftJoin(chatMessage).on(chatMessage.matching.eq(matching)
+                        .and(chatMessage.id.eq(JPAExpressions
+                                .select(subChatMessage.id.max())
+                                .from(subChatMessage)
+                                .where(subChatMessage.matching.eq(matching)))))
                 .leftJoin(member).on(
                         member.id.eq(
                                 new CaseBuilder()
