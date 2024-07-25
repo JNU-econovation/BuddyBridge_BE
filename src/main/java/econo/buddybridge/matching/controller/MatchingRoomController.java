@@ -2,6 +2,7 @@ package econo.buddybridge.matching.controller;
 
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageCustomPage;
 import econo.buddybridge.matching.dto.MatchingCustomPage;
+import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.matching.service.MatchingRoomService;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
@@ -14,22 +15,26 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
+// TODO: 쿼리변수로 매칭 상태받아와 해당 매칭만 표현가능한 API로 변경
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chat/matchings")
 public class MatchingRoomController {
 
     private final MatchingRoomService matchingRoomService;
-
-    // GET 로그인한 사용자 매칭방 목록 조회 -> 페이지네이션 적용
+    
+    // 매칭 상태 변경되면 -> 게시글 상태 변경되도록
+    
+    // 매칭방 목록 조회
     @GetMapping("")
     public ApiResponse<ApiResponse.CustomBody<MatchingCustomPage>> getAllMatchingRooms(
             @RequestParam("limit") Integer size,
-            @RequestParam(value="cursor", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime cursor,
-            HttpServletRequest request
+            @RequestParam(value = "cursor", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime cursor,
+            HttpServletRequest request,
+            @RequestParam(value = "matching-status", required = false) MatchingStatus matchingStatus
     ) {
         Long memberId = SessionUtils.getMemberId(request);
-        MatchingCustomPage matchings = matchingRoomService.getMatchingRoomsByMemberId(memberId, size, cursor);
+        MatchingCustomPage matchings = matchingRoomService.getMatchings(memberId, size, cursor, matchingStatus);
         return ApiResponseGenerator.success(matchings, HttpStatus.OK);
     }
 

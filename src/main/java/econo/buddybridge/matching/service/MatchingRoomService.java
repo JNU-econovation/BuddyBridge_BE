@@ -5,9 +5,9 @@ import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
 import econo.buddybridge.matching.dto.MatchingCustomPage;
-import econo.buddybridge.matching.dto.MatchingResDto;
 import econo.buddybridge.matching.dto.ReceiverDto;
 import econo.buddybridge.matching.entity.Matching;
+import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.matching.repository.MatchingRepositoryCustom;
 import econo.buddybridge.member.entity.Member;
@@ -32,52 +32,10 @@ public class MatchingRoomService {
     private final ChatMessageRepository chatMessageRepository;
     private final MatchingRepositoryCustom matchingRepositoryCustom;
 
-    // 페이지네이션 적용
     @Transactional
-    public MatchingCustomPage getMatchingRoomsByMemberId(Long memberId, Integer size, LocalDateTime cursor){
-        Pageable pageable = PageRequest.of(0, size+1);
-        Slice<Matching> matchingSlice;
-
-        if (cursor == null) {
-            matchingSlice = matchingRepositoryCustom.findMatchingByTakerIdOrGiverId(memberId, pageable);
-        } else { // 마지막 채팅 메시지 생성일자 기준 내림차순, cursor 값 이후에 생성된 내용 조회
-            matchingSlice = matchingRepositoryCustom.findMatchingByTakerIdOrGiverIdAndIdLessThan(memberId, cursor, pageable);
-        }
-
-        List<Matching> matchingList = matchingSlice.getContent();
-
-        List<MatchingResDto> matchingResDtoList = matchingList.stream().limit(size)
-                .map(matching -> {
-                    Member receiver = getReceiver(matching, memberId);
-                    List<ChatMessage> massageList = chatMessageRepository.findLastMessageByMatchingId(matching.getId(), PageRequest.of(0, 1));
-                    if (massageList.isEmpty()) {
-                        throw new IllegalArgumentException("마지막 메시지가 존재하지 않습니다.");
-                    }
-
-                    ChatMessage lastMessage = massageList.getFirst();
-
-                    return MatchingResDto.builder()
-                            .matchingId(matching.getId())
-                            .postType(matching.getPost().getPostType())
-                            .postId(matching.getPost().getId())
-                            .lastMessage(lastMessage.getContent())
-                            .lastMessageTime(lastMessage.getCreatedAt())
-                            .messageType(lastMessage.getMessageType())
-                            .matchingStatus(matching.getMatchingStatus())
-                            .receiver(
-                                    ReceiverDto.builder()
-                                            .receiverId(receiver.getId())
-                                            .receiverName(receiver.getName())
-                                            .receiverProfileImg(receiver.getProfileImageUrl())
-                                            .build()
-                            )
-                            .build();
-                }).toList();
-
-        boolean nextPage = matchingList.size() > size;
-
-        LocalDateTime nextCursor = nextPage && !matchingResDtoList.isEmpty() ? matchingResDtoList.get(matchingResDtoList.size() - 1).lastMessageTime() : LocalDateTime.MIN;
-        return new MatchingCustomPage(matchingResDtoList, nextCursor, nextPage);
+    public MatchingCustomPage getMatchings(Long memberId, Integer size, LocalDateTime cursor, MatchingStatus matchingStatus){
+        PageRequest page = PageRequest.of(0,size);
+        return matchingRepositoryCustom.findMatchings(memberId, size, cursor, matchingStatus, page);
     }
 
     @Transactional // 메시지 조회

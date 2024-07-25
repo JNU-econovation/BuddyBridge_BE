@@ -25,7 +25,7 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final MatchingRepository matchingRepository;
 
-    @Transactional(readOnly = true) // 단일 게시글
+    @Transactional(readOnly = true) // 단일 게시글 조회
     public PostResDto findPost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
