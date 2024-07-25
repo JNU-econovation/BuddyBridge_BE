@@ -4,6 +4,7 @@ import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostResDto;
+import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.service.PostService;
 import econo.buddybridge.utils.api.ApiResponse;
@@ -18,18 +19,20 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/posts")
 public class PostController {
+
     private final PostService postService;
 
     // 커스텀 페이지네이션을 사용한 전체 게시글 조회
     @GetMapping
     @AllowAnonymous
     public ApiResponse<ApiResponse.CustomBody<PostCustomPage>> getAllPosts(
-            @RequestParam(value="post-type",required = false) PostType postType,
+            @RequestParam(value = "post-type", required = false) PostType postType,
             @RequestParam("page") Integer page,
             @RequestParam("size") Integer size,
-            @RequestParam(defaultValue="desc",required = false) String sort
+            @RequestParam(defaultValue = "desc", required = false) String sort,
+            @RequestParam(value = "post-status", required = false) PostStatus postStatus
     ) {
-        PostCustomPage posts = postService.getPosts(page,size, sort, postType);
+        PostCustomPage posts = postService.getPosts(page, size, sort, postType, postStatus);
         return ApiResponseGenerator.success(posts, HttpStatus.OK);
     }
 
