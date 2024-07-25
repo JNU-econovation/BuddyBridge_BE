@@ -43,7 +43,7 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
                         matching.matchingStatus,
                         new QReceiverDto(
                                 member.id,
-                                member.nickname,
+                                member.name,
                                 member.profileImageUrl
                         )
                 ))
