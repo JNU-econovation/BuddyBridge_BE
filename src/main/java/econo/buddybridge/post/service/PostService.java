@@ -9,19 +9,18 @@ import econo.buddybridge.member.repository.MemberRepository;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostResDto;
-import econo.buddybridge.post.entity.*;
+import econo.buddybridge.post.entity.Post;
+import econo.buddybridge.post.entity.PostStatus;
+import econo.buddybridge.post.entity.PostType;
+import econo.buddybridge.post.entity.Schedule;
+import econo.buddybridge.post.entity.ScheduleType;
 import econo.buddybridge.post.repository.PostRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import econo.buddybridge.post.repository.PostRepositoryCustom;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -29,6 +28,7 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final PostRepositoryCustom postRepositoryCustom;
     private final MemberRepository memberRepository;
     private final MatchingRepository matchingRepository;
 
@@ -39,51 +39,28 @@ public class PostService {
         return postToPostRes(post);
     }
 
-    @Transactional(readOnly = true) // 전체 게시글
-    public PostCustomPage getPosts(int page, int size, String sort, PostType postType){
-
-        Sort.Direction direction;
-        try {
-            direction = Sort.Direction.valueOf(sort.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("올바르지 않은 정렬 방식입니다.");
-        }
-
-        Pageable pageable = PageRequest.of(Math.max(page-1, 0), size, Sort.by(direction,"createdAt"));
-        Page<Post> postPage;
-
-        if(postType!=null) {
-            postPage = postRepository.findByPostType(pageable, postType);
-        } else {
-            postPage = postRepository.findAll(pageable);
-        }
-
-        List<PostResDto> postResDtoList = postPage.getContent().stream()
-                .map(this::postToPostRes).collect(Collectors.toList());
-
-        int totalPages = (int) Math.ceil((double) postPage.getTotalElements() / size);
-        boolean isLast = page >= totalPages;
-
-        return new PostCustomPage(postResDtoList, postPage.getTotalElements(), isLast);
+    @Transactional(readOnly = true)
+    public PostCustomPage getPosts(Integer page, Integer size, String sort, PostType postType, PostStatus postStatus) {
+        return postRepositoryCustom.findPosts(page - 1, size, sort, postType, postStatus);
     }
-    
+
     // 검증 과정 필요성 고려
     @Transactional // 게시글 생성
     public Long createPost(PostReqDto postReqDto, Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-        Post post = postReqToPost(postReqDto,member);
+        Post post = postReqToPost(postReqDto, member);
 
         return postRepository.save(post).getId();
     }
 
     @Transactional // 게시글 수정
-    public Long updatePost(Long postId, PostReqDto postReqDto, Long memberId){
+    public Long updatePost(Long postId, PostReqDto postReqDto, Long memberId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
-        if(!post.getAuthor().getId().equals(memberId)) {
+        if (!post.getAuthor().getId().equals(memberId)) {
             throw new IllegalArgumentException("본인의 게시글만 수정할 수 있습니다.");
         }
 
@@ -93,10 +70,10 @@ public class PostService {
     }
 
     @Transactional // 게시글 삭제
-    public void deletePost(Long postId, Long memberId){
+    public void deletePost(Long postId, Long memberId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 게시글입니다."));
-        if(!post.getAuthor().getId().equals(memberId)) {
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+        if (!post.getAuthor().getId().equals(memberId)) {
             throw new IllegalArgumentException("본인의 게시글만 수정할 수 있습니다.");
         }
         postRepository.deleteById(postId);
