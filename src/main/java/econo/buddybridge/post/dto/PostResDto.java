@@ -26,24 +26,24 @@ public record PostResDto(
         PostStatus postStatus,
         DisabilityType disabilityType
 ) {
+
     public PostResDto(Post post) {
         this(
-            post.getId(),
-            PostService.toMemberResDto(post.getAuthor()),
-            post.getTitle(),
-            post.getAssistanceType(),
-//            post.getSchedule(),
-            post.getSchedule().getStartTime(),
-            post.getSchedule().getEndTime(),
-            post.getSchedule().getScheduleType(),
-            post.getSchedule().getScheduleDetails(),
-            post.getDistrict(),
-            post.getContent(),
-            post.getPostType(),
-            post.getCreatedAt(),
-            post.getModifiedAt(),
-            post.getPostStatus(),
-            post.getDisabilityType()
+                post.getId(),
+                PostService.toMemberResDto(post.getAuthor()),
+                post.getTitle(),
+                post.getAssistanceType(),
+                post.getSchedule().getStartTime(),
+                post.getSchedule().getEndTime(),
+                post.getSchedule().getScheduleType(),
+                post.getSchedule().getScheduleDetails(),
+                post.getDistrict(),
+                post.getContent(),
+                post.getPostType(),
+                post.getCreatedAt(),
+                post.getModifiedAt(),
+                post.getPostStatus(),
+                post.getDisabilityType()
         );
     }
 
