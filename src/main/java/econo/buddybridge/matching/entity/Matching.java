@@ -3,6 +3,7 @@ package econo.buddybridge.matching.entity;
 import econo.buddybridge.common.persistence.BaseEntity;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.entity.Post;
+import econo.buddybridge.post.entity.PostStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -47,5 +48,15 @@ public class Matching extends BaseEntity {
     // 매칭 상태 변경
     public void updateMatching(MatchingStatus matchingStatus){
         this.matchingStatus = matchingStatus;
+        switch (matchingStatus){
+            case PENDING:
+                post.changeStatus(PostStatus.RECRUITING);
+            case DONE:
+                post.changeStatus(PostStatus.FINISHED);
+                break;
+            case FAILED:
+                post.changeStatus(PostStatus.RECRUITING);
+                break;
+        }
     }
 }
