@@ -1,5 +1,6 @@
 package econo.buddybridge.matching.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import econo.buddybridge.chat.chatmessage.entity.MessageType;
 import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.post.entity.PostType;
@@ -18,5 +19,7 @@ public record MatchingResDto(
         MatchingStatus matchingStatus,
         ReceiverDto receiver
 ) {
-
+    @QueryProjection
+    public MatchingResDto {
+    }
 }

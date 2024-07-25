@@ -1,19 +1,24 @@
 package econo.buddybridge.matching.repository;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import econo.buddybridge.chat.chatmessage.entity.QChatMessage;
+import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
+import econo.buddybridge.matching.dto.MatchingCustomPage;
+import econo.buddybridge.matching.dto.MatchingResDto;
+import econo.buddybridge.matching.dto.ReceiverDto;
 import econo.buddybridge.matching.entity.Matching;
-import econo.buddybridge.matching.entity.QMatching;
+import econo.buddybridge.matching.entity.MatchingStatus;
+import econo.buddybridge.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+
+import static econo.buddybridge.chat.chatmessage.entity.QChatMessage.chatMessage;
+import static econo.buddybridge.matching.entity.QMatching.matching;
+import static econo.buddybridge.member.entity.QMember.member;
 
 @Repository
 @RequiredArgsConstructor
@@ -21,57 +26,72 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
+    // TODO : 전체 매칭 리스트를 가져와
+    // 가져오는데 커서기반 페이지네이션을 적용
+    // cursor가 있는지 없는지에 따라
+    // matchingStatus가 있는지 없는지 따라
+    // 채팅의 마지막 생성 시간을 가져와서 정렬
     @Override
-    public Slice<Matching> findMatchingByTakerIdOrGiverId(Long memberId, Pageable pageable) {
-        return findMatchingByTakerIdOrGiverIdAndCursor(memberId, null, pageable);
-    }
+    public MatchingCustomPage findMatchings(Long memberId, Integer size, LocalDateTime cursor, MatchingStatus matchingStatus, Pageable page) {
+        int pageSize = page.getPageSize();
 
-    @Override
-    public Slice<Matching> findMatchingByTakerIdOrGiverIdAndIdLessThan(Long memberId, LocalDateTime cursor, Pageable pageable) {
-        return findMatchingByTakerIdOrGiverIdAndCursor(memberId, cursor, pageable);
-    }
-
-    private Slice<Matching> findMatchingByTakerIdOrGiverIdAndCursor(Long memberId,LocalDateTime cursor, Pageable pageable) {
-        QMatching matching = QMatching.matching;
-        QChatMessage chatMessage = QChatMessage.chatMessage;
-
-        List<Matching> matchingList = queryFactory.selectFrom(matching)
-                .where(matching.taker.id.eq(memberId).or(matching.giver.id.eq(memberId)))
+        List<Matching> matchings = queryFactory
+                .selectFrom(matching)
+                .where(
+                        matching.taker.id.eq(memberId).or(matching.giver.id.eq(memberId)),
+                        buildCursorExpression(cursor),
+                        buildMatchingStatusExpression(matchingStatus)
+                )
+                .limit(size + 1)
                 .fetch();
 
-        // 각 Matching에 대해 마지막 ChatMessage의 생성 시간
-        Map<Long, LocalDateTime> latestMessageTimeMap = matchingList.stream()
-                .collect(Collectors.toMap(
-                        Matching::getId,
-                        m -> {
-                            LocalDateTime latestMessageTime = queryFactory.select(chatMessage.createdAt.max())
-                                    .from(chatMessage)
-                                    .where(chatMessage.matching.id.eq(m.getId()))
-                                    .fetchOne();
-                            return latestMessageTime != null ? latestMessageTime : LocalDateTime.MIN;
-                        }
-                ));
+        List<MatchingResDto> matchingResDtos = matchings.stream()
+                .map(matching1 -> {
+                    ChatMessage lastMessage = queryFactory
+                            .selectFrom(chatMessage)
+                            .where(chatMessage.matching.id.in(matchings.stream().map(Matching::getId).toList()))
+                            .orderBy(chatMessage.createdAt.desc())
+                            .limit(1)
+                            .fetchOne();
 
-        // Matching 리스트를 마지막 메시지의 createdAt을 기준으로 정렬
-        List<Matching> sortedMatchingList = matchingList.stream()
-                .filter(m -> cursor == null || latestMessageTimeMap.get(m.getId()).isAfter(cursor))
-                .sorted((m1, m2) -> {
-                    LocalDateTime time1 = latestMessageTimeMap.get(m1.getId());
-                    LocalDateTime time2 = latestMessageTimeMap.get(m2.getId());
-                    return time2.compareTo(time1); // 내림차순 정렬
-                })
-                .skip(pageable.getOffset()) // page 기반 시 필요
-                .limit(pageable.getPageSize() + 1)
-                .toList();
+                    Long receiverId = memberId.equals(matching1.getTaker().getId()) ? matching1.getGiver().getId() : matching1.getTaker().getId();
+                    Member receiver = queryFactory
+                            .selectFrom(member)
+                            .where(member.id.eq(receiverId))
+                            .fetchOne();
 
-        return createSlice(sortedMatchingList, pageable);
+                    if (receiver == null) {
+                        return null;
+                    }
+
+                    return new MatchingResDto(
+                            matching1.getId(),
+                            matching1.getPost().getPostType(),
+                            matching1.getPost().getId(),
+                            lastMessage.getContent(),
+                            lastMessage.getCreatedAt(),
+                            lastMessage.getMessageType(),
+                            matching1.getMatchingStatus(),
+                            new ReceiverDto(receiver)
+                    );
+                }).toList();
+
+        boolean nextPage = false;
+        if (matchingResDtos.size() > pageSize) {
+            matchingResDtos.removeLast();
+            nextPage = true;
+        }
+
+        LocalDateTime nextCursor = nextPage ? matchingResDtos.getLast().lastMessageTime() : LocalDateTime.MIN;
+
+        return new MatchingCustomPage(matchingResDtos, nextCursor, nextPage);
     }
 
-    private Slice<Matching> createSlice(List<Matching> matchingList, Pageable pageable){
-        boolean hasNext = matchingList.size() > pageable.getPageSize();
-        if(hasNext){
-            matchingList.removeLast();
-        }
-        return new SliceImpl<>(matchingList, pageable, hasNext);
+    private BooleanExpression buildCursorExpression(LocalDateTime cursor) {
+        return cursor == null ? null : chatMessage.createdAt.lt(cursor);
+    }
+
+    private BooleanExpression buildMatchingStatusExpression(MatchingStatus matchingStatus) {
+        return matchingStatus == null ? null : matching.matchingStatus.eq(matchingStatus);
     }
 }

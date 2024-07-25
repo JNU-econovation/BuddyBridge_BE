@@ -1,6 +1,5 @@
 package econo.buddybridge.post.service;
 
-import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.repository.MemberRepository;
 import econo.buddybridge.post.dto.PostCustomPage;
@@ -23,9 +22,8 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostRepositoryCustom postRepositoryCustom;
     private final MemberRepository memberRepository;
-    private final MatchingRepository matchingRepository;
 
-    @Transactional(readOnly = true) // 단일 게시글
+    @Transactional(readOnly = true) // 단일 게시글 조회
     public PostResDto findPost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
