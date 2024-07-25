@@ -46,35 +46,35 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
                 .fetch();
 
         List<MatchingResDto> matchingResDtos = matchings.stream()
-                .map(matching1 -> {
+                .map(matching -> {
                     ChatMessage lastMessage = queryFactory
                             .selectFrom(chatMessage)
-                            .where(chatMessage.matching.id.eq(matching1.getId()))
+                            .where(chatMessage.matching.id.eq(matching.getId()))
                             .orderBy(chatMessage.createdAt.desc())
                             .limit(1)
                             .fetchOne();
 
-                    Long receiverId = memberId.equals(matching1.getTaker().getId()) ? matching1.getGiver().getId() : matching1.getTaker().getId();
+                    Long receiverId = memberId.equals(matching.getTaker().getId()) ? matching.getGiver().getId() : matching.getTaker().getId();
                     Member receiver = queryFactory
                             .selectFrom(member)
                             .where(member.id.eq(receiverId))
                             .fetchOne();
 
                     return new MatchingResDto(
-                            matching1.getId(),
-                            matching1.getPost().getPostType(),
-                            matching1.getPost().getId(),
+                            matching.getId(),
+                            matching.getPost().getPostType(),
+                            matching.getPost().getId(),
                             lastMessage.getContent(),
                             lastMessage.getCreatedAt(),
                             lastMessage.getMessageType(),
-                            matching1.getMatchingStatus(),
+                            matching.getMatchingStatus(),
                             new ReceiverDto(receiver)
                     );
                 }).toList();
 
         boolean nextPage = false;
         if (matchingResDtos.size() > pageSize) {
-            matchingResDtos.removeLast();
+            matchingResDtos.remove(matchingResDtos.size() - 1);
             nextPage = true;
         }
 
