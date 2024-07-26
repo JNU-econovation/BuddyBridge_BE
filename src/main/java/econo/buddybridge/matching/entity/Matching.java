@@ -1,10 +1,13 @@
 package econo.buddybridge.matching.entity;
 
+import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
 import econo.buddybridge.common.persistence.BaseEntity;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostStatus;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,6 +39,9 @@ public class Matching extends BaseEntity {
     // 매칭 상태
     @Enumerated(EnumType.STRING)
     private MatchingStatus matchingStatus;
+
+    @OneToMany(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatMessage> chatMessages = new ArrayList<>();
 
     @Builder
     public Matching(Post post, Member taker, Member giver, MatchingStatus matchingStatus){
