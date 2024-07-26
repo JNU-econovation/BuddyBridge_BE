@@ -2,9 +2,11 @@ package econo.buddybridge.post.entity;
 
 
 import econo.buddybridge.common.persistence.BaseEntity;
+import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.dto.PostReqDto;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -17,7 +19,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -66,6 +71,9 @@ public class Post extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private DisabilityType disabilityType;
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
+    private final List<Matching> matchings = new ArrayList<>();
 
     public void changeStatus(PostStatus status){ // 상태 변경
         this.postStatus = status;
