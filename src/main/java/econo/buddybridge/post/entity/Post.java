@@ -1,6 +1,7 @@
 package econo.buddybridge.post.entity;
 
 
+import econo.buddybridge.comment.entity.Comment;
 import econo.buddybridge.common.persistence.BaseEntity;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.member.entity.DisabilityType;
@@ -74,6 +75,9 @@ public class Post extends BaseEntity {
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<Matching> matchings = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
+    private final List<Comment> comments = new ArrayList<>();
 
     public void changeStatus(PostStatus status){ // 상태 변경
         this.postStatus = status;
