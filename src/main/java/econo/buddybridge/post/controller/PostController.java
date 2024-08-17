@@ -1,9 +1,11 @@
 package econo.buddybridge.post.controller;
 
 import econo.buddybridge.common.annotation.AllowAnonymous;
+import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostResDto;
+import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.service.PostService;
@@ -30,9 +32,11 @@ public class PostController {
             @RequestParam("page") Integer page,
             @RequestParam("size") Integer size,
             @RequestParam(defaultValue = "desc", required = false) String sort,
-            @RequestParam(value = "post-status", required = false) PostStatus postStatus
+            @RequestParam(value = "post-status", required = false) PostStatus postStatus,
+            @RequestParam(value = "disability-type", required = false) DisabilityType disabilityType,
+            @RequestParam(value = "assistance-type", required = false) AssistanceType assistanceType
     ) {
-        PostCustomPage posts = postService.getPosts(page, size, sort, postType, postStatus);
+        PostCustomPage posts = postService.getPosts(page, size, sort, postType, postStatus, disabilityType, assistanceType);
         return ApiResponseGenerator.success(posts, HttpStatus.OK);
     }
 
