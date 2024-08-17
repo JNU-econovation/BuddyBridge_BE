@@ -6,12 +6,13 @@ import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostStatus;
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -50,7 +51,7 @@ public class Matching extends BaseEntity {
         this.giver = giver;
         this.matchingStatus = matchingStatus;
     }
-    
+
     // 매칭 상태 변경
     public void updateMatching(MatchingStatus matchingStatus){
         this.matchingStatus = matchingStatus;
