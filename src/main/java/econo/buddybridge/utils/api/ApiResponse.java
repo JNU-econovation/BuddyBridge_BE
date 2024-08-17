@@ -1,5 +1,6 @@
 package econo.buddybridge.utils.api;
 
+import econo.buddybridge.common.exception.ErrorResponse;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,6 +30,6 @@ public class ApiResponse<B> extends ResponseEntity<B> {
     public static class CustomBody<D> implements Serializable {
         private Boolean success;
         private D data;
-        private Error error;
+        private ErrorResponse error;
     }
 }
