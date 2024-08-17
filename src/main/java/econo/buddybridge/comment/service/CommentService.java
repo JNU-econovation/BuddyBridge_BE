@@ -34,8 +34,7 @@ public class CommentService {
 
     @Transactional(readOnly = true) // 댓글 조회
     public CommentCustomPage getComments(Long postId, Integer size, String order, Long cursor) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+        Post post = findPostByIdOrThrow(postId);
 
         Direction direction;
         try {
@@ -48,26 +47,39 @@ public class CommentService {
 
         return commentRepositoryCustom.findByPost(post, cursor, page);
     }
+
+    private Post findPostByIdOrThrow(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+    }
     
     @Transactional  // 댓글 생성
     public Long createComment(CommentReqDto commentReqDto, Long postId, Long memberId) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        Member member = findMemberByIdOrThrow(memberId);
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+        Post post = findPostByIdOrThrow(postId);
 
         Comment comment = commentReqToComment(commentReqDto, post, member);
 
+        // 게시글 작성자에게 댓글 알림 전송
+        sendNotificationToPostAuthor(member, comment, post);
+
+        return commentRepository.save(comment).getId();
+    }
+
+    private Member findMemberByIdOrThrow(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+    }
+
+    private void sendNotificationToPostAuthor(Member member, Comment comment, Post post) {
         // 알림 내용은 댓글 작성자 이름과 댓글 내용
         String notificationContent = member.getName() + "님이 댓글을 남겼습니다. - " + comment.getContent();
         String notificationUrl = getCommentNotificationUrl(post.getPostType(), post.getId());
 
         // 댓글 알림은 게시글 작성자에게 전송
         emitterService.send(post.getAuthor(), notificationContent, notificationUrl, NotificationType.COMMENT);
-
-        return commentRepository.save(comment).getId();
     }
 
     private String getCommentNotificationUrl(PostType postType, Long postId) {
