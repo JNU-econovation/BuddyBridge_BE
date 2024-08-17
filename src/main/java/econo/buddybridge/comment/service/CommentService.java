@@ -3,6 +3,9 @@ package econo.buddybridge.comment.service;
 import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentReqDto;
 import econo.buddybridge.comment.entity.Comment;
+import econo.buddybridge.comment.exception.CommentDeleteNotAllowedException;
+import econo.buddybridge.comment.exception.CommentNotFoundException;
+import econo.buddybridge.comment.exception.CommentUpdateNotAllowedException;
 import econo.buddybridge.comment.repository.CommentRepository;
 import econo.buddybridge.comment.repository.CommentRepositoryCustom;
 import econo.buddybridge.member.entity.Member;
@@ -81,11 +84,10 @@ public class CommentService {
 
     @Transactional  // 댓글 수정
     public Long updateComment(Long commentId, CommentReqDto commentReqDto, Long memberId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
+        Comment comment = findCommentByIdOrThrow(commentId);
 
         if (!comment.getAuthor().getId().equals(memberId)) {
-            throw new IllegalArgumentException("본인의 댓글만 수정할 수 있습니다.");
+            throw CommentUpdateNotAllowedException.EXCEPTION;
         }
 
         comment.updateContent(commentReqDto.content());
@@ -95,14 +97,18 @@ public class CommentService {
 
     @Transactional  // 댓글 삭제
     public void deleteComment(Long commentId, Long memberId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
+        Comment comment = findCommentByIdOrThrow(commentId);
 
         if (!comment.getAuthor().getId().equals(memberId)) {
-            throw new IllegalArgumentException("본인의 댓글만 삭제할 수 있습니다.");
+            throw CommentDeleteNotAllowedException.EXCEPTION;
         }
 
         commentRepository.delete(comment);
+    }
+
+    private Comment findCommentByIdOrThrow(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> CommentNotFoundException.EXCEPTION);
     }
 
     private Comment commentReqToComment(CommentReqDto commentReqDto, Post post, Member member) {
