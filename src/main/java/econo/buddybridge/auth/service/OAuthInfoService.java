@@ -4,6 +4,7 @@ import econo.buddybridge.auth.OAuthProvider;
 import econo.buddybridge.auth.client.OAuthApiClient;
 import econo.buddybridge.auth.dto.OAuthInfoResponse;
 import econo.buddybridge.auth.dto.OAuthLoginParams;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -18,9 +19,8 @@ public class OAuthInfoService {
     private final Map<OAuthProvider, OAuthApiClient> clients;
 
     public OAuthInfoService(List<OAuthApiClient> clients) {
-        this.clients = clients.stream().collect(
-                Collectors.toUnmodifiableMap(OAuthApiClient::getOAuthProvider, Function.identity())
-        );
+        this.clients = new EnumMap<>(clients.stream()
+                .collect(Collectors.toMap(OAuthApiClient::getOAuthProvider, Function.identity())));
     }
 
     public OAuthInfoResponse getUserInfo(OAuthLoginParams params) {
