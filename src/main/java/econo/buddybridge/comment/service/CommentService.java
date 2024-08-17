@@ -4,6 +4,7 @@ import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentReqDto;
 import econo.buddybridge.comment.entity.Comment;
 import econo.buddybridge.comment.exception.CommentDeleteNotAllowedException;
+import econo.buddybridge.comment.exception.CommentInvalidDirectionException;
 import econo.buddybridge.comment.exception.CommentNotFoundException;
 import econo.buddybridge.comment.exception.CommentUpdateNotAllowedException;
 import econo.buddybridge.comment.repository.CommentRepository;
@@ -40,7 +41,7 @@ public class CommentService {
         try {
             direction = Direction.valueOf(order);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("올바르지 않은 정렬 방식입니다.");
+            throw CommentInvalidDirectionException.EXCEPTION;
         }
 
         PageRequest page = PageRequest.of(0, size, Sort.by(direction, "id"));
