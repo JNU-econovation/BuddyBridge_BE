@@ -23,17 +23,7 @@ public class EmitterService {
 
         SseEmitter emitter = emitterRepository.save(eventId, new SseEmitter(CONNECT_TIMEOUT));
 
-        emitter.onCompletion(() -> emitterRepository.deleteById(eventId));
-
-        emitter.onTimeout(() -> {
-            emitter.complete();
-            emitterRepository.deleteById(eventId);
-        });
-
-        emitter.onError((error) -> {
-            emitter.completeWithError(error);
-            emitterRepository.deleteById(eventId);
-        });
+        initEmitter(emitter, eventId);  // emitter 초기 설정
 
         // 503 에러를 방지하기 위한 더미 데이터 전송
         sendNotification(emitter, eventId, "EventStream Created. [memberId=" + memberId + "]");
@@ -48,6 +38,20 @@ public class EmitterService {
 
     private String generateEventIdByMemberId(String memberId) {
         return memberId + "_" + System.currentTimeMillis();
+    }
+
+    private void initEmitter(SseEmitter emitter, String eventId) {
+        emitter.onCompletion(() -> emitterRepository.deleteById(eventId));
+
+        emitter.onTimeout(() -> {
+            emitter.complete();
+            emitterRepository.deleteById(eventId);
+        });
+
+        emitter.onError((error) -> {
+            emitter.completeWithError(error);
+            emitterRepository.deleteById(eventId);
+        });
     }
 
     private void sendNotification(SseEmitter emitter, String eventId, Object payload) {
