@@ -11,8 +11,10 @@ import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.matching.repository.MatchingRepositoryCustom;
 import econo.buddybridge.member.entity.Member;
-import econo.buddybridge.member.repository.MemberRepository;
+import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.entity.Post;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,14 +22,11 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class MatchingRoomService {
     
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final MatchingRepository matchingRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final MatchingRepositoryCustom matchingRepositoryCustom;
@@ -93,7 +92,6 @@ public class MatchingRoomService {
             receiverId = matching.getGiver().getId();
         }
         
-        return memberRepository.findById(receiverId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        return memberService.findMemberByIdOrThrow(receiverId);
     }
 }

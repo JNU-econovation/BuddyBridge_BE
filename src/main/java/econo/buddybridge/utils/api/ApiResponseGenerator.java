@@ -1,5 +1,6 @@
 package econo.buddybridge.utils.api;
 
+import econo.buddybridge.common.exception.ErrorResponse;
 import lombok.experimental.UtilityClass;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,8 +21,8 @@ public class ApiResponseGenerator {
         return new ApiResponse<>(new ApiResponse.CustomBody<>(true, data,null), mediaType,status);
     }
 
-    public static ApiResponse<ApiResponse.CustomBody<?>> fail(String message, final HttpStatus status) {
-        return new ApiResponse<>(new ApiResponse.CustomBody<>(false,null, new Error(message, status.toString())), status);
+    public static ApiResponse<ApiResponse.CustomBody<ErrorResponse>> fail(final ErrorResponse errorResponse, final HttpStatus status) {
+        return new ApiResponse<>(new ApiResponse.CustomBody<>(false, null, errorResponse), status);
     }
 
     public static <D> ApiResponse<ApiResponse.CustomBody<D>> success(final D data, final HttpHeaders headers, final HttpStatus status) {
