@@ -10,7 +10,7 @@ import econo.buddybridge.comment.exception.CommentUpdateNotAllowedException;
 import econo.buddybridge.comment.repository.CommentRepository;
 import econo.buddybridge.comment.repository.CommentRepositoryCustom;
 import econo.buddybridge.member.entity.Member;
-import econo.buddybridge.member.repository.MemberRepository;
+import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.entity.NotificationType;
 import econo.buddybridge.notification.service.EmitterService;
 import econo.buddybridge.post.entity.Post;
@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CommentService {
 
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final CommentRepositoryCustom commentRepositoryCustom;
@@ -57,7 +57,7 @@ public class CommentService {
     @Transactional  // 댓글 생성
     public Long createComment(CommentReqDto commentReqDto, Long postId, Long memberId) {
 
-        Member member = findMemberByIdOrThrow(memberId);
+        Member member = memberService.findMemberByIdOrThrow(memberId);
 
         Post post = findPostByIdOrThrow(postId);
 
@@ -67,11 +67,6 @@ public class CommentService {
         sendNotificationToPostAuthor(member, comment, post);
 
         return commentRepository.save(comment).getId();
-    }
-
-    private Member findMemberByIdOrThrow(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
     }
 
     private void sendNotificationToPostAuthor(Member member, Comment comment, Post post) {

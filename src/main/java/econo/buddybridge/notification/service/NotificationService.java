@@ -1,7 +1,7 @@
 package econo.buddybridge.notification.service;
 
 import econo.buddybridge.member.entity.Member;
-import econo.buddybridge.member.repository.MemberRepository;
+import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.dto.NotificationCustomPage;
 import econo.buddybridge.notification.entity.Notification;
 import econo.buddybridge.notification.repository.NotificationRepository;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class NotificationService {
 
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final NotificationRepository notificationRepository;
     private final NotificationRepositoryCustom notificationRepositoryCustom;
 
@@ -25,15 +25,13 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public NotificationCustomPage getNotifications(Long memberId, Integer size, Long cursor) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        Member member = memberService.findMemberByIdOrThrow(memberId);
         return notificationRepositoryCustom.findByMemberId(member.getId(), size, cursor);
     }
 
     @Transactional
     public void markAsRead(Long notificationId, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        Member member = memberService.findMemberByIdOrThrow(memberId);
 
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림입니다."));

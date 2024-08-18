@@ -9,7 +9,7 @@ import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.Member;
-import econo.buddybridge.member.repository.MemberRepository;
+import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.repository.PostRepository;
@@ -23,25 +23,22 @@ public class MatchingService {
     private final ChatMessageRepository chatMessageRepository;
     private final MatchingRepository matchingRepository;
     private final PostRepository postRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     @Transactional // TODO: 매칭 생성 -> 예외처리 필요 + 댓글에서 사용자 정보 가져오기 고려
     public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId) {
         Post post = postRepository.findById(matchingReqDto.postId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
-        Member loginMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        Member loginMember = memberService.findMemberByIdOrThrow(memberId);
 
         Member taker, giver;
 
         if (post.getPostType() == PostType.GIVER) {
             giver = loginMember;
-            taker = memberRepository.findById(matchingReqDto.takerId())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+            taker = memberService.findMemberByIdOrThrow(matchingReqDto.takerId());
         } else {
-            giver = memberRepository.findById(matchingReqDto.giverId())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+            giver = memberService.findMemberByIdOrThrow(matchingReqDto.giverId());
             taker = loginMember;
         }
 
