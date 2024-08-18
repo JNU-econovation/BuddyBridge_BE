@@ -4,6 +4,8 @@ import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.dto.NotificationCustomPage;
 import econo.buddybridge.notification.entity.Notification;
+import econo.buddybridge.notification.exception.NotificationAccessDeniedException;
+import econo.buddybridge.notification.exception.NotificationNotFoundException;
 import econo.buddybridge.notification.repository.NotificationRepository;
 import econo.buddybridge.notification.repository.NotificationRepositoryCustom;
 import lombok.RequiredArgsConstructor;
@@ -34,10 +36,10 @@ public class NotificationService {
         Member member = memberService.findMemberByIdOrThrow(memberId);
 
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림입니다."));
+                .orElseThrow(() -> NotificationNotFoundException.EXCEPTION);
 
         if (!notification.getReceiver().getId().equals(member.getId())) {
-            throw new IllegalArgumentException("본인의 알림만 읽을 수 있습니다.");
+            throw NotificationAccessDeniedException.EXCEPTION;
         }
 
         notification.markAsRead();
