@@ -4,8 +4,8 @@ import econo.buddybridge.auth.dto.OAuthInfoResponse;
 import econo.buddybridge.member.dto.MemberReqDto;
 import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.exception.MemberNotFoundException;
 import econo.buddybridge.member.repository.MemberRepository;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public MemberResDto findMemberById(Long memberId) {
-        Member member = validateVerifyMemberById(memberId);
+        Member member = findMemberByIdOrThrow(memberId);
         return new MemberResDto(member);
     }
 
@@ -28,10 +28,10 @@ public class MemberService {
     }
 
     // 존재하는 회원인지 확인
-    public Member validateVerifyMemberById(Long memberId) {
-        Optional<Member> optionalMember = memberRepository.findById(memberId);
-        return optionalMember.orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+    @Transactional(readOnly = true)
+    public Member findMemberByIdOrThrow(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> MemberNotFoundException.EXCEPTION);
     }
 
     @Transactional
@@ -48,7 +48,7 @@ public class MemberService {
 
     @Transactional
     public void updateMemberById(Long memberId, MemberReqDto memberReqDto) {
-        Member member = validateVerifyMemberById(memberId);
+        Member member = findMemberByIdOrThrow(memberId);
 
         member.updateMemberInfo(memberReqDto.name(), memberReqDto.nickname(), memberReqDto.profileImageUrl(),
                 memberReqDto.email(), memberReqDto.age(), memberReqDto.disabilityType(), member.getGender());
