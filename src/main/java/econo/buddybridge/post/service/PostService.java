@@ -1,10 +1,12 @@
 package econo.buddybridge.post.service;
 
+import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostResDto;
+import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
@@ -31,8 +33,9 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostCustomPage getPosts(Integer page, Integer size, String sort, PostType postType, PostStatus postStatus) {
-        return postRepositoryCustom.findPosts(page - 1, size, sort, postType, postStatus);
+    public PostCustomPage getPosts(Integer page, Integer size, String sort, PostType postType, PostStatus postStatus,
+                                   DisabilityType disabilityType, AssistanceType assistanceType) {
+        return postRepositoryCustom.findPosts(page - 1, size, sort, postType, postStatus, disabilityType, assistanceType);
     }
 
     // 검증 과정 필요성 고려
