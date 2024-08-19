@@ -3,15 +3,12 @@ package econo.buddybridge.member.service;
 import econo.buddybridge.auth.dto.OAuthInfoResponse;
 import econo.buddybridge.member.dto.MemberReqDto;
 import econo.buddybridge.member.dto.MemberResDto;
-import econo.buddybridge.member.entity.DisabilityType;
-import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.exception.MemberNotFoundException;
 import econo.buddybridge.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,17 +18,8 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public MemberResDto findMemberById(Long memberId) {
-        Member member = validateVerifyMemberById(memberId);
-        return MemberResDto.builder()
-                .memberId(member.getId())
-                .name(member.getName())
-                .nickname(member.getNickname())
-                .email(member.getEmail())
-                .age(member.getAge())
-                .gender(member.getGender())
-                .disabilityType(member.getDisabilityType())
-                .profileImageUrl(member.getProfileImageUrl())
-                .build();
+        Member member = findMemberByIdOrThrow(memberId);
+        return new MemberResDto(member);
     }
 
     @Transactional(readOnly = true)
@@ -40,44 +28,27 @@ public class MemberService {
     }
 
     // 존재하는 회원인지 확인
-    public Member validateVerifyMemberById(Long memberId) {
-        Optional<Member> optionalMember = memberRepository.findById(memberId);
-        return optionalMember.orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+    @Transactional(readOnly = true)
+    public Member findMemberByIdOrThrow(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> MemberNotFoundException.EXCEPTION);
     }
 
     @Transactional
     public MemberResDto findOrCreateMemberByEmail(OAuthInfoResponse info) {
         Member member = memberRepository.findByEmail(info.getEmail())
                 .orElseGet(() -> newMember(info));
-        return MemberResDto.builder()
-                .memberId(member.getId())
-                .name(member.getName())
-                .nickname(member.getNickname())
-                .email(member.getEmail())
-                .age(member.getAge())
-                .gender(member.getGender())
-                .disabilityType(member.getDisabilityType())
-                .profileImageUrl(member.getProfileImageUrl())
-                .build();
+        return new MemberResDto(member);
     }
 
     private Member newMember(OAuthInfoResponse info) {
-        Member member = Member.builder()
-                .email(info.getEmail())
-                .name(info.getName())
-                .nickname(info.getNickname())
-                .age(info.getAge())
-                .gender(Gender.fromEnglishName(info.getGender()))
-                .disabilityType(DisabilityType.없음)
-                .profileImageUrl(info.getProfileImageUrl())
-                .build();
+        Member member = info.toMember();
         return memberRepository.save(member);
     }
 
     @Transactional
     public void updateMemberById(Long memberId, MemberReqDto memberReqDto) {
-        Member member = validateVerifyMemberById(memberId);
+        Member member = findMemberByIdOrThrow(memberId);
 
         member.updateMemberInfo(memberReqDto.name(), memberReqDto.nickname(), memberReqDto.profileImageUrl(),
                 memberReqDto.email(), memberReqDto.age(), memberReqDto.disabilityType(), member.getGender());

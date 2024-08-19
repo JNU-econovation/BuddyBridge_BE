@@ -7,29 +7,27 @@ import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.Member;
-import econo.buddybridge.member.repository.MemberRepository;
+import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.entity.NotificationType;
 import econo.buddybridge.notification.service.EmitterService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ChatMessageService {
 
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final MatchingRepository matchingRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final EmitterService emitterService;
 
     @Transactional // 메시지 저장
     public ChatMessageResDto save(Long senderId, ChatMessageReqDto chatMessageReqDto, Long matchingId) {
-        Member sender = memberRepository.findById(senderId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        Member sender = memberService.findMemberByIdOrThrow(senderId);
 
         Matching matching = matchingRepository.findById(matchingId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭입니다."));
@@ -42,8 +40,7 @@ public class ChatMessageService {
                 .build();
 
         Long receiverId = getReceiverId(sender.getId(), matching.getId());
-        Member receiver = memberRepository.findById(receiverId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        Member receiver = memberService.findMemberByIdOrThrow(receiverId);
 
         emitterService.send(    // 채팅을 받는 사용자에게 알림 전송
                 receiver,
