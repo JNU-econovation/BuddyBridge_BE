@@ -4,8 +4,6 @@ import econo.buddybridge.common.exception.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 public enum PostErrorCode implements ErrorCode {
-    // TODO: Implement PostErrorCode
-    // EX) INVALID_INPUT_VALUE("P001", HttpStatus.BAD_REQUEST, "요청 값이 잘못되었습니다."),
     POST_NOT_FOUND("P001", HttpStatus.NOT_FOUND, "존재하지 않는 게시글입니다."),
     POST_DELETE_NOT_ALLOWED("P002", HttpStatus.FORBIDDEN, "본인의 게시글만 삭제할 수 있습니다."),
     POST_UPDATE_NOT_ALLOWED("P003", HttpStatus.FORBIDDEN, "본인의 게시글만 수정할 수 있습니다."),
