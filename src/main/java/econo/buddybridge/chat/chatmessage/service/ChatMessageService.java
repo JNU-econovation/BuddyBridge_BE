@@ -3,34 +3,36 @@ package econo.buddybridge.chat.chatmessage.service;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageReqDto;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
+import econo.buddybridge.chat.chatmessage.exception.LastChatMessageNotFoundException;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
 import econo.buddybridge.matching.entity.Matching;
-import econo.buddybridge.matching.repository.MatchingRepository;
+import econo.buddybridge.matching.exception.MatchingUnauthorizedAccessException;
+import econo.buddybridge.matching.service.MatchingService;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.entity.NotificationType;
 import econo.buddybridge.notification.service.EmitterService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ChatMessageService {
 
     private final MemberService memberService;
-    private final MatchingRepository matchingRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final EmitterService emitterService;
+    private final MatchingService matchingService;
 
     @Transactional // 메시지 저장
     public ChatMessageResDto save(Long senderId, ChatMessageReqDto chatMessageReqDto, Long matchingId) {
         Member sender = memberService.findMemberByIdOrThrow(senderId);
 
-        Matching matching = matchingRepository.findById(matchingId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭입니다."));
+        Matching matching = matchingService.findMatchingByIdOrThrow(matchingId);
 
         ChatMessage chatMessage = ChatMessage.builder()
                 .matching(matching)
@@ -61,15 +63,14 @@ public class ChatMessageService {
     }
 
     private Long getReceiverId(Long senderId, Long matchingId) {
-        Matching matching = matchingRepository.findById(matchingId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭입니다."));
+        Matching matching = matchingService.findMatchingByIdOrThrow(matchingId);
 
         if (matching.getGiver().getId().equals(senderId)) {
             return matching.getTaker().getId();
         } else if (matching.getTaker().getId().equals(senderId)) {
             return matching.getGiver().getId();
         } else {
-            throw new IllegalArgumentException("매칭에 속하지 않은 사용자입니다.");
+            throw MatchingUnauthorizedAccessException.EXCEPTION;
         }
     }
 
@@ -77,7 +78,7 @@ public class ChatMessageService {
     public ChatMessageResDto getLastChatMessage(Long matchingId) {
         List<ChatMessage> chatMessageList = chatMessageRepository.findLastMessageByMatchingId(matchingId, PageRequest.of(0, 1));
         if (chatMessageList.isEmpty()) {
-            throw new IllegalArgumentException("마지막 메시지가 존재하지 않습니다.");
+            throw LastChatMessageNotFoundException.EXCEPTION;
         }
 
         ChatMessage chatMessage = chatMessageList.getFirst();
