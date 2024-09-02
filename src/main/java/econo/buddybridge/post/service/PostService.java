@@ -28,10 +28,16 @@ public class PostService {
     private final PostRepositoryCustom postRepositoryCustom;
     private final MemberService memberService;
 
+    // 존재하는 포스트인지 확인
+    @Transactional(readOnly = true)
+    public Post findPostByIdOrThrow(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> PostNotFoundException.EXCEPTION);
+    }
+
     @Transactional(readOnly = true) // 단일 게시글 조회
     public PostResDto findPost(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> PostNotFoundException.EXCEPTION);
+        Post post = findPostByIdOrThrow(postId);
         return new PostResDto(post);
     }
 
@@ -52,8 +58,7 @@ public class PostService {
 
     @Transactional // 게시글 수정
     public Long updatePost(Long postId, PostReqDto postReqDto, Long memberId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> PostNotFoundException.EXCEPTION);
+        Post post = findPostByIdOrThrow(postId);
 
         if (!post.getAuthor().getId().equals(memberId)) {
             throw PostUpdateNotAllowedException.EXCEPTION;
@@ -66,10 +71,8 @@ public class PostService {
 
     @Transactional // 게시글 삭제
     public void deletePost(Long postId, Long memberId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> PostNotFoundException.EXCEPTION);
+        Post post = findPostByIdOrThrow(postId);
         if (!post.getAuthor().getId().equals(memberId)) {
-//            throw new IllegalArgumentException("본인의 게시글만 삭제할 수 있습니다.");
                 throw PostDeleteNotAllowedException.EXCEPTION;
         }
         postRepository.deleteById(postId);
