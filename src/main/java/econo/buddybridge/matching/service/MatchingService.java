@@ -7,12 +7,14 @@ import econo.buddybridge.matching.dto.MatchingReqDto;
 import econo.buddybridge.matching.dto.MatchingUpdateDto;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
+import econo.buddybridge.matching.exception.MatchingNotFoundException;
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
-import econo.buddybridge.post.repository.PostRepository;
+import econo.buddybridge.post.exception.PostUnauthorizedAccessException;
+import econo.buddybridge.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,13 +24,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class MatchingService {
     private final ChatMessageRepository chatMessageRepository;
     private final MatchingRepository matchingRepository;
-    private final PostRepository postRepository;
     private final MemberService memberService;
+    private final PostService postService;
 
-    @Transactional // TODO: 매칭 생성 -> 예외처리 필요 + 댓글에서 사용자 정보 가져오기 고려
+    // 존재하는 매칭인지 확인
+    @Transactional(readOnly = true)
+    public Matching findMatchingByIdOrThrow(Long matchingId) {
+        return matchingRepository.findById(matchingId)
+                .orElseThrow(() -> MatchingNotFoundException.EXCEPTION);
+    }
+
+    @Transactional
     public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId) {
-        Post post = postRepository.findById(matchingReqDto.postId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+        Post post = postService.findPostByIdOrThrow(matchingReqDto.postId());
 
         Member loginMember = memberService.findMemberByIdOrThrow(memberId);
 
@@ -60,8 +68,8 @@ public class MatchingService {
 
     @Transactional // 매칭 업데이트
     public Long updateMatching(Long matchingId, MatchingUpdateDto matchingUpdateDto, Long memberId) {
-        Matching matching = matchingRepository.findById(matchingId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭입니다."));
+
+        Matching matching = findMatchingByIdOrThrow(matchingId);
 
         validatePostAuthor(matching.getPost(), memberId);
 
@@ -72,9 +80,7 @@ public class MatchingService {
 
     @Transactional // 매칭 삭제
     public void deleteMatching(Long matchingId, Long memberId) {
-        Matching matching = matchingRepository.findById(matchingId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭입니다."));
-
+        Matching matching = findMatchingByIdOrThrow(matchingId);
         validatePostAuthor(matching.getPost(), memberId);
 
         matchingRepository.delete(matching);
@@ -94,7 +100,7 @@ public class MatchingService {
     private void validatePostAuthor(Post post, Long memberId) {
         if ((post.getPostType() == PostType.GIVER && !post.getAuthor().getId().equals(memberId)) ||
                 (post.getPostType() == PostType.TAKER && !post.getAuthor().getId().equals(memberId))) {
-            throw new IllegalArgumentException("회원님이 작성한 게시글이 아닙니다.");
+            throw PostUnauthorizedAccessException.EXCEPTION;
         }
     }
 }
