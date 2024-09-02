@@ -6,7 +6,7 @@ public class NotificationNotFoundException extends BusinessException {
 
     public static BusinessException EXCEPTION = new NotificationNotFoundException();
 
-    public NotificationNotFoundException() {
+    private NotificationNotFoundException() {
         super(NotificationErrorCode.NOTIFICATION_NOT_FOUND);
     }
 

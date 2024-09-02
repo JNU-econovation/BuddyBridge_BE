@@ -6,5 +6,5 @@ public class MatchingUnauthorizedAccessException extends BusinessException {
 
     public static BusinessException EXCEPTION = new MatchingUnauthorizedAccessException();
 
-    public MatchingUnauthorizedAccessException() { super(MatchingErrorCode.MATCHING_UNAUTHORIZED_ACCESS); }
+    private MatchingUnauthorizedAccessException() { super(MatchingErrorCode.MATCHING_UNAUTHORIZED_ACCESS); }
 }
