@@ -1,8 +1,5 @@
 package econo.buddybridge.comment.repository;
 
-import static econo.buddybridge.comment.entity.QComment.comment;
-import static org.springframework.data.domain.Sort.Order;
-
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -11,9 +8,13 @@ import econo.buddybridge.comment.dto.CommentResDto;
 import econo.buddybridge.comment.dto.QAuthorDto;
 import econo.buddybridge.comment.dto.QCommentResDto;
 import econo.buddybridge.post.entity.Post;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+
+import static econo.buddybridge.comment.entity.QComment.comment;
+import static org.springframework.data.domain.Sort.Order;
 
 @RequiredArgsConstructor
 public class CommentRepositoryImpl implements CommentRepositoryCustom {
@@ -32,7 +33,9 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         new QAuthorDto(
                                 comment.author.id,
                                 comment.author.nickname,
-                                comment.author.profileImageUrl
+                                comment.author.profileImageUrl,
+                                comment.author.gender,
+                                comment.author.age
                         ),
                         comment.content,
                         comment.createdAt,
