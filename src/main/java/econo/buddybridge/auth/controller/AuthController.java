@@ -31,26 +31,6 @@ public class AuthController {
     @Value("${oauth.kakao.url.front-url}")
     private String frontUrl;
 
-    // 테스트용 로그인 엔드포인트
-    @GetMapping("/login/{member-id}")
-    @AllowAnonymous // 추가
-    public ApiResponse<CustomBody<MemberResDto>> testLogin(
-            @PathVariable("member-id") Long memberId,
-            HttpServletRequest request
-    ) {
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate(); // 세션 정보를 삭제한다
-        }
-
-        session = request.getSession(true); // 새로운 세션을 생성한다
-
-        MemberResDto member = memberService.findMemberById(memberId);
-        session.setAttribute("memberId", member.memberId());
-
-        return ApiResponseGenerator.success(member, HttpStatus.OK);
-    }
-
     @GetMapping("/logout")
     public ApiResponse<CustomBody<String>> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
