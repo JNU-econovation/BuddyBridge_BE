@@ -12,6 +12,8 @@ import econo.buddybridge.post.service.PostService;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
 import econo.buddybridge.utils.session.SessionUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,11 +22,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/posts")
+@Tag(name = "게시글 API", description = "게시글 관련 API")
 public class PostController {
 
     private final PostService postService;
 
     // 커스텀 페이지네이션을 사용한 전체 게시글 조회
+    @Operation(summary = "게시글 목록 조회", description = "게시글 목록을 조회합니다. 게시글 유형, 상태, 장애 유형, 지원 유형으로 필터링할 수 있습니다.")
     @GetMapping
     @AllowAnonymous
     public ApiResponse<ApiResponse.CustomBody<PostCustomPage>> getAllPosts(
@@ -41,6 +45,7 @@ public class PostController {
     }
 
     // 게시글 생성
+    @Operation(summary = "게시글 생성", description = "게시글을 생성합니다.")
     @PostMapping
     public ApiResponse<ApiResponse.CustomBody<Long>> createPost(
             @RequestBody PostReqDto postReqDto,
@@ -52,6 +57,7 @@ public class PostController {
     }
 
     // 단일 게시글 조회
+    @Operation(summary = "게시글 조회", description = "게시글을 조회합니다.")
     @GetMapping("/{post-id}")
     @AllowAnonymous
     public ApiResponse<ApiResponse.CustomBody<PostResDto>> getPost(
@@ -62,6 +68,7 @@ public class PostController {
     }
 
     // 게시글 업데이트
+    @Operation(summary = "게시글 수정", description = "게시글을 수정합니다.")
     @PutMapping("/{post-id}")
     public ApiResponse<ApiResponse.CustomBody<Long>> updatePost(
             @PathVariable("post-id") Long postId,
@@ -74,6 +81,7 @@ public class PostController {
     }
 
     // 게시글 삭제
+    @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
     @DeleteMapping("/{post-id}")
     public ApiResponse<ApiResponse.CustomBody<Void>> deletePost(
             @PathVariable("post-id") Long postId,
