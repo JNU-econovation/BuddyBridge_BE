@@ -8,6 +8,8 @@ import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponse.CustomBody;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
 import econo.buddybridge.utils.session.SessionUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,10 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/comments")
+@Tag(name = "댓글 API", description = "댓글 관련 API")
 public class CommentController {
 
     private final CommentService commentService;
 
+    @Operation(summary = "댓글 조회", description = "게시글의 댓글을 조회합니다.")
     @GetMapping("/{post-id}")
     @AllowAnonymous
     public ApiResponse<CustomBody<CommentCustomPage>> getComments(
@@ -40,6 +44,7 @@ public class CommentController {
         return ApiResponseGenerator.success(comments, HttpStatus.OK);
     }
 
+    @Operation(summary = "댓글 생성", description = "게시글에 댓글을 생성합니다.")
     @PostMapping("/{post-id}")
     public ApiResponse<CustomBody<Long>> createComment(
             @PathVariable("post-id") Long postId,
@@ -51,6 +56,7 @@ public class CommentController {
         return ApiResponseGenerator.success(createdCommentId, HttpStatus.CREATED);
     }
 
+    @Operation(summary = "댓글 수정", description = "댓글을 수정합니다.")
     @PutMapping("/{comment-id}")
     public ApiResponse<CustomBody<Long>> updateComment(
             @PathVariable("comment-id") Long commentId,
@@ -62,6 +68,7 @@ public class CommentController {
         return ApiResponseGenerator.success(updatedCommentId, HttpStatus.OK);
     }
 
+    @Operation(summary = "댓글 삭제", description = "댓글을 삭제합니다.")
     @DeleteMapping("/{comment-id}")
     public ApiResponse<CustomBody<Void>> deleteComment(
             @PathVariable("comment-id") Long commentId,
