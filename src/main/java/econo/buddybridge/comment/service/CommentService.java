@@ -2,6 +2,7 @@ package econo.buddybridge.comment.service;
 
 import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentReqDto;
+import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
 import econo.buddybridge.comment.entity.Comment;
 import econo.buddybridge.comment.exception.CommentDeleteNotAllowedException;
 import econo.buddybridge.comment.exception.CommentInvalidDirectionException;
@@ -32,6 +33,11 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentRepositoryCustom commentRepositoryCustom;
     private final EmitterService emitterService;
+
+    @Transactional(readOnly = true) // MyPage 댓글 조회
+    public MyPageCommentCustomPage getMyPageComments(Integer page, Integer size, String sort, PostType postType, Long memberId) {
+        return commentRepositoryCustom.findByMember(page - 1, size, sort, postType, memberId);
+    }
 
     @Transactional(readOnly = true) // 댓글 조회
     public CommentCustomPage getComments(Long postId, Integer size, String order, Long cursor) {
