@@ -27,6 +27,24 @@ public class PostController {
 
     private final PostService postService;
 
+    // Mypage 작성한 게시글 조회
+    @Operation(summary = "내가 작성한 게시글 조회", description = "내가 작성한 게시글 목록을 조회합니다.")
+    @GetMapping("/mypage")
+    public ApiResponse<ApiResponse.CustomBody<PostCustomPage>> getAllPostsMyPage(
+            @RequestParam(value = "post-type", required = false) PostType postType,
+            @RequestParam("page") Integer page,
+            @RequestParam("size") Integer size,
+            @RequestParam(defaultValue = "desc", required = false) String sort,
+            @RequestParam(value = "post-status", required = false) PostStatus postStatus,
+            @RequestParam(value = "disability-type", required = false) DisabilityType disabilityType,
+            @RequestParam(value = "assistance-type", required = false) AssistanceType assistanceType,
+            HttpServletRequest request
+    ) {
+        Long memberId = SessionUtils.getMemberId(request);
+        PostCustomPage posts = postService.getPosts(page, size, sort, postType, postStatus, disabilityType, assistanceType, memberId);
+        return ApiResponseGenerator.success(posts, HttpStatus.OK);
+    }
+
     // 커스텀 페이지네이션을 사용한 전체 게시글 조회
     @Operation(summary = "게시글 목록 조회", description = "게시글 목록을 조회합니다. 게시글 유형, 상태, 장애 유형, 지원 유형으로 필터링할 수 있습니다.")
     @GetMapping
@@ -40,7 +58,7 @@ public class PostController {
             @RequestParam(value = "disability-type", required = false) DisabilityType disabilityType,
             @RequestParam(value = "assistance-type", required = false) AssistanceType assistanceType
     ) {
-        PostCustomPage posts = postService.getPosts(page, size, sort, postType, postStatus, disabilityType, assistanceType);
+        PostCustomPage posts = postService.getPosts(page, size, sort, postType, postStatus, disabilityType, assistanceType, null);
         return ApiResponseGenerator.success(posts, HttpStatus.OK);
     }
 

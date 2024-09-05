@@ -22,11 +22,13 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public PostCustomPage findPosts(Integer page, Integer size, String sort, PostType postType, PostStatus postStatus, DisabilityType disabilityType, AssistanceType assistanceType) {
+    public PostCustomPage findPosts(Integer page, Integer size, String sort, PostType postType,
+                                    PostStatus postStatus, DisabilityType disabilityType, AssistanceType assistanceType, Long id) {
         List<PostResDto> postResDtos = queryFactory
                 .selectFrom(post)
                 .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType),
-                        buildPostDisabilityTypeExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType))
+                        buildPostDisabilityTypeExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType),
+                        buildUserIdExpression(id))
                 .offset((long) page * size)
                 .limit(size)
                 .orderBy(buildOrderSpecifier(sort))
@@ -43,6 +45,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
         // content, totalElements, last
         return new PostCustomPage(postResDtos, totalElements, postResDtos.size() < size);
+    }
+
+    private BooleanExpression buildUserIdExpression(Long id) {
+        return id == null ? null : post.author.id.eq(id);
     }
 
     private BooleanExpression buildPostTypeExpression(PostType postType) {

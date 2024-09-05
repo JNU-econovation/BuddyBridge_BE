@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface PostRepositoryCustom {
 
     PostCustomPage findPosts(Integer page, Integer size, String sort, PostType postType,
-                             PostStatus postStatus, DisabilityType disabilityType, AssistanceType assistanceType);
+                             PostStatus postStatus, DisabilityType disabilityType, AssistanceType assistanceType, Long id);
 }
