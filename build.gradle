@@ -33,8 +33,10 @@ dependencies {
     implementation 'org.springframework.session:spring-session-core'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.session:spring-session-data-redis'
-
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
     // p6spy 의존성 추가 - SQL 로그 확인
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
