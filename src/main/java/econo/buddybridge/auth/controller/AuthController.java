@@ -4,7 +4,6 @@ import econo.buddybridge.auth.OAuthProvider;
 import econo.buddybridge.auth.dto.kakao.KakaoLoginParams;
 import econo.buddybridge.auth.service.OAuthLoginService;
 import econo.buddybridge.member.dto.MemberResDto;
-import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponse.CustomBody;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
@@ -33,7 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final OAuthLoginService oAuthLoginService;
-    private final MemberService memberService;
 
     @Value("${oauth.kakao.url.front-url}")
     private String frontUrl;

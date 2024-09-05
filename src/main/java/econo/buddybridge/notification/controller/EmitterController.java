@@ -1,6 +1,5 @@
 package econo.buddybridge.notification.controller;
 
-import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.notification.service.EmitterService;
 import econo.buddybridge.utils.session.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
