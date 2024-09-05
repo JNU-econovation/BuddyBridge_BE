@@ -28,7 +28,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .selectFrom(post)
                 .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType),
                         buildPostDisabilityTypeExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType),
-                        buildUserIdExpression(id))
+                        buildAuthorIdExpression(id))
                 .offset((long) page * size)
                 .limit(size)
                 .orderBy(buildOrderSpecifier(sort))
@@ -47,7 +47,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return new PostCustomPage(postResDtos, totalElements, postResDtos.size() < size);
     }
 
-    private BooleanExpression buildUserIdExpression(Long id) {
+    private BooleanExpression buildAuthorIdExpression(Long id) {
         return id == null ? null : post.author.id.eq(id);
     }
 
