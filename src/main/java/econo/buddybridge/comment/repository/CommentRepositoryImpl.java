@@ -61,7 +61,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     }
 
     @Override
-    public MyPageCommentCustomPage findByMember(Integer page, Integer size, String sort, PostType postType, Long id) {
+    public MyPageCommentCustomPage findByMemberId(Long memberId, Integer page, Integer size, String sort, PostType postType) {
 
         QComment subComment = new QComment("subComment");
 
@@ -80,13 +80,13 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .from(comment) // comment를 기준으로 조회
                 .where(
                         buildPostTypeExpression(postType),
-                        comment.author.id.eq(id),
+                        comment.author.id.eq(memberId),
                         comment.createdAt.eq(
                                 JPAExpressions
                                         .select(subComment.createdAt.max()) // 댓글의 생성일 중 가장 최근 것을
                                         .from(subComment) // subComment를 기준으로 조회
                                         .where(subComment.post.id.eq(comment.post.id), // subComment의 post가 comment의 post와 같고
-                                                subComment.author.id.eq(id)) // subComment의 author가 comment의 author와 같은 것을
+                                                subComment.author.id.eq(memberId)) // subComment의 author가 comment의 author와 같은 것을
                         )
                 )
                 .orderBy(comment.createdAt.desc())
@@ -100,7 +100,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .from(comment)
                 .where(
                         buildPostTypeExpression(postType),
-                        comment.author.id.eq(id)
+                        comment.author.id.eq(memberId)
                 )
                 .fetchOne();
 

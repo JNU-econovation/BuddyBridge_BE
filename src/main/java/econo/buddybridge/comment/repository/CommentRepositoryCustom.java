@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface CommentRepositoryCustom {
     CommentCustomPage findByPost(Post post, Long cursor, Pageable page);
 
-    MyPageCommentCustomPage findByMember(Integer page, Integer size, String sort, PostType postType, Long id);
+    MyPageCommentCustomPage findByMemberId(Long memberId, Integer page, Integer size, String sort, PostType postType);
 }

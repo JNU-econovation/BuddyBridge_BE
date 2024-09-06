@@ -35,8 +35,8 @@ public class CommentService {
     private final EmitterService emitterService;
 
     @Transactional(readOnly = true) // MyPage 댓글 조회
-    public MyPageCommentCustomPage getMyPageComments(Integer page, Integer size, String sort, PostType postType, Long memberId) {
-        return commentRepositoryCustom.findByMember(page - 1, size, sort, postType, memberId);
+    public MyPageCommentCustomPage getMyPageComments(Long memberId, Integer page, Integer size, String sort, PostType postType) {
+        return commentRepositoryCustom.findByMemberId(memberId, page - 1, size, sort, postType);
     }
 
     @Transactional(readOnly = true) // 댓글 조회

@@ -35,7 +35,7 @@ public class CommentController {
             HttpServletRequest request
     ) {
         Long memberId = SessionUtils.getMemberId(request);
-        MyPageCommentCustomPage comments = commentService.getMyPageComments(page, size, sort, postType, memberId);
+        MyPageCommentCustomPage comments = commentService.getMyPageComments(memberId, page, size, sort, postType);
         return ApiResponseGenerator.success(comments, HttpStatus.OK);
     }
 
