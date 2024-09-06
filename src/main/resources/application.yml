@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: update # create에서 update로 변경
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     defer-datasource-initialization: true
@@ -30,7 +30,7 @@ spring:
   sql:
     init:
       data-locations: classpath:data.sql
-      mode: always
+      mode: NEVER # ALAWAYS에서 NEVER로 변경
 
 server:
   servlet:
