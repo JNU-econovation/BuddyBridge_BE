@@ -23,12 +23,11 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     @Override
     public PostCustomPage findPosts(Integer page, Integer size, String sort, PostType postType,
-                                    PostStatus postStatus, DisabilityType disabilityType, AssistanceType assistanceType, Long id) {
+                                    PostStatus postStatus, DisabilityType disabilityType, AssistanceType assistanceType) {
         List<PostResDto> postResDtos = queryFactory
                 .selectFrom(post)
                 .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType),
-                        buildPostDisabilityTypeExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType),
-                        buildAuthorIdExpression(id))
+                        buildPostDisabilityTypeExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType))
                 .offset((long) page * size)
                 .limit(size)
                 .orderBy(buildOrderSpecifier(sort))
@@ -47,8 +46,31 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return new PostCustomPage(postResDtos, totalElements, postResDtos.size() < size);
     }
 
-    private BooleanExpression buildAuthorIdExpression(Long id) {
-        return id == null ? null : post.author.id.eq(id);
+    @Override
+    public PostCustomPage findPostsMyPage(Long memberId, Integer page, Integer size, String sort, PostType postType) {
+
+        List<PostResDto> content = queryFactory
+                .selectFrom(post)
+                .where(buildMemberIdExpression(memberId), buildPostTypeExpression(postType))
+                .offset((long) page * size)
+                .limit(size)
+                .orderBy(buildOrderSpecifier(sort))
+                .fetch()
+                .stream()
+                .map(PostResDto::new)
+                .toList();
+
+        Long totalElements = queryFactory
+                .select(post.count())
+                .from(post)
+                .where(buildMemberIdExpression(memberId), buildPostTypeExpression(postType))
+                .fetchOne();
+
+        return new PostCustomPage(content, totalElements, content.size() < size);
+    }
+
+    private BooleanExpression buildMemberIdExpression(Long memberId) {
+        return memberId == null ? null : post.author.id.eq(memberId);
     }
 
     private BooleanExpression buildPostTypeExpression(PostType postType) {

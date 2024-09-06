@@ -41,10 +41,15 @@ public class PostService {
         return new PostResDto(post);
     }
 
+    @Transactional(readOnly = true) // 내가 작성한 게시글 조회
+    public PostCustomPage getPostsMyPage(Long memberId, Integer page, Integer size, String sort, PostType postType) {
+        return postRepositoryCustom.findPostsMyPage(memberId, page - 1, size, sort, postType);
+    }
+
     @Transactional(readOnly = true)
     public PostCustomPage getPosts(Integer page, Integer size, String sort, PostType postType, PostStatus postStatus,
-                                   DisabilityType disabilityType, AssistanceType assistanceType, Long id) {
-        return postRepositoryCustom.findPosts(page - 1, size, sort, postType, postStatus, disabilityType, assistanceType, id);
+                                   DisabilityType disabilityType, AssistanceType assistanceType) {
+        return postRepositoryCustom.findPosts(page - 1, size, sort, postType, postStatus, disabilityType, assistanceType);
     }
 
     // 검증 과정 필요성 고려

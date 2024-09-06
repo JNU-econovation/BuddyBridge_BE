@@ -34,13 +34,10 @@ public class PostController {
             @RequestParam("page") Integer page,
             @RequestParam("size") Integer size,
             @RequestParam(defaultValue = "desc", required = false) String sort,
-            @RequestParam(value = "post-status", required = false) PostStatus postStatus,
-            @RequestParam(value = "disability-type", required = false) DisabilityType disabilityType,
-            @RequestParam(value = "assistance-type", required = false) AssistanceType assistanceType,
             HttpServletRequest request
     ) {
         Long memberId = SessionUtils.getMemberId(request);
-        PostCustomPage posts = postService.getPosts(page, size, sort, postType, postStatus, disabilityType, assistanceType, memberId);
+        PostCustomPage posts = postService.getPostsMyPage(memberId, page, size, sort, postType);
         return ApiResponseGenerator.success(posts, HttpStatus.OK);
     }
 
@@ -57,7 +54,7 @@ public class PostController {
             @RequestParam(value = "disability-type", required = false) DisabilityType disabilityType,
             @RequestParam(value = "assistance-type", required = false) AssistanceType assistanceType
     ) {
-        PostCustomPage posts = postService.getPosts(page, size, sort, postType, postStatus, disabilityType, assistanceType, null);
+        PostCustomPage posts = postService.getPosts(page, size, sort, postType, postStatus, disabilityType, assistanceType);
         return ApiResponseGenerator.success(posts, HttpStatus.OK);
     }
 
