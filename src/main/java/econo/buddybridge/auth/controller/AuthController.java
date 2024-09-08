@@ -42,6 +42,7 @@ public class AuthController {
     private String frontUrl;
 
     @Operation(summary = "로그아웃", description = "세션을 제거합니다.")
+    @AllowAnonymous
     @GetMapping("/logout")
     public ApiResponse<CustomBody<String>> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -82,8 +83,8 @@ public class AuthController {
     }
 
     // 테스트용 로그인 엔드포인트
-    @GetMapping("/login/{member-id}")
     @AllowAnonymous
+    @GetMapping("/login/{member-id}")
     public ApiResponse<CustomBody<MemberResDto>> testLogin(
             @PathVariable("member-id") Long memberId,
             HttpServletRequest request
