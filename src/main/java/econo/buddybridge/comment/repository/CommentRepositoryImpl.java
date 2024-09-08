@@ -3,7 +3,6 @@ package econo.buddybridge.comment.repository;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import econo.buddybridge.comment.dto.*;
 import econo.buddybridge.comment.entity.QComment;
@@ -80,14 +79,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .from(comment) // comment를 기준으로 조회
                 .where(
                         buildPostTypeExpression(postType),
-                        comment.author.id.eq(memberId),
-                        comment.createdAt.eq(
-                                JPAExpressions
-                                        .select(subComment.createdAt.max()) // 댓글의 생성일 중 가장 최근 것을
-                                        .from(subComment) // subComment를 기준으로 조회
-                                        .where(subComment.post.id.eq(comment.post.id), // subComment의 post가 comment의 post와 같고
-                                                subComment.author.id.eq(memberId)) // subComment의 author가 comment의 author와 같은 것을
-                        )
+                        comment.author.id.eq(memberId)
                 )
                 .orderBy(comment.createdAt.desc())
                 .limit(size)
@@ -96,7 +88,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 
         // 댓글 단 게시글 수 조회
         Long totalElements = queryFactory
-                .select(comment.post.id.countDistinct())
+                .select(comment.id.count())
                 .from(comment)
                 .where(
                         buildPostTypeExpression(postType),

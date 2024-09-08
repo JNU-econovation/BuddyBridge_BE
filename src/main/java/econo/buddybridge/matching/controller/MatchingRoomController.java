@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
-// TODO: 쿼리변수로 매칭 상태받아와 해당 매칭만 표현가능한 API로 변경
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chat/matchings")
