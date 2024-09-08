@@ -2,8 +2,11 @@ package econo.buddybridge.auth.controller;
 
 import econo.buddybridge.auth.OAuthProvider;
 import econo.buddybridge.auth.dto.kakao.KakaoLoginParams;
+import econo.buddybridge.auth.exception.SessionAlreadyExistsException;
 import econo.buddybridge.auth.service.OAuthLoginService;
+import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.member.dto.MemberResDto;
+import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponse.CustomBody;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
@@ -18,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final OAuthLoginService oAuthLoginService;
+    private final MemberService memberService;
 
     @Value("${oauth.kakao.url.front-url}")
     private String frontUrl;
@@ -74,5 +79,26 @@ public class AuthController {
         session.setAttribute("memberId", memberDto.memberId());
 
         return ApiResponseGenerator.success(memberDto, HttpStatus.OK);
+    }
+
+    // 테스트용 로그인 엔드포인트
+    @GetMapping("/login/{member-id}")
+    @AllowAnonymous
+    public ApiResponse<CustomBody<MemberResDto>> testLogin(
+            @PathVariable("member-id") Long memberId,
+            HttpServletRequest request
+    ) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate(); // 세션 정보를 삭제한다
+            throw SessionAlreadyExistsException.EXCEPTION;
+        }
+
+        session = request.getSession(true); // 새로운 세션을 생성한다
+
+        MemberResDto member = memberService.findMemberById(memberId);
+        session.setAttribute("memberId", member.memberId());
+
+        return ApiResponseGenerator.success(member, HttpStatus.OK);
     }
 }
