@@ -27,6 +27,20 @@ public class PostController {
 
     private final PostService postService;
 
+    @Operation(summary = "내가 작성한 게시글 조회", description = "내가 작성한 게시글 목록을 조회합니다.")
+    @GetMapping("/my-page")
+    public ApiResponse<ApiResponse.CustomBody<PostCustomPage>> getAllPostsMyPage(
+            @RequestParam(value = "post-type", required = false) PostType postType,
+            @RequestParam("page") Integer page,
+            @RequestParam("size") Integer size,
+            @RequestParam(defaultValue = "desc", required = false) String sort,
+            HttpServletRequest request
+    ) {
+        Long memberId = SessionUtils.getMemberId(request);
+        PostCustomPage posts = postService.getPostsMyPage(memberId, page, size, sort, postType);
+        return ApiResponseGenerator.success(posts, HttpStatus.OK);
+    }
+
     // 커스텀 페이지네이션을 사용한 전체 게시글 조회
     @Operation(summary = "게시글 목록 조회", description = "게시글 목록을 조회합니다. 게시글 유형, 상태, 장애 유형, 지원 유형으로 필터링할 수 있습니다.")
     @GetMapping

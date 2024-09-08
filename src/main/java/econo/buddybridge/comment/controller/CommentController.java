@@ -2,8 +2,10 @@ package econo.buddybridge.comment.controller;
 
 import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentReqDto;
+import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
 import econo.buddybridge.comment.service.CommentService;
 import econo.buddybridge.common.annotation.AllowAnonymous;
+import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponse.CustomBody;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
@@ -13,15 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,6 +24,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommentController {
 
     private final CommentService commentService;
+
+    @Operation(summary = "내가 작성한 댓글 조회", description = "내가 작성한 게시글의 댓글을 조회합니다.")
+    @GetMapping("/my-page")
+    public ApiResponse<CustomBody<MyPageCommentCustomPage>> getCommentsMyPage(
+            @RequestParam("page") Integer page,
+            @RequestParam("size") Integer size,
+            @RequestParam(defaultValue = "DESC", required = false) String sort,
+            @RequestParam(value = "post-type", required = false) PostType postType,
+            HttpServletRequest request
+    ) {
+        Long memberId = SessionUtils.getMemberId(request);
+        MyPageCommentCustomPage comments = commentService.getMyPageComments(memberId, page, size, sort, postType);
+        return ApiResponseGenerator.success(comments, HttpStatus.OK);
+    }
 
     @Operation(summary = "댓글 조회", description = "게시글의 댓글을 조회합니다.")
     @GetMapping("/{post-id}")

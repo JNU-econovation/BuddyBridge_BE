@@ -9,6 +9,9 @@ services:
       MYSQL_DATABASE: ${MARIA_DATABASE}
       MYSQL_USER: ${MARIA_USER}
       MYSQL_PASSWORD: ${MARIA_PASSWORD}
+    volumes:
+      - mariadb_data:/var/lib/mysql # 명명된 볼륨 사용
+
     command:
       [
         "--character-set-server=utf8mb4",
@@ -27,6 +30,8 @@ services:
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       REDIS_HOST: ${REDIS_HOST}
+    volumes:
+      - redis_data:/data # 명명된 볼륨을 사용
     ports:
       - "${REDIS_PORT}:${REDIS_PORT}"
     restart: always
@@ -42,3 +47,6 @@ services:
       - mariadb
       - redis
 
+volumes:
+    mariadb_data:
+    redis_data:

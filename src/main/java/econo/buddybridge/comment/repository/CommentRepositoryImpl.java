@@ -2,18 +2,19 @@ package econo.buddybridge.comment.repository;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import econo.buddybridge.comment.dto.CommentCustomPage;
-import econo.buddybridge.comment.dto.CommentResDto;
-import econo.buddybridge.comment.dto.QAuthorDto;
-import econo.buddybridge.comment.dto.QCommentResDto;
+import econo.buddybridge.comment.dto.*;
+import econo.buddybridge.comment.entity.QComment;
 import econo.buddybridge.post.entity.Post;
+import econo.buddybridge.post.entity.PostType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 import static econo.buddybridge.comment.entity.QComment.comment;
+import static econo.buddybridge.post.entity.QPost.post;
 import static org.springframework.data.domain.Sort.Order;
 
 @RequiredArgsConstructor
@@ -56,6 +57,50 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
         Long nextCursor = nextPage ? content.getLast().commentId() : -1L;
 
         return new CommentCustomPage(content, nextCursor, nextPage);
+    }
+
+    @Override
+    public MyPageCommentCustomPage findByMemberId(Long memberId, Integer page, Integer size, String sort, PostType postType) {
+
+        QComment subComment = new QComment("subComment");
+
+        List<MyPageCommentResDto> content = queryFactory
+                .select(new QMyPageCommentResDto( // MyPageCommentResDto를 생성
+                        comment.content,
+                        comment.id,
+                        comment.post.id,
+                        comment.post.title,
+                        comment.post.postStatus,
+                        comment.post.postType,
+                        comment.post.disabilityType,
+                        comment.post.assistanceType,
+                        comment.createdAt
+                ))
+                .from(comment) // comment를 기준으로 조회
+                .where(
+                        buildPostTypeExpression(postType),
+                        comment.author.id.eq(memberId)
+                )
+                .orderBy(comment.createdAt.desc())
+                .limit(size)
+                .offset((long) page * size)
+                .fetch();
+
+        // 댓글 단 게시글 수 조회
+        Long totalElements = queryFactory
+                .select(comment.id.count())
+                .from(comment)
+                .where(
+                        buildPostTypeExpression(postType),
+                        comment.author.id.eq(memberId)
+                )
+                .fetchOne();
+
+        return new MyPageCommentCustomPage(content, totalElements, content.size() < size);
+    }
+
+    private BooleanExpression buildPostTypeExpression(PostType postType) {
+        return postType == null ? null : post.postType.eq(postType);
     }
 
     private Order getPageOrder(Pageable page) {
