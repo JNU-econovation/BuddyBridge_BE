@@ -83,8 +83,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     // 없음, 시각장애, 청각장애, 지적장애, 지체장애, 자폐성장애, 뇌병변장애, 정신장애
     private BooleanExpression buildPostDisabilityTypeExpression(DisabilityType disabilityType) {
-//        return disabilityType == null ? null : post.disabilityType.eq(disabilityType);
-        return disabilityType == null ? null : post.author.disabilityType.eq(disabilityType);
+        return disabilityType == null ? null : post.disabilityType.eq(disabilityType);
     }
 
     // 광주광역시, 남구, 북구, 서구, 동구, 광산구
