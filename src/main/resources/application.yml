@@ -10,7 +10,6 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update # create에서 update로 변경
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     defer-datasource-initialization: true
@@ -19,7 +18,7 @@ spring:
   session:
     store-type: redis
     redis:
-      namespace: test:session
+      namespace: ${SESSION_KEY_NAMESPACE}
 
   data:
     redis:
@@ -30,7 +29,6 @@ spring:
   sql:
     init:
       data-locations: classpath:data.sql
-      mode: NEVER # ALAWAYS에서 NEVER로 변경
 
 server:
   servlet:
@@ -50,7 +48,6 @@ oauth:
       logout-redirect-url:  ${OAUTH_KAKAO_LOGOUT_REDIRECT_URI}
       front-url: ${OAUTH_KAKAO_FRONT_URL}
 
-
 logging:
   level:
     org.springframework:
@@ -68,3 +65,45 @@ decorator:
   datasource:
     p6spy:
       enable-logging: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+
+  sql:
+    init:
+      mode: always
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  sql:
+    init:
+      mode: never
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  sql:
+    init:
+      mode: never
