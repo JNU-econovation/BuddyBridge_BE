@@ -21,7 +21,7 @@ public class PostLikeService {
     public Boolean managePostLike(Long memberId, Long postId) {
         PostLike existingLike = postLikeRepository.findByPostIdAndMemberId(postId, memberId);
 
-        Member member = memberServicae.findMemberByIdOrThrow(memberId);
+        Member member = memberService.findMemberByIdOrThrow(memberId);
         Post post = postService.findPostByIdOrThrow(postId);
 
         if (existingLike != null) {
