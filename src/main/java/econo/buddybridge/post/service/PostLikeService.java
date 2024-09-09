@@ -2,8 +2,10 @@ package econo.buddybridge.post.service;
 
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
+import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostLike;
+import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.repository.PostLikeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,5 +34,10 @@ public class PostLikeService {
             postLikeRepository.save(newLike);
             return true; // 좋아요 생성
         }
+    }
+
+    @Transactional(readOnly = true)
+    public PostCustomPage getPostsLikes(Long memberId, Integer page, Integer size, String sort, PostType postType) {
+        return postLikeRepository.findPostsByLikes(memberId, page - 1, size, sort, postType);
     }
 }
