@@ -3,8 +3,8 @@ package econo.buddybridge.config;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import econo.buddybridge.auth.dto.kakao.KakaoErrorResponse;
-import econo.buddybridge.auth.exception.KakaoApiException;
-import econo.buddybridge.auth.exception.RedirectException;
+import econo.buddybridge.auth.exception.FeignKakaoException;
+import econo.buddybridge.auth.exception.FeignRedirectException;
 import feign.Logger;
 import feign.RequestInterceptor;
 import feign.codec.ErrorDecoder;
@@ -40,7 +40,7 @@ public class OpenFeignConfig {
         @Override
         public Exception decode(String methodKey, feign.Response response) {
 
-            byte[] bodyData = null;
+            byte[] bodyData;
             try {
                 bodyData = response.body().asInputStream().readAllBytes();
             } catch (IOException e) {
@@ -49,17 +49,17 @@ public class OpenFeignConfig {
 
             return switch (response.status()) {
                 case 302 -> {
-                    String location = response.headers().get("Location").stream()
+                    response.headers().get("Location").stream()
                             .findFirst().orElseGet(() -> {
                                 log.error("Location header not found");
                                 return "";
                             });
-                    yield new RedirectException(location);
+                    yield FeignRedirectException.EXCEPTION;
                 }
                 case 400 -> {
                     // KakaoErrorResponse 로 변환할 코드
                     ObjectMapper objectMapper = new ObjectMapper();
-                    KakaoErrorResponse kakaoErrorResponse = null;
+                    KakaoErrorResponse kakaoErrorResponse;
                     try {
                         String body = new String(bodyData, StandardCharsets.UTF_8);
                         kakaoErrorResponse = objectMapper.readValue(body, KakaoErrorResponse.class);
@@ -67,7 +67,8 @@ public class OpenFeignConfig {
                         throw new RuntimeException(e);
                     }
 
-                    yield new KakaoApiException(kakaoErrorResponse.errorDescription());
+                    log.info("Kakao Api Exception occurred: {}", kakaoErrorResponse.errorDescription());
+                    yield FeignKakaoException.EXCEPTION;
                 }
                 case 404 -> {
                     log.error("404 error occurred: {}", response);
