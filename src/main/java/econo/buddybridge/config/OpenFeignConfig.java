@@ -40,7 +40,7 @@ public class OpenFeignConfig {
         @Override
         public Exception decode(String methodKey, feign.Response response) {
 
-            byte[] bodyData = null;
+            byte[] bodyData;
             try {
                 bodyData = response.body().asInputStream().readAllBytes();
             } catch (IOException e) {
@@ -49,7 +49,7 @@ public class OpenFeignConfig {
 
             return switch (response.status()) {
                 case 302 -> {
-                    String location = response.headers().get("Location").stream()
+                    response.headers().get("Location").stream()
                             .findFirst().orElseGet(() -> {
                                 log.error("Location header not found");
                                 return "";
@@ -59,7 +59,7 @@ public class OpenFeignConfig {
                 case 400 -> {
                     // KakaoErrorResponse 로 변환할 코드
                     ObjectMapper objectMapper = new ObjectMapper();
-                    KakaoErrorResponse kakaoErrorResponse = null;
+                    KakaoErrorResponse kakaoErrorResponse;
                     try {
                         String body = new String(bodyData, StandardCharsets.UTF_8);
                         kakaoErrorResponse = objectMapper.readValue(body, KakaoErrorResponse.class);
