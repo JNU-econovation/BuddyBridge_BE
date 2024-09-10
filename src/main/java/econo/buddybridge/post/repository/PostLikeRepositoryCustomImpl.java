@@ -7,6 +7,7 @@ import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostResDto;
 import econo.buddybridge.post.entity.PostLike;
 import econo.buddybridge.post.entity.PostType;
+import econo.buddybridge.post.exception.PostInvalidSortValueException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -59,7 +60,7 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
         return switch (sort.toLowerCase()) {
             case "desc" -> postLike.post.createdAt.desc();
             case "asc" -> postLike.post.createdAt.asc();
-            default -> throw new IllegalArgumentException("Unexpected value: " + sort);
+            default -> throw PostInvalidSortValueException.EXCEPTION;
         };
     }
 
