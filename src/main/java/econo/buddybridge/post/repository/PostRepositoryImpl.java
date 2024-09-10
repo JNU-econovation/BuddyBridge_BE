@@ -10,6 +10,7 @@ import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
+import econo.buddybridge.post.exception.PostInvalidSortValueException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -100,7 +101,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return switch (sort.toLowerCase()) {
             case "desc" -> post.createdAt.desc();
             case "asc" -> post.createdAt.asc();
-            default -> throw new IllegalArgumentException("올바르지 않은 정렬 방식입니다.");
+            default -> throw PostInvalidSortValueException.EXCEPTION;
         };
     }
 }
