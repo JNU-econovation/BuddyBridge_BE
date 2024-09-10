@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class PostLikeService {
@@ -21,13 +23,13 @@ public class PostLikeService {
 
     @Transactional
     public Boolean managePostLike(Long memberId, Long postId) {
-        PostLike existingLike = postLikeRepository.findByPostIdAndMemberId(postId, memberId);
 
         Member member = memberService.findMemberByIdOrThrow(memberId);
         Post post = postService.findPostByIdOrThrow(postId);
+        Optional<PostLike> existingLike = postLikeRepository.findByPostIdAndMemberId(postId, memberId);
 
-        if (existingLike != null) {
-            postLikeRepository.delete(existingLike);
+        if (existingLike.isPresent()) {
+            postLikeRepository.delete(existingLike.get());
             return false; // 좋아요 취소
         } else {
             PostLike newLike = new PostLike(post, member);

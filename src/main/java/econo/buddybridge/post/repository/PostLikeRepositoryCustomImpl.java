@@ -11,6 +11,7 @@ import econo.buddybridge.post.exception.PostInvalidSortValueException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 import static econo.buddybridge.post.entity.QPostLike.postLike;
 
@@ -20,11 +21,13 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public PostLike findByPostIdAndMemberId(Long postId, Long memberId) {
+    public Optional<PostLike> findByPostIdAndMemberId(Long postId, Long memberId) {
 
-        return queryFactory.selectFrom(postLike)
+        PostLike like = queryFactory.selectFrom(postLike)
                 .where(postLike.post.id.eq(postId).and(postLike.member.id.eq(memberId)))
                 .fetchOne();
+
+        return Optional.ofNullable(like);
     }
 
     @Override
