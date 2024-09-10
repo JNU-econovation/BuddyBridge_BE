@@ -14,7 +14,7 @@ import java.util.List;
 import static econo.buddybridge.post.entity.QPostLike.postLike;
 
 @RequiredArgsConstructor
-public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom{
+public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
