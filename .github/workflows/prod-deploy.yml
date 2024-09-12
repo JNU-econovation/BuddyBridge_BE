@@ -22,6 +22,12 @@ jobs:
           java-version: '21'
           distribution: 'corretto'
 
+      - name: Create data.sql
+        run: |
+          cd ./src/main/resources
+          touch ./data.sql
+          echo "${{ secrets.DATA_SQL }}" > ./data.sql
+
       - name: Build with Gradle
         run: |
           chmod +x ./gradlew
