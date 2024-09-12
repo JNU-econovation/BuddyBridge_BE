@@ -19,8 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "http://localhost:3000", "https://localhost:3000",
                         "http://localhost:8080", "https://localhost:8080",
                         "http://localhost:8081", "https://localhost:8081",
-                        "https://buddybridge-git-master-simminbos-projects.vercel.app/",
-                        "https://buddybridge-simminbos-projects.vercel.app/"
+                        "https://buddy-bridge.vercel.app/"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*")
