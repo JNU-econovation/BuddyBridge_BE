@@ -2,6 +2,7 @@ package econo.buddybridge.auth.controller;
 
 import econo.buddybridge.auth.OAuthProvider;
 import econo.buddybridge.auth.dto.kakao.KakaoLoginParams;
+import econo.buddybridge.auth.exception.AlreadyLogoutException;
 import econo.buddybridge.auth.service.OAuthLoginService;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.member.dto.MemberResDto;
@@ -39,7 +40,7 @@ public class AuthController {
 
     @Operation(summary = "로그아웃", description = "세션을 제거합니다.")
     @AllowAnonymous
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     public ApiResponse<CustomBody<String>> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
@@ -47,7 +48,7 @@ public class AuthController {
             oAuthLoginService.logout(OAuthProvider.KAKAO);
             return ApiResponseGenerator.success("로그아웃 성공", HttpStatus.OK);
         }
-        return ApiResponseGenerator.success("이미 로그아웃 상태입니다.", HttpStatus.OK);
+        throw AlreadyLogoutException.EXCEPTION;
     }
 
     @Operation(summary = "카카오 소셜 로그인 (코드로 로그인)", description = "Redirect URL이 백엔드 주소로 설정될 때 사용합니다.")
