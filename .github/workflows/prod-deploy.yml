@@ -1,0 +1,46 @@
+name: Prod CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "production" ]
+
+permissions:
+  contents: read
+
+jobs:
+
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+
+      - name: Build with Gradle
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build -x test
+
+      - name: Build the Docker image
+        run: |
+          docker login -u ${{ secrets.PROD_DOCKER_USERNAME }} -p ${{ secrets.PROD_DOCKER_PASSWORD }}
+          docker build -f Dockerfile -t ${{ secrets.PROD_DOCKER_REPO }} .
+          docker push ${{ secrets.PROD_DOCKER_REPO }}
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        id: deploy
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          key: ${{ secrets.PROD_KEY }}
+          envs: GITHUB_SHA
+          script: |
+            cd ./buddies
+            bash deploy.sh
