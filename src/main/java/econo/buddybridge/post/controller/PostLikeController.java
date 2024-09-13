@@ -32,7 +32,6 @@ public class PostLikeController {
         return ApiResponseGenerator.success(isLike, HttpStatus.OK);
     }
 
-
     @Operation(summary = "찜한 게시글 목록 조회", description = "찜한 게시글 목록을 조회합니다.")
     @GetMapping("/my-page")
     public ApiResponse<ApiResponse.CustomBody<PostCustomPage>> getPostLikes(
