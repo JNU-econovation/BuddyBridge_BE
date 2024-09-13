@@ -39,7 +39,7 @@ public class NotificationController {
     }
 
     @Operation(summary = "알림 읽음 처리", description = "알림을 읽음 처리합니다.")
-    @PatchMapping("/{notification-id}/read")
+    @PostMapping("/{notification-id}/read")
     public ApiResponse<CustomBody<Void>> markAsRead(
             @PathVariable("notification-id") Long notificationId,
             HttpServletRequest request
