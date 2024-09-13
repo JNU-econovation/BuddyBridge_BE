@@ -7,7 +7,6 @@ import econo.buddybridge.notification.entity.Notification;
 import econo.buddybridge.notification.exception.NotificationAccessDeniedException;
 import econo.buddybridge.notification.exception.NotificationNotFoundException;
 import econo.buddybridge.notification.repository.NotificationRepository;
-import econo.buddybridge.notification.repository.NotificationRepositoryCustom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +17,6 @@ public class NotificationService {
 
     private final MemberService memberService;
     private final NotificationRepository notificationRepository;
-    private final NotificationRepositoryCustom notificationRepositoryCustom;
 
     @Transactional
     public void saveNotification(Notification notification) {
@@ -28,7 +26,7 @@ public class NotificationService {
     @Transactional(readOnly = true)
     public NotificationCustomPage getNotifications(Long memberId, Integer size, Long cursor) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
-        return notificationRepositoryCustom.findByMemberId(member.getId(), size, cursor);
+        return notificationRepository.findByMemberId(member.getId(), size, cursor);
     }
 
     @Transactional
@@ -43,5 +41,11 @@ public class NotificationService {
         }
 
         notification.markAsRead();
+    }
+
+    @Transactional
+    public void markAllAsRead(Long memberId) {
+        Member member = memberService.findMemberByIdOrThrow(memberId);
+        notificationRepository.markAllAsRead(member.getId());
     }
 }

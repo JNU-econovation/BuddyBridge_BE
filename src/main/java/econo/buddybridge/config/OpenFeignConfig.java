@@ -67,7 +67,7 @@ public class OpenFeignConfig {
                         throw new RuntimeException(e);
                     }
 
-                    log.info("Kakao Api Exception occurred: {}", kakaoErrorResponse.errorDescription());
+                    log.error("Kakao Api Exception occurred: {}", kakaoErrorResponse.errorDescription());
                     yield FeignKakaoException.EXCEPTION;
                 }
                 case 404 -> {
