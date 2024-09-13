@@ -42,4 +42,10 @@ public class NotificationService {
 
         notification.markAsRead();
     }
+
+    @Transactional
+    public void markAllAsRead(Long memberId) {
+        Member member = memberService.findMemberByIdOrThrow(memberId);
+        notificationRepository.markAllAsRead(member.getId());
+    }
 }
