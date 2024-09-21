@@ -40,7 +40,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         Long totalElements = queryFactory
                 .select(post.count())
                 .from(post)
-                .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType))
+                .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType),
+                        buildPostDisabilityTypeExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType))
                 .fetchOne();
 
         // content, totalElements, last
