@@ -8,6 +8,7 @@ import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostResDto;
 import econo.buddybridge.post.entity.*;
 import econo.buddybridge.post.exception.PostInvalidSortValueException;
+import econo.buddybridge.post.exception.PostNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashSet;
@@ -22,6 +23,26 @@ import static econo.buddybridge.post.entity.QPostLike.postLike;
 public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+
+    @Override
+    public PostResDto findByMemberIdAndPostId(Long memberId, Long postId) {
+        Post content = queryFactory
+                .selectFrom(post)
+                .where(post.id.eq(postId))
+                .fetchOne();
+
+        if (content == null) {
+            throw PostNotFoundException.EXCEPTION;
+        }
+
+        Boolean isLiked = memberId != null && queryFactory
+                .select(postLike.post.id)
+                .from(postLike)
+                .where(postLike.member.id.eq(memberId), postLike.post.id.eq(postId))
+                .fetchOne() != null;
+
+        return new PostResDto(content, isLiked);
+    }
 
     @Override
     public PostCustomPage findPosts(Long memberId, Integer page, Integer size, String sort, PostType postType,

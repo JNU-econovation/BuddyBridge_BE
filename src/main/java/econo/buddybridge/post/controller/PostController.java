@@ -77,9 +77,11 @@ public class PostController {
     @GetMapping("/{post-id}")
     @AllowAnonymous
     public ApiResponse<ApiResponse.CustomBody<PostResDto>> getPost(
-            @PathVariable("post-id") Long postId
+            @PathVariable("post-id") Long postId,
+            HttpServletRequest request
     ) {
-        PostResDto postResDto = postService.findPost(postId);
+        Long memberId = SessionUtils.getMemberIdOrNull(request);
+        PostResDto postResDto = postService.findPost(memberId, postId);
         return ApiResponseGenerator.success(postResDto, HttpStatus.OK);
     }
 

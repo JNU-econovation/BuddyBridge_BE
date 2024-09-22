@@ -34,9 +34,8 @@ public class PostService {
     }
 
     @Transactional(readOnly = true) // 단일 게시글 조회
-    public PostResDto findPost(Long postId) {
-        Post post = findPostByIdOrThrow(postId);
-        return new PostResDto(post);
+    public PostResDto findPost(Long memberId, Long postId) {
+        return postRepository.findByMemberIdAndPostId(memberId, postId);
     }
 
     @Transactional(readOnly = true) // 내가 작성한 게시글 조회
