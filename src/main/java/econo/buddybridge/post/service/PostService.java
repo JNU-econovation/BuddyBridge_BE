@@ -14,7 +14,6 @@ import econo.buddybridge.post.exception.PostDeleteNotAllowedException;
 import econo.buddybridge.post.exception.PostNotFoundException;
 import econo.buddybridge.post.exception.PostUpdateNotAllowedException;
 import econo.buddybridge.post.repository.PostRepository;
-import econo.buddybridge.post.repository.PostRepositoryCustom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final PostRepositoryCustom postRepositoryCustom;
     private final MemberService memberService;
 
     // 존재하는 포스트인지 확인
@@ -36,20 +34,19 @@ public class PostService {
     }
 
     @Transactional(readOnly = true) // 단일 게시글 조회
-    public PostResDto findPost(Long postId) {
-        Post post = findPostByIdOrThrow(postId);
-        return new PostResDto(post);
+    public PostResDto findPost(Long memberId, Long postId) {
+        return postRepository.findByMemberIdAndPostId(memberId, postId);
     }
 
     @Transactional(readOnly = true) // 내가 작성한 게시글 조회
     public PostCustomPage getPostsMyPage(Long memberId, Integer page, Integer size, String sort, PostType postType) {
-        return postRepositoryCustom.findPostsMyPage(memberId, page - 1, size, sort, postType);
+        return postRepository.findPostsMyPage(memberId, page - 1, size, sort, postType);
     }
 
-    @Transactional(readOnly = true)
-    public PostCustomPage getPosts(Integer page, Integer size, String sort, PostType postType, PostStatus postStatus,
+    @Transactional(readOnly = true) // 전체 게시글 조회
+    public PostCustomPage getPosts(Long memberId, Integer page, Integer size, String sort, PostType postType, PostStatus postStatus,
                                    DisabilityType disabilityType, AssistanceType assistanceType) {
-        return postRepositoryCustom.findPosts(page - 1, size, sort, postType, postStatus, disabilityType, assistanceType);
+        return postRepository.findPosts(memberId, page - 1, size, sort, postType, postStatus, disabilityType, assistanceType);
     }
 
     // 검증 과정 필요성 고려

@@ -6,16 +6,18 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostResDto;
-import econo.buddybridge.post.entity.AssistanceType;
-import econo.buddybridge.post.entity.District;
-import econo.buddybridge.post.entity.PostStatus;
-import econo.buddybridge.post.entity.PostType;
+import econo.buddybridge.post.entity.*;
 import econo.buddybridge.post.exception.PostInvalidSortValueException;
+import econo.buddybridge.post.exception.PostNotFoundException;
 import lombok.RequiredArgsConstructor;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static econo.buddybridge.post.entity.QPost.post;
+import static econo.buddybridge.post.entity.QPostLike.postLike;
 
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom {
@@ -23,43 +25,63 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public PostCustomPage findPosts(Integer page, Integer size, String sort, PostType postType,
+    public PostResDto findByMemberIdAndPostId(Long memberId, Long postId) {
+        Post content = queryFactory
+                .selectFrom(post)
+                .where(post.id.eq(postId))
+                .fetchOne();
+
+        if (content == null) {
+            throw PostNotFoundException.EXCEPTION;
+        }
+
+        Boolean isLiked = memberId != null && queryFactory
+                .select(postLike.post.id)
+                .from(postLike)
+                .where(postLike.member.id.eq(memberId), postLike.post.id.eq(postId))
+                .fetchOne() != null;
+
+        return new PostResDto(content, isLiked);
+    }
+
+    @Override
+    public PostCustomPage findPosts(Long memberId, Integer page, Integer size, String sort, PostType postType,
                                     PostStatus postStatus, DisabilityType disabilityType, AssistanceType assistanceType) {
-        List<PostResDto> postResDtos = queryFactory
+
+        List<Post> posts = queryFactory
                 .selectFrom(post)
                 .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType),
                         buildPostDisabilityTypeExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType))
                 .offset((long) page * size)
                 .limit(size)
                 .orderBy(buildOrderSpecifier(sort))
-                .fetch()
-                .stream()
-                .map(PostResDto::new)
-                .toList();
+                .fetch();
+
+        List<PostResDto> content = getPostResDtos(memberId, posts);
 
         Long totalElements = queryFactory
                 .select(post.count())
                 .from(post)
-                .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType))
+                .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType),
+                        buildPostDisabilityTypeExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType))
                 .fetchOne();
 
         // content, totalElements, last
-        return new PostCustomPage(postResDtos, totalElements, postResDtos.size() < size);
+        return new PostCustomPage(content, totalElements, content.size() < size);
     }
 
     @Override
     public PostCustomPage findPostsMyPage(Long memberId, Integer page, Integer size, String sort, PostType postType) {
 
-        List<PostResDto> content = queryFactory
+        List<Post> posts = queryFactory
                 .selectFrom(post)
                 .where(buildMemberIdExpression(memberId), buildPostTypeExpression(postType))
                 .offset((long) page * size)
                 .limit(size)
                 .orderBy(buildOrderSpecifier(sort))
-                .fetch()
-                .stream()
-                .map(PostResDto::new)
-                .toList();
+                .fetch();
+
+        List<PostResDto> content = getPostResDtos(memberId, posts);
 
         Long totalElements = queryFactory
                 .select(post.count())
@@ -68,6 +90,28 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .fetchOne();
 
         return new PostCustomPage(content, totalElements, content.size() < size);
+    }
+
+    private List<PostResDto> getPostResDtos(Long memberId, List<Post> posts) {
+        if (memberId != null) {
+            List<Long> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
+            Set<Long> postLikedIds = new HashSet<>(
+                    queryFactory
+                            .select(postLike.post.id)
+                            .from(postLike)
+                            .where(postLike.member.id.eq(memberId), postLike.post.id.in(postIds))
+                            .fetch()
+            );
+
+            return posts.stream()
+                    .map(post -> new PostResDto(post, postLikedIds.contains(post.getId())))
+                    .toList();
+        }
+
+        return posts.stream()
+                .map(PostResDto::new)
+                .toList();
+
     }
 
     private BooleanExpression buildMemberIdExpression(Long memberId) {

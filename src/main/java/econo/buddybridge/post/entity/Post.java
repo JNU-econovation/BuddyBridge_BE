@@ -62,6 +62,8 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<Comment> comments = new ArrayList<>();
 
+    private Boolean isLiked = false;
+
     public void changeStatus(PostStatus status){ // 상태 변경
         this.postStatus = status;
     }
