@@ -93,7 +93,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     private List<PostResDto> getPostResDtos(Long memberId, List<Post> posts) {
-        List<PostResDto> content;
         if (memberId != null) {
             List<Long> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
             Set<Long> postLikedIds = new HashSet<>(
@@ -104,15 +103,15 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                             .fetch()
             );
 
-            content = posts.stream()
+            return posts.stream()
                     .map(post -> new PostResDto(post, postLikedIds.contains(post.getId())))
                     .toList();
-        } else {
-            content = posts.stream()
-                    .map(PostResDto::new)
-                    .toList();
         }
-        return content;
+
+        return posts.stream()
+                .map(PostResDto::new)
+                .toList();
+
     }
 
     private BooleanExpression buildMemberIdExpression(Long memberId) {
