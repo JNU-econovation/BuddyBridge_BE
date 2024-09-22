@@ -52,9 +52,11 @@ public class PostController {
             @RequestParam(defaultValue = "desc", required = false) String sort,
             @RequestParam(value = "post-status", required = false) PostStatus postStatus,
             @RequestParam(value = "disability-type", required = false) DisabilityType disabilityType,
-            @RequestParam(value = "assistance-type", required = false) AssistanceType assistanceType
+            @RequestParam(value = "assistance-type", required = false) AssistanceType assistanceType,
+            HttpServletRequest request
     ) {
-        PostCustomPage posts = postService.getPosts(page, size, sort, postType, postStatus, disabilityType, assistanceType);
+        Long memberId = SessionUtils.getMemberIdOrNull(request);
+        PostCustomPage posts = postService.getPosts(memberId, page, size, sort, postType, postStatus, disabilityType, assistanceType);
         return ApiResponseGenerator.success(posts, HttpStatus.OK);
     }
 
