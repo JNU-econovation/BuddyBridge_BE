@@ -8,7 +8,7 @@ import econo.buddybridge.post.entity.PostType;
 
 public interface PostRepositoryCustom {
 
-    PostCustomPage findPosts(Integer page, Integer size, String sort, PostType postType,
+    PostCustomPage findPosts(Long memberId, Integer page, Integer size, String sort, PostType postType,
                              PostStatus postStatus, DisabilityType disabilityType, AssistanceType assistanceType);
 
     PostCustomPage findPostsMyPage(Long memberId, Integer page, Integer size, String sort, PostType postType);
