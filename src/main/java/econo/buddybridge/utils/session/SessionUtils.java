@@ -1,7 +1,9 @@
 package econo.buddybridge.utils.session;
 
+import econo.buddybridge.utils.session.exception.SessionNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+
+import java.util.Optional;
 
 public class SessionUtils {
 
@@ -10,15 +12,14 @@ public class SessionUtils {
     }
 
     public static Long getMemberIdOrNull(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        if (session == null) {
+        try {
+            return Optional.ofNullable(request.getSession())
+                    .map(session -> session.getAttribute("memberId"))
+                    .map(SessionUtils::validateMemberId)
+                    .orElse(null);
+        } catch (SessionNotFoundException e) {
             return null;
         }
-        Object memberId = session.getAttribute("memberId");
-        if (memberId == null) {
-            return null;
-        }
-        return validateMemberId(memberId);
     }
 
     public static Long validateMemberId(Object memberId) {
@@ -27,7 +28,7 @@ public class SessionUtils {
         } else if(memberId instanceof Long) {
             return (Long) memberId;
         } else {
-            throw new IllegalArgumentException("적절하지 않은 memberId 입니다.");
+            throw SessionNotFoundException.EXCEPTION;
         }
     }
 }
