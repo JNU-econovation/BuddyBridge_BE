@@ -36,25 +36,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .orderBy(buildOrderSpecifier(sort))
                 .fetch();
 
-        List<PostResDto> content;
-        if (memberId != null) {
-            List<Long> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
-            Set<Long> postLikedIds = new HashSet<>(
-                    queryFactory
-                            .select(postLike.post.id)
-                            .from(postLike)
-                            .where(postLike.member.id.eq(memberId), postLike.post.id.in(postIds))
-                            .fetch()
-            );
-
-            content = posts.stream()
-                    .map(post -> new PostResDto(post, postLikedIds.contains(post.getId())))
-                    .collect(Collectors.toList());
-        } else {
-            content = posts.stream()
-                    .map(PostResDto::new)
-                    .collect(Collectors.toList());
-        }
+        List<PostResDto> content = getPostResDtos(memberId, posts);
 
         Long totalElements = queryFactory
                 .select(post.count())
@@ -70,16 +52,15 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     @Override
     public PostCustomPage findPostsMyPage(Long memberId, Integer page, Integer size, String sort, PostType postType) {
 
-        List<PostResDto> content = queryFactory
+        List<Post> posts = queryFactory
                 .selectFrom(post)
                 .where(buildMemberIdExpression(memberId), buildPostTypeExpression(postType))
                 .offset((long) page * size)
                 .limit(size)
                 .orderBy(buildOrderSpecifier(sort))
-                .fetch()
-                .stream()
-                .map(PostResDto::new)
-                .toList();
+                .fetch();
+
+        List<PostResDto> content = getPostResDtos(memberId, posts);
 
         Long totalElements = queryFactory
                 .select(post.count())
@@ -88,6 +69,29 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .fetchOne();
 
         return new PostCustomPage(content, totalElements, content.size() < size);
+    }
+
+    private List<PostResDto> getPostResDtos(Long memberId, List<Post> posts) {
+        List<PostResDto> content;
+        if (memberId != null) {
+            List<Long> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
+            Set<Long> postLikedIds = new HashSet<>(
+                    queryFactory
+                            .select(postLike.post.id)
+                            .from(postLike)
+                            .where(postLike.member.id.eq(memberId), postLike.post.id.in(postIds))
+                            .fetch()
+            );
+
+            content = posts.stream()
+                    .map(post -> new PostResDto(post, postLikedIds.contains(post.getId())))
+                    .toList();
+        } else {
+            content = posts.stream()
+                    .map(PostResDto::new)
+                    .toList();
+        }
+        return content;
     }
 
     private BooleanExpression buildMemberIdExpression(Long memberId) {
