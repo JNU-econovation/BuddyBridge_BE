@@ -33,7 +33,6 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
     @Override
     public PostCustomPage findPostsByLikes(Long memberId, Integer page, Integer size, String sort, PostType postType) {
 
-        // Todo: 쿼리 최적화 고려
         List<PostResDto> content = queryFactory
                 .select(postLike.post)
                 .from(postLike)
@@ -42,7 +41,7 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
                 .orderBy(buildOrderSpecifier(sort))
                 .fetch()
                 .stream()
-                .map(PostResDto::new)
+                .map(post -> new PostResDto(post,true))
                 .toList();
 
         Long totalElements = queryFactory
