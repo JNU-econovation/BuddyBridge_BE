@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum SessionErrorCode implements ErrorCode {
-    SESSION_NOT_FOUND("S001", HttpStatus.NOT_FOUND, "세션이 존재하지 않습니다."),
+    INVALIDATE_MEMBER_ID("S001", HttpStatus.UNAUTHORIZED, "세션이 존재하지 않습니다."),
     ;
 
     private final String code;

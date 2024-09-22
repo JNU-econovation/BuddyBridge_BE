@@ -1,6 +1,6 @@
 package econo.buddybridge.utils.session;
 
-import econo.buddybridge.utils.session.exception.SessionNotFoundException;
+import econo.buddybridge.utils.session.exception.InvalidateMemberId;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Optional;
@@ -17,7 +17,7 @@ public class SessionUtils {
                     .map(session -> session.getAttribute("memberId"))
                     .map(SessionUtils::validateMemberId)
                     .orElse(null);
-        } catch (SessionNotFoundException e) {
+        } catch (InvalidateMemberId e) {
             return null;
         }
     }
@@ -28,7 +28,7 @@ public class SessionUtils {
         } else if(memberId instanceof Long) {
             return (Long) memberId;
         } else {
-            throw SessionNotFoundException.EXCEPTION;
+            throw InvalidateMemberId.EXCEPTION;
         }
     }
 }
