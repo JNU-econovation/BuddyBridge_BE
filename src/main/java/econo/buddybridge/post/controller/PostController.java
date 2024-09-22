@@ -55,7 +55,7 @@ public class PostController {
             @RequestParam(value = "assistance-type", required = false) AssistanceType assistanceType,
             HttpServletRequest request
     ) {
-        Long memberId = SessionUtils.getMemberIdOrNull(request);
+        Long memberId = SessionUtils.getMemberId(request);
         PostCustomPage posts = postService.getPosts(memberId, page, size, sort, postType, postStatus, disabilityType, assistanceType);
         return ApiResponseGenerator.success(posts, HttpStatus.OK);
     }
@@ -80,7 +80,7 @@ public class PostController {
             @PathVariable("post-id") Long postId,
             HttpServletRequest request
     ) {
-        Long memberId = SessionUtils.getMemberIdOrNull(request);
+        Long memberId = SessionUtils.getMemberId(request);
         PostResDto postResDto = postService.findPost(memberId, postId);
         return ApiResponseGenerator.success(postResDto, HttpStatus.OK);
     }
