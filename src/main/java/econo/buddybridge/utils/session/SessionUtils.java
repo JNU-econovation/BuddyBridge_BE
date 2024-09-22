@@ -9,7 +9,7 @@ public class SessionUtils {
     public static Long getMemberId(HttpServletRequest request) {
         try {
             return Optional.of(Long.parseLong(request.getSession().getAttribute("memberId").toString())).orElse(null);
-        } catch (RuntimeException e) {
+        } catch (NullPointerException | NumberFormatException e) {
             return null;
         }
     }
