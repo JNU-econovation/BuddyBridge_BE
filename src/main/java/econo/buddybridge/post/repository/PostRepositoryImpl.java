@@ -66,7 +66,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         buildPostDisabilityTypeExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType))
                 .fetchOne();
 
-        // content, totalElements, last
         return new PostCustomPage(content, totalElements, content.size() < size);
     }
 
