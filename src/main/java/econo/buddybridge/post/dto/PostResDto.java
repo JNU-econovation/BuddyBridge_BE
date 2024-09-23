@@ -44,7 +44,7 @@ public record PostResDto(
                 post.getModifiedAt(),
                 post.getPostStatus(),
                 post.getDisabilityType(),
-                post.getIsLiked()
+                false
         );
     }
 
