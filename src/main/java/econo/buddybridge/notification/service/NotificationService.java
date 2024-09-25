@@ -24,9 +24,9 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
-    public NotificationCustomPage getNotifications(Long memberId, Integer size, Long cursor) {
+    public NotificationCustomPage getNotifications(Long memberId, Integer size, Long cursor, Boolean isRead) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
-        return notificationRepository.findByMemberId(member.getId(), size, cursor);
+        return notificationRepository.findByMemberId(member.getId(), size, cursor, isRead);
     }
 
     @Transactional

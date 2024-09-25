@@ -31,10 +31,11 @@ public class NotificationController {
     public ApiResponse<CustomBody<NotificationCustomPage>> getNotifications(
             @RequestParam("limit") Integer size,
             @RequestParam(value = "cursor", required = false) Long cursor,
+            @RequestParam(value = "is-read", required = false) Boolean isRead,
             HttpServletRequest request
     ) {
         Long memberId = SessionUtils.getMemberId(request);
-        NotificationCustomPage notifications = notificationService.getNotifications(memberId, size, cursor);
+        NotificationCustomPage notifications = notificationService.getNotifications(memberId, size, cursor, isRead);
         return ApiResponseGenerator.success(notifications, HttpStatus.OK);
     }
 
