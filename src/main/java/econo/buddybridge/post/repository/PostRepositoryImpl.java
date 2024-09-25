@@ -46,12 +46,12 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     @Override
     public PostCustomPage findPosts(Long memberId, Integer page, Integer size, String sort, PostType postType,
-                                    PostStatus postStatus, DisabilityType disabilityType, AssistanceType assistanceType) {
+                                    PostStatus postStatus, List<DisabilityType> disabilityType, AssistanceType assistanceType) {
 
         List<Post> posts = queryFactory
                 .selectFrom(post)
                 .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType),
-                        buildPostDisabilityTypeExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType))
+                        buildPostDisabilityTypesExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType))
                 .offset((long) page * size)
                 .limit(size)
                 .orderBy(buildOrderSpecifier(sort))
@@ -63,7 +63,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .select(post.count())
                 .from(post)
                 .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType),
-                        buildPostDisabilityTypeExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType))
+                        buildPostDisabilityTypesExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType))
                 .fetchOne();
 
         return new PostCustomPage(content, totalElements, content.size() < size);
@@ -126,8 +126,11 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     // 없음, 시각장애, 청각장애, 지적장애, 지체장애, 자폐성장애, 뇌병변장애, 정신장애
-    private BooleanExpression buildPostDisabilityTypeExpression(DisabilityType disabilityType) {
-        return disabilityType == null ? null : post.disabilityType.eq(disabilityType);
+    private BooleanExpression buildPostDisabilityTypesExpression(List<DisabilityType> disabilityTypes) {
+        if (disabilityTypes == null || disabilityTypes.isEmpty()) {
+            return null;
+        }
+        return post.disabilityType.in(disabilityTypes);
     }
 
     // 광주광역시, 남구, 북구, 서구, 동구, 광산구
