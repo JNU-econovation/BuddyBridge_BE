@@ -16,7 +16,7 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public NotificationCustomPage findByMemberId(Long memberId, Integer size, Long cursor) {
+    public NotificationCustomPage findByMemberId(Long memberId, Integer size, Long cursor, Boolean isRead) {
         List<NotificationResDto> content = queryFactory
                 .select(
                         new QNotificationResDto(
@@ -29,7 +29,7 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
                         )
                 )
                 .from(notification)
-                .where(notification.receiver.id.eq(memberId), buildCursorPredicate(cursor))
+                .where(notification.receiver.id.eq(memberId), buildCursorPredicate(cursor), buildIsReadPredicate(isRead))
                 .orderBy(notification.id.desc())
                 .limit(size + 1)
                 .fetch();
@@ -50,5 +50,12 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
             return null;
         }
         return notification.id.lt(cursor);
+    }
+
+    private BooleanExpression buildIsReadPredicate(Boolean isRead) {
+        if (isRead == null) {
+            return null;
+        }
+        return notification.isRead.eq(isRead);
     }
 }
