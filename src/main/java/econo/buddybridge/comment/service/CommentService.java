@@ -15,8 +15,7 @@ import econo.buddybridge.notification.entity.NotificationType;
 import econo.buddybridge.notification.service.EmitterService;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
-import econo.buddybridge.post.exception.PostNotFoundException;
-import econo.buddybridge.post.repository.PostRepository;
+import econo.buddybridge.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -29,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommentService {
 
     private final MemberService memberService;
-    private final PostRepository postRepository;
+    private final PostService postService;
     private final CommentRepository commentRepository;
     private final EmitterService emitterService;
 
@@ -40,7 +39,7 @@ public class CommentService {
 
     @Transactional(readOnly = true) // 댓글 조회
     public CommentCustomPage getComments(Long postId, Integer size, String order, Long cursor) {
-        Post post = findPostByIdOrThrow(postId);
+        Post post = postService.findPostByIdOrThrow(postId);
 
         Direction direction;
         try {
@@ -54,17 +53,12 @@ public class CommentService {
         return commentRepository.findByPost(post, cursor, page);
     }
 
-    private Post findPostByIdOrThrow(Long postId) {
-        return postRepository.findById(postId)
-                .orElseThrow(() -> PostNotFoundException.EXCEPTION);
-    }
-
     @Transactional  // 댓글 생성
     public Long createComment(CommentReqDto commentReqDto, Long postId, Long memberId) {
 
         Member member = memberService.findMemberByIdOrThrow(memberId);
 
-        Post post = findPostByIdOrThrow(postId);
+        Post post = postService.findPostByIdOrThrow(postId);
 
         Comment comment = commentReqToComment(commentReqDto, post, member);
 
