@@ -9,13 +9,13 @@ import econo.buddybridge.comment.exception.CommentInvalidDirectionException;
 import econo.buddybridge.comment.exception.CommentNotFoundException;
 import econo.buddybridge.comment.exception.CommentUpdateNotAllowedException;
 import econo.buddybridge.comment.repository.CommentRepository;
-import econo.buddybridge.comment.repository.CommentRepositoryCustom;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.entity.NotificationType;
 import econo.buddybridge.notification.service.EmitterService;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
+import econo.buddybridge.post.exception.PostNotFoundException;
 import econo.buddybridge.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -31,12 +31,11 @@ public class CommentService {
     private final MemberService memberService;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
-    private final CommentRepositoryCustom commentRepositoryCustom;
     private final EmitterService emitterService;
 
     @Transactional(readOnly = true) // MyPage 댓글 조회
     public MyPageCommentCustomPage getMyPageComments(Long memberId, Integer page, Integer size, String sort, PostType postType) {
-        return commentRepositoryCustom.findByMemberId(memberId, page - 1, size, sort, postType);
+        return commentRepository.findByMemberId(memberId, page - 1, size, sort, postType);
     }
 
     @Transactional(readOnly = true) // 댓글 조회
@@ -52,14 +51,14 @@ public class CommentService {
 
         PageRequest page = PageRequest.of(0, size, Sort.by(direction, "id"));
 
-        return commentRepositoryCustom.findByPost(post, cursor, page);
+        return commentRepository.findByPost(post, cursor, page);
     }
 
     private Post findPostByIdOrThrow(Long postId) {
         return postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> PostNotFoundException.EXCEPTION);
     }
-    
+
     @Transactional  // 댓글 생성
     public Long createComment(CommentReqDto commentReqDto, Long postId, Long memberId) {
 

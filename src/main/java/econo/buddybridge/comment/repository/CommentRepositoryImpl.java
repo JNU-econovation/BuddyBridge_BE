@@ -1,21 +1,25 @@
 package econo.buddybridge.comment.repository;
 
+import static econo.buddybridge.comment.entity.QComment.comment;
+import static econo.buddybridge.post.entity.QPost.post;
+import static org.springframework.data.domain.Sort.Order;
+
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import econo.buddybridge.comment.dto.*;
-import econo.buddybridge.comment.entity.QComment;
+import econo.buddybridge.comment.dto.CommentCustomPage;
+import econo.buddybridge.comment.dto.CommentResDto;
+import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
+import econo.buddybridge.comment.dto.MyPageCommentResDto;
+import econo.buddybridge.comment.dto.QAuthorDto;
+import econo.buddybridge.comment.dto.QCommentResDto;
+import econo.buddybridge.comment.dto.QMyPageCommentResDto;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
-
-import static econo.buddybridge.comment.entity.QComment.comment;
-import static econo.buddybridge.post.entity.QPost.post;
-import static org.springframework.data.domain.Sort.Order;
 
 @RequiredArgsConstructor
 public class CommentRepositoryImpl implements CommentRepositoryCustom {
@@ -61,8 +65,6 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 
     @Override
     public MyPageCommentCustomPage findByMemberId(Long memberId, Integer page, Integer size, String sort, PostType postType) {
-
-        QComment subComment = new QComment("subComment");
 
         List<MyPageCommentResDto> content = queryFactory
                 .select(new QMyPageCommentResDto( // MyPageCommentResDto를 생성
