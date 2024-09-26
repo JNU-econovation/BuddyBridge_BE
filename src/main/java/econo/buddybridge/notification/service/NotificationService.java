@@ -33,14 +33,18 @@ public class NotificationService {
     public void markAsRead(Long notificationId, Long memberId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
 
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> NotificationNotFoundException.EXCEPTION);
+        Notification notification = findNotificationByIdOrThrow(notificationId);
 
         if (!notification.getReceiver().getId().equals(member.getId())) {
             throw NotificationAccessDeniedException.EXCEPTION;
         }
 
         notification.markAsRead();
+    }
+
+    private Notification findNotificationByIdOrThrow(Long notificationId) {
+        return notificationRepository.findById(notificationId)
+                .orElseThrow(() -> NotificationNotFoundException.EXCEPTION);
     }
 
     @Transactional
