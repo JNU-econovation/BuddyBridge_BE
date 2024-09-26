@@ -12,6 +12,7 @@ import econo.buddybridge.matching.exception.MatchingUnauthorizedAccessException;
 import econo.buddybridge.matching.repository.MatchingRepositoryCustom;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
+import econo.buddybridge.notification.service.NotificationService;
 import econo.buddybridge.post.entity.Post;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,6 +31,7 @@ public class MatchingRoomService {
     private final ChatMessageRepository chatMessageRepository;
     private final MatchingRepositoryCustom matchingRepositoryCustom;
     private final MatchingService matchingService;
+    private final NotificationService notificationService;
 
     @Transactional
     public MatchingCustomPage getMatchings(Long memberId, Integer size, LocalDateTime cursor, MatchingStatus matchingStatus) {
@@ -55,6 +57,8 @@ public class MatchingRoomService {
         } else {
             chatMessagesSlice = chatMessageRepository.findByMatchingIdAndIdGreaterThan(matchingId, cursor, pageable);
         }
+
+        notificationService.markAsReadByMatchingRoom(memberId, matchingId); // 해당 매칭방의 알림을 읽음 처리
 
         Post post = matching.getPost();
 

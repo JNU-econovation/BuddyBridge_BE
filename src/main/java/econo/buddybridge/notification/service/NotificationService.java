@@ -48,4 +48,10 @@ public class NotificationService {
         Member member = memberService.findMemberByIdOrThrow(memberId);
         notificationRepository.markAllAsRead(member.getId());
     }
+
+    @Transactional
+    public void markAsReadByMatchingRoom(Long memberId, Long matchingId) {
+        Member member = memberService.findMemberByIdOrThrow(memberId);
+        notificationRepository.markAsReadByMatchingRoom(member.getId(), "/chat/" + matchingId);
+    }
 }
