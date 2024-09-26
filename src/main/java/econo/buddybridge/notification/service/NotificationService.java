@@ -52,6 +52,6 @@ public class NotificationService {
     @Transactional
     public void markAsReadByMatchingRoom(Long memberId, Long matchingId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
-        notificationRepository.markAsReadByMatchingRoom(member.getId(), "/chat/" + matchingId);
+        notificationRepository.markAsReadByMemberIdAndUrl(member.getId(), "/chat/" + matchingId);
     }
 }
