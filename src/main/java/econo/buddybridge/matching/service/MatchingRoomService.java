@@ -13,6 +13,8 @@ import econo.buddybridge.matching.repository.MatchingRepositoryCustom;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.entity.Post;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,35 +22,32 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class MatchingRoomService {
-    
+
     private final MemberService memberService;
     private final ChatMessageRepository chatMessageRepository;
     private final MatchingRepositoryCustom matchingRepositoryCustom;
     private final MatchingService matchingService;
 
     @Transactional
-    public MatchingCustomPage getMatchings(Long memberId, Integer size, LocalDateTime cursor, MatchingStatus matchingStatus){
-        PageRequest page = PageRequest.of(0,size);
+    public MatchingCustomPage getMatchings(Long memberId, Integer size, LocalDateTime cursor, MatchingStatus matchingStatus) {
+        PageRequest page = PageRequest.of(0, size);
         return matchingRepositoryCustom.findMatchings(memberId, size, cursor, matchingStatus, page);
     }
 
     @Transactional // 메시지 조회
-    public ChatMessageCustomPage getMatchingRoomMessages(Long memberId, Long matchingId, Integer size, Long cursor){
+    public ChatMessageCustomPage getMatchingRoomMessages(Long memberId, Long matchingId, Integer size, Long cursor) {
 
         // 사용자 확인 // TODO: 예외처리 필요, 사용자가 매칭방에 속해있지 않을 경우 500 발생
         Matching matching = matchingService.findMatchingByIdOrThrow(matchingId);
 
-        if (!matching.getGiver().getId().equals(memberId) && !matching.getTaker().getId().equals(memberId)){
+        if (!matching.getGiver().getId().equals(memberId) && !matching.getTaker().getId().equals(memberId)) {
             throw MatchingUnauthorizedAccessException.EXCEPTION;
         }
 
-        Pageable pageable = PageRequest.of(0, size+1);
+        Pageable pageable = PageRequest.of(0, size + 1);
         Slice<ChatMessage> chatMessagesSlice;
 
         if (cursor == null) {
@@ -86,12 +85,12 @@ public class MatchingRoomService {
 
     private Member getReceiver(Matching matching, Long memberId) {
         Long receiverId;
-        if (matching.getGiver().getId().equals(memberId)){
+        if (matching.getGiver().getId().equals(memberId)) {
             receiverId = matching.getTaker().getId();
         } else {
             receiverId = matching.getGiver().getId();
         }
-        
+
         return memberService.findMemberByIdOrThrow(receiverId);
     }
 }

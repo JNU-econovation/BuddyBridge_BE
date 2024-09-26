@@ -29,7 +29,7 @@ public class MatchingRoomController {
     
     // 채팅방 목록 조회
     @Operation(summary = "채팅방 목록 조회", description = "채팅방 목록을 조회합니다.")
-    @GetMapping("")
+    @GetMapping
     public ApiResponse<ApiResponse.CustomBody<MatchingCustomPage>> getAllMatchingRooms(
             @RequestParam("limit") Integer size,
             @RequestParam(value = "cursor", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime cursor,
