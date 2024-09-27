@@ -1,5 +1,8 @@
 package econo.buddybridge.chat.chatmessage.service;
 
+import static econo.buddybridge.common.consts.BuddyBridgeStatic.CHAT_NOTIFICATION_MESSAGE;
+import static econo.buddybridge.common.consts.BuddyBridgeStatic.CHAT_NOTIFICATION_URL;
+
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageReqDto;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
@@ -12,12 +15,11 @@ import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.entity.NotificationType;
 import econo.buddybridge.notification.service.EmitterService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -46,8 +48,8 @@ public class ChatMessageService {
 
         emitterService.send(    // 채팅을 받는 사용자에게 알림 전송
                 receiver,
-                sender.getName() + "님이 메시지를 보냈습니다. - " + chatMessage.getContent(),
-                "/chat/" + matching.getId(),
+                String.format(CHAT_NOTIFICATION_MESSAGE, sender.getName(), chatMessage.getContent()),
+                String.format(CHAT_NOTIFICATION_URL, matching.getId()),
                 NotificationType.CHAT
         );
 
@@ -91,5 +93,4 @@ public class ChatMessageService {
                 .createdAt(chatMessage.getCreatedAt())
                 .build();
     }
-
 }

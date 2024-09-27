@@ -1,5 +1,7 @@
 package econo.buddybridge.notification.service;
 
+import static econo.buddybridge.common.consts.BuddyBridgeStatic.CHAT_NOTIFICATION_URL;
+
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.dto.NotificationCustomPage;
@@ -56,6 +58,7 @@ public class NotificationService {
     @Transactional
     public void markAsReadByMatchingRoom(Long memberId, Long matchingId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
-        notificationRepository.markAsReadByMemberIdAndUrl(member.getId(), "/chat/" + matchingId);
+        String chatRoomUrl = String.format(CHAT_NOTIFICATION_URL, matchingId);
+        notificationRepository.markAsReadByMemberIdAndUrl(member.getId(), chatRoomUrl);
     }
 }

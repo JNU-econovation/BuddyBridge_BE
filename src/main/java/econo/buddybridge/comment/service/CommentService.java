@@ -1,5 +1,8 @@
 package econo.buddybridge.comment.service;
 
+import static econo.buddybridge.common.consts.BuddyBridgeStatic.COMMENT_NOTIFICATION_MESSAGE;
+import static econo.buddybridge.common.consts.BuddyBridgeStatic.getCommentNotificationUrl;
+
 import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentReqDto;
 import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
@@ -70,23 +73,11 @@ public class CommentService {
 
     private void sendNotificationToPostAuthor(Member member, Comment comment, Post post) {
         // 알림 내용은 댓글 작성자 이름과 댓글 내용
-        String notificationContent = member.getName() + "님이 댓글을 남겼습니다. - " + comment.getContent();
+        String notificationContent = String.format(COMMENT_NOTIFICATION_MESSAGE, member.getName(), comment.getContent());
         String notificationUrl = getCommentNotificationUrl(post.getPostType(), post.getId());
 
         // 댓글 알림은 게시글 작성자에게 전송
         emitterService.send(post.getAuthor(), notificationContent, notificationUrl, NotificationType.COMMENT);
-    }
-
-    private String getCommentNotificationUrl(PostType postType, Long postId) {
-        switch (postType) {
-            case TAKER -> { // 도와줄래요? 게시글
-                return "/help-me/" + postId;
-            }
-            case GIVER -> { // 도와줄게요! 게시글
-                return "/help-you/" + postId;
-            }
-        }
-        return "";
     }
 
     @Transactional  // 댓글 수정
