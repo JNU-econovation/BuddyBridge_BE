@@ -2,7 +2,7 @@ package econo.buddybridge.matching.service;
 
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageCustomPage;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
-import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
+import econo.buddybridge.chat.chatmessage.dto.ChatMessagesWithCursor;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
 import econo.buddybridge.matching.dto.MatchingCustomPage;
 import econo.buddybridge.matching.dto.ReceiverDto;
@@ -18,8 +18,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,49 +40,27 @@ public class MatchingRoomService {
     @Transactional // 메시지 조회
     public ChatMessageCustomPage getMatchingRoomMessages(Long memberId, Long matchingId, Integer size, Long cursor) {
 
-        // 사용자 확인 // TODO: 예외처리 필요, 사용자가 매칭방에 속해있지 않을 경우 500 발생
-        Matching matching = matchingService.findMatchingByIdOrThrow(matchingId);
+        Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
 
         if (!matching.getGiver().getId().equals(memberId) && !matching.getTaker().getId().equals(memberId)) {
             throw MatchingUnauthorizedAccessException.EXCEPTION;
         }
 
-        Pageable pageable = PageRequest.of(0, size + 1);
-        Slice<ChatMessage> chatMessagesSlice;
-
-        if (cursor == null) {
-            chatMessagesSlice = chatMessageRepository.findByMatchingId(matchingId, pageable);
-        } else {
-            chatMessagesSlice = chatMessageRepository.findByMatchingIdAndIdGreaterThan(matchingId, cursor, pageable);
+        if (cursor == null) {   // 첫 조회 시에 알림 읽음 처리
+            notificationService.markAsReadByMatchingRoom(memberId, matchingId); // 해당 매칭방의 알림을 읽음 처리
         }
 
-        notificationService.markAsReadByMatchingRoom(memberId, matchingId); // 해당 매칭방의 알림을 읽음 처리
+        Member receiver = getReceiver(matching, memberId);
+        ReceiverDto receiverDto = ReceiverDto.from(receiver);
+
+        ChatMessagesWithCursor chatMessagesWithCursor = chatMessageRepository.findByMatching(matching, cursor, PageRequest.of(0, size));
+
+        List<ChatMessageResDto> chatMessageResDtos = chatMessagesWithCursor.chatMessages();
+        Long nextCursor = chatMessagesWithCursor.cursor();
+        boolean nextPage = chatMessagesWithCursor.nextPage();
 
         Post post = matching.getPost();
-
-        Member receiver = getReceiver(matching, memberId);
-
-        ReceiverDto receiverDto = ReceiverDto.builder()
-                .receiverId(receiver.getId())
-                .receiverName(receiver.getName())
-                .receiverProfileImg(receiver.getProfileImageUrl())
-                .build();
-
-        List<ChatMessage> chatMessageList = chatMessagesSlice.getContent();
-
-        List<ChatMessageResDto> chatMessageResDtoList = chatMessageList.stream().limit(size)
-                .map(chatMessage -> ChatMessageResDto.builder()
-                        .messageId(chatMessage.getId())
-                        .senderId(chatMessage.getSender().getId())
-                        .content(chatMessage.getContent())
-                        .messageType(chatMessage.getMessageType())
-                        .createdAt(chatMessage.getCreatedAt())
-                        .build()).toList();
-
-        boolean nextPage = chatMessageList.size() > size;
-
-        Long nextCursor = nextPage ? chatMessageResDtoList.isEmpty() ? -1L : chatMessageResDtoList.getLast().messageId() : -1L;
-        return new ChatMessageCustomPage(post.getPostType(), post.getId(), receiverDto, chatMessageResDtoList, nextCursor, nextPage);
+        return new ChatMessageCustomPage(post.getPostType(), post.getId(), receiverDto, chatMessageResDtos, nextCursor, nextPage);
     }
 
     private Member getReceiver(Matching matching, Long memberId) {
