@@ -19,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/posts")
@@ -51,7 +53,7 @@ public class PostController {
             @RequestParam("size") Integer size,
             @RequestParam(defaultValue = "desc", required = false) String sort,
             @RequestParam(value = "post-status", required = false) PostStatus postStatus,
-            @RequestParam(value = "disability-type", required = false) DisabilityType disabilityType,
+            @RequestParam(value = "disability-type", required = false) List<DisabilityType> disabilityType,
             @RequestParam(value = "assistance-type", required = false) AssistanceType assistanceType,
             HttpServletRequest request
     ) {
