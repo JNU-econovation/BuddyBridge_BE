@@ -1,5 +1,7 @@
 package econo.buddybridge.notification.service;
 
+import static econo.buddybridge.common.consts.BuddyBridgeStatic.CHAT_NOTIFICATION_URL;
+
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.dto.NotificationCustomPage;
@@ -33,8 +35,7 @@ public class NotificationService {
     public void markAsRead(Long notificationId, Long memberId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
 
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> NotificationNotFoundException.EXCEPTION);
+        Notification notification = findNotificationByIdOrThrow(notificationId);
 
         if (!notification.getReceiver().getId().equals(member.getId())) {
             throw NotificationAccessDeniedException.EXCEPTION;
@@ -43,9 +44,21 @@ public class NotificationService {
         notification.markAsRead();
     }
 
+    private Notification findNotificationByIdOrThrow(Long notificationId) {
+        return notificationRepository.findById(notificationId)
+                .orElseThrow(() -> NotificationNotFoundException.EXCEPTION);
+    }
+
     @Transactional
     public void markAllAsRead(Long memberId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
         notificationRepository.markAllAsRead(member.getId());
+    }
+
+    @Transactional
+    public void markAsReadByMatchingRoom(Long memberId, Long matchingId) {
+        Member member = memberService.findMemberByIdOrThrow(memberId);
+        String chatRoomUrl = String.format(CHAT_NOTIFICATION_URL, matchingId);
+        notificationRepository.markAsReadByMemberIdAndUrl(member.getId(), chatRoomUrl);
     }
 }

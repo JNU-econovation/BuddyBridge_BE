@@ -9,6 +9,10 @@ import org.springframework.data.repository.query.Param;
 public interface NotificationRepository extends JpaRepository<Notification, Long>, NotificationRepositoryCustom {
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("update Notification  n set n.isRead = true where n.receiver.id = :memberId")
+    @Query("update Notification n set n.isRead = true where n.receiver.id = :memberId")
     void markAllAsRead(@Param("memberId") Long memberId);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("update Notification n set n.isRead = true where n.receiver.id = :memberId and n.url = :url")
+    void markAsReadByMemberIdAndUrl(@Param("memberId") Long memberId, @Param("url") String url);
 }
