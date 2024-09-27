@@ -2,9 +2,8 @@ package econo.buddybridge.chat.chatmessage.dto;
 
 import econo.buddybridge.matching.dto.ReceiverDto;
 import econo.buddybridge.post.entity.PostType;
-import lombok.Builder;
-
 import java.util.List;
+import lombok.Builder;
 
 @Builder
 public record ChatMessageCustomPage(
@@ -15,4 +14,5 @@ public record ChatMessageCustomPage(
         Long cursor,
         Boolean nextPage
 ) {
+
 }

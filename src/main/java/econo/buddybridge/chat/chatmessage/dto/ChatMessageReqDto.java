@@ -6,4 +6,5 @@ public record ChatMessageReqDto(
         String content,
         MessageType messageType
 ) {
+
 }
