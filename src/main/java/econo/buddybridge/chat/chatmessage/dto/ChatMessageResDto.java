@@ -1,9 +1,9 @@
 package econo.buddybridge.chat.chatmessage.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import econo.buddybridge.chat.chatmessage.entity.MessageType;
-import lombok.Builder;
-
 import java.time.LocalDateTime;
+import lombok.Builder;
 
 @Builder
 public record ChatMessageResDto(
@@ -13,4 +13,8 @@ public record ChatMessageResDto(
         MessageType messageType,
         LocalDateTime createdAt
 ) {
+
+    @QueryProjection
+    public ChatMessageResDto {
+    }
 }
