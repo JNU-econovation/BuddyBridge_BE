@@ -15,7 +15,11 @@ public record ReceiverDto(
     public ReceiverDto {
     }
 
-    public ReceiverDto(Member receiver) {
-        this(receiver.getId(), receiver.getName(), receiver.getProfileImageUrl());
+    public static ReceiverDto from(Member receiver) {
+        return ReceiverDto.builder()
+                .receiverId(receiver.getId())
+                .receiverName(receiver.getName())
+                .receiverProfileImg(receiver.getProfileImageUrl())
+                .build();
     }
 }
