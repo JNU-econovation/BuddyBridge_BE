@@ -4,6 +4,7 @@ import econo.buddybridge.auth.OAuthProvider;
 import econo.buddybridge.auth.client.OAuthApiClient;
 import econo.buddybridge.auth.dto.OAuthInfoResponse;
 import econo.buddybridge.auth.dto.OAuthLoginParams;
+import econo.buddybridge.auth.dto.kakao.UserInfoWithKakaoToken;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -23,13 +24,13 @@ public class OAuthInfoService {
                 .collect(Collectors.toMap(OAuthApiClient::getOAuthProvider, Function.identity())));
     }
 
-    public OAuthInfoResponse getUserInfo(OAuthLoginParams params) {
+    public UserInfoWithKakaoToken getUserInfo(OAuthLoginParams params) {
         OAuthApiClient client = clients.get(params.oAuthProvider());
 
         String accessToken = client.getAccessToken(params);
-        log.info("accessToken: {}", accessToken);
+        OAuthInfoResponse userInfo = client.getUserInfo(accessToken);
 
-        return client.getUserInfo(accessToken);
+        return new UserInfoWithKakaoToken(userInfo, accessToken);
     }
 
     public void logout(OAuthProvider provider) {

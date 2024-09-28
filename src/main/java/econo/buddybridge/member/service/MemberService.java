@@ -1,6 +1,6 @@
 package econo.buddybridge.member.service;
 
-import econo.buddybridge.auth.dto.OAuthInfoResponse;
+import econo.buddybridge.auth.dto.kakao.UserInfoWithKakaoToken;
 import econo.buddybridge.member.dto.MemberReqDto;
 import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.entity.Member;
@@ -35,14 +35,15 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResDto findOrCreateMemberByEmail(OAuthInfoResponse info) {
-        Member member = memberRepository.findByEmail(info.getEmail())
-                .orElseGet(() -> newMember(info));
+    public MemberResDto findOrCreateMemberByEmail(UserInfoWithKakaoToken userInfo) {
+        Member member = memberRepository.findByEmail(userInfo.info().getEmail())
+                .orElseGet(() -> newMember(userInfo));
         return new MemberResDto(member);
     }
 
-    private Member newMember(OAuthInfoResponse info) {
-        Member member = info.toMember();
+    private Member newMember(UserInfoWithKakaoToken userInfo) {
+        Member member = userInfo.info().toMember();
+        member.updateKakaoToken(userInfo.accessToken());
         return memberRepository.save(member);
     }
 
