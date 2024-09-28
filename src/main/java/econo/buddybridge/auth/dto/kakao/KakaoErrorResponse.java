@@ -1,14 +1,15 @@
 package econo.buddybridge.auth.dto.kakao;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 
 @Builder
-public record KakaoErrorResponse (
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public record KakaoErrorResponse(
         String error,
-        @JsonProperty("error_description")
         String errorDescription,
-        @JsonProperty("error_code")
         String errorCode
 ) {
+
 }
