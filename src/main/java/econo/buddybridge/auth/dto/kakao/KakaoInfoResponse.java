@@ -1,44 +1,40 @@
 package econo.buddybridge.auth.dto.kakao;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import econo.buddybridge.auth.dto.OAuthInfoResponse;
 import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class KakaoInfoResponse implements OAuthInfoResponse {
 
-    @JsonProperty("kakao_account")
     private KakaoAccount kakaoAccount;
 
     @Data
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class KakaoAccount {
 
-        @JsonProperty("profile")
         private KakaoProfile profile;
 
-        @JsonProperty("name")
         private String name;
 
-        @JsonProperty("email")
         private String email;
 
-        @JsonProperty("birthyear")
         private String birthyear;
 
-        @JsonProperty("gender")
         private String gender;
     }
 
     @Data
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class KakaoProfile {
 
-        @JsonProperty("nickname")
         private String nickname;
 
-        @JsonProperty("profile_image_url")
         private String profileImageUrl;
     }
 
