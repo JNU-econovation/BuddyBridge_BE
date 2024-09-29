@@ -15,7 +15,11 @@ import econo.buddybridge.utils.session.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.List;
+
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -73,7 +77,7 @@ public class PostController {
     @Operation(summary = "게시글 생성", description = "게시글을 생성합니다.")
     @PostMapping
     public ApiResponse<ApiResponse.CustomBody<Long>> createPost(
-            @RequestBody PostReqDto postReqDto,
+            @Valid @RequestBody PostReqDto postReqDto,
             HttpServletRequest request
     ) {
         Long memberId = SessionUtils.getMemberId(request);
