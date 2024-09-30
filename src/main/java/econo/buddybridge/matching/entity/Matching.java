@@ -53,7 +53,7 @@ public class Matching extends BaseEntity {
     private MatchingStatus matchingStatus;
 
     @OneToMany(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatMessage> chatMessages = new ArrayList<>();
+    private final List<ChatMessage> chatMessages = new ArrayList<>();
 
     @Builder
     public Matching(Post post, Member taker, Member giver, MatchingStatus matchingStatus) {
