@@ -38,7 +38,7 @@ public class Notification extends BaseEntity {
     private NotificationType type;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="receiver_id")
+    @JoinColumn(name = "receiver_id")
     private Member receiver;
 
     public static Notification createNotification(Member receiver, String content, String url, NotificationType type) {

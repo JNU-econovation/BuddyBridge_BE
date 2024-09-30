@@ -2,10 +2,14 @@ package econo.buddybridge.post.dto;
 
 import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.entity.DisabilityType;
-import econo.buddybridge.post.entity.*;
-import lombok.Builder;
-
+import econo.buddybridge.post.entity.AssistanceType;
+import econo.buddybridge.post.entity.District;
+import econo.buddybridge.post.entity.Post;
+import econo.buddybridge.post.entity.PostStatus;
+import econo.buddybridge.post.entity.PostType;
+import econo.buddybridge.post.entity.ScheduleType;
 import java.time.LocalDateTime;
+import lombok.Builder;
 
 @Builder
 public record PostResDto(

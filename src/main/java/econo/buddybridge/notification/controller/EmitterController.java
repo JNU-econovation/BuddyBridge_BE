@@ -26,7 +26,7 @@ public class EmitterController {
     @GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter connect(
             @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "")
-                    String lastEventId,
+            String lastEventId,
             HttpServletRequest request,
             HttpServletResponse response
     ) {

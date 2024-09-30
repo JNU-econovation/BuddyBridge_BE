@@ -11,7 +11,7 @@ public enum MatchingStatus {
 
     private final String matchingStatus;
 
-    private MatchingStatus(String matchingStatus){
+    MatchingStatus(String matchingStatus) {
         this.matchingStatus = matchingStatus;
     }
 }

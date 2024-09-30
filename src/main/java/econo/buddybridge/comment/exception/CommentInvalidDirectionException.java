@@ -9,5 +9,4 @@ public class CommentInvalidDirectionException extends BusinessException {
     private CommentInvalidDirectionException() {
         super(CommentErrorCode.COMMENT_INVALID_DIRECTION);
     }
-
 }

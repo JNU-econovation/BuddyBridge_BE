@@ -16,5 +16,4 @@ public interface EmitterRepository {
     Map<String, Object> findAllEventCacheStartWithByMemberId(String memberId);
 
     void deleteById(String emitterId);
-
 }

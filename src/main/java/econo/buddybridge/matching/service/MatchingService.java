@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class MatchingService {
+
     private final ChatMessageRepository chatMessageRepository;
     private final MatchingRepository matchingRepository;
     private final MemberService memberService;

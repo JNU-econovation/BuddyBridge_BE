@@ -13,7 +13,7 @@ public enum District {
 
     private final String district;
 
-    District(String district){
+    District(String district) {
         this.district = district;
     }
 }

@@ -5,9 +5,8 @@ import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
-import lombok.Builder;
-
 import java.time.LocalDateTime;
+import lombok.Builder;
 
 @Builder
 public record MyPageCommentResDto(

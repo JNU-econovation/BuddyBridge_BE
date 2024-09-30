@@ -1,5 +1,7 @@
 package econo.buddybridge.post.repository;
 
+import static econo.buddybridge.post.entity.QPostLike.postLike;
+
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -8,12 +10,9 @@ import econo.buddybridge.post.dto.PostResDto;
 import econo.buddybridge.post.entity.PostLike;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.exception.PostInvalidSortValueException;
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 import java.util.Optional;
-
-import static econo.buddybridge.post.entity.QPostLike.postLike;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
@@ -41,7 +40,7 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
                 .orderBy(buildOrderSpecifier(sort))
                 .fetch()
                 .stream()
-                .map(post -> new PostResDto(post,true))
+                .map(post -> new PostResDto(post, true))
                 .toList();
 
         Long totalElements = queryFactory
@@ -52,7 +51,6 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
 
         return new PostCustomPage(content, totalElements, content.size() < size);
     }
-
 
     private BooleanExpression buildPostTypeExpression(PostType postType) {
         return postType != null ? postLike.post.postType.eq(postType) : null;
@@ -65,5 +63,4 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
             default -> throw PostInvalidSortValueException.EXCEPTION;
         };
     }
-
 }

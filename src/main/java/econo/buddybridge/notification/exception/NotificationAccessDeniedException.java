@@ -9,5 +9,4 @@ public class NotificationAccessDeniedException extends BusinessException {
     private NotificationAccessDeniedException() {
         super(NotificationErrorCode.NOTIFICATION_ACCESS_DENIED);
     }
-
 }

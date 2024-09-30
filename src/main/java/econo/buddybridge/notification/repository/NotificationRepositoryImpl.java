@@ -7,6 +7,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import econo.buddybridge.notification.dto.NotificationCustomPage;
 import econo.buddybridge.notification.dto.NotificationResDto;
 import econo.buddybridge.notification.dto.QNotificationResDto;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
@@ -29,7 +30,8 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
                         )
                 )
                 .from(notification)
-                .where(notification.receiver.id.eq(memberId), buildCursorPredicate(cursor), buildIsReadPredicate(isRead))
+                .where(notification.receiver.id.eq(memberId), notification.createdAt.gt(LocalDateTime.now().minusDays(3)), // 3일 이내 알림만 조회
+                        buildCursorPredicate(cursor), buildIsReadPredicate(isRead))
                 .orderBy(notification.id.desc())
                 .limit(size + 1)
                 .fetch();
@@ -42,7 +44,15 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
 
         Long nextCursor = nextPage ? content.getLast().id() : -1L;
 
-        return new NotificationCustomPage(content, nextCursor, nextPage);
+        Long totalUnreadCount = queryFactory
+                .select(notification.count())
+                .from(notification)
+                .where(notification.receiver.id.eq(memberId),
+                        notification.createdAt.gt(LocalDateTime.now().minusDays(3)),
+                        notification.isRead.eq(false))
+                .fetchOne();
+
+        return new NotificationCustomPage(content, nextCursor, nextPage, totalUnreadCount);
     }
 
     private BooleanExpression buildCursorPredicate(Long cursor) {
