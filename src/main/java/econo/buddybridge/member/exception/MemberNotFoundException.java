@@ -9,5 +9,4 @@ public class MemberNotFoundException extends BusinessException {
     private MemberNotFoundException() {
         super(MemberErrorCode.MEMBER_NOT_FOUND);
     }
-
 }

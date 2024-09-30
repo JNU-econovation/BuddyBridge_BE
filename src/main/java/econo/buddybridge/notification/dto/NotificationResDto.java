@@ -6,12 +6,12 @@ import econo.buddybridge.notification.entity.NotificationType;
 import java.time.LocalDateTime;
 
 public record NotificationResDto(
-    Long id,
-    String content,
-    String url,
-    Boolean isRead,
-    NotificationType type,
-    LocalDateTime createdAt
+        Long id,
+        String content,
+        String url,
+        Boolean isRead,
+        NotificationType type,
+        LocalDateTime createdAt
 ) {
 
     @QueryProjection

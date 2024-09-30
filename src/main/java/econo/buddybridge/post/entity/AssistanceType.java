@@ -9,5 +9,7 @@ public enum AssistanceType {
 
     private final String assistanceType;
 
-    AssistanceType(String assistanceType){ this.assistanceType = assistanceType; }
+    AssistanceType(String assistanceType) {
+        this.assistanceType = assistanceType;
+    }
 }

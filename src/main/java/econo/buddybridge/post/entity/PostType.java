@@ -9,5 +9,7 @@ public enum PostType {
 
     private final String postType;
 
-    PostType(String postType){ this.postType = postType; }
+    PostType(String postType) {
+        this.postType = postType;
+    }
 }

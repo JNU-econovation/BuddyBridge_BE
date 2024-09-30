@@ -9,5 +9,7 @@ public enum ScheduleType {
 
     private final String scheduleType;
 
-    ScheduleType(String scheduleType){ this.scheduleType = scheduleType; }
+    ScheduleType(String scheduleType) {
+        this.scheduleType = scheduleType;
+    }
 }

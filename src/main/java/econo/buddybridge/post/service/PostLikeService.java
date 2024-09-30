@@ -45,7 +45,4 @@ public class PostLikeService {
     public PostCustomPage getPostsLikes(Long memberId, Integer page, Integer size, String sort, PostType postType) {
         return postLikeRepository.findPostsByLikes(memberId, page - 1, size, sort, postType);
     }
-
-
-
 }

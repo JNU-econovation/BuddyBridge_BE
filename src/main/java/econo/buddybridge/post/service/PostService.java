@@ -14,11 +14,10 @@ import econo.buddybridge.post.exception.PostDeleteNotAllowedException;
 import econo.buddybridge.post.exception.PostNotFoundException;
 import econo.buddybridge.post.exception.PostUpdateNotAllowedException;
 import econo.buddybridge.post.repository.PostRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 
 @Service
@@ -47,7 +46,7 @@ public class PostService {
 
     @Transactional(readOnly = true) // 전체 게시글 조회
     public PostCustomPage getPosts(Long memberId, Integer page, Integer size, String sort, PostType postType, PostStatus postStatus,
-                                   List<DisabilityType> disabilityType, AssistanceType assistanceType) {
+            List<DisabilityType> disabilityType, AssistanceType assistanceType) {
         return postRepository.findPosts(memberId, page - 1, size, sort, postType, postStatus, disabilityType, assistanceType);
     }
 
@@ -77,7 +76,7 @@ public class PostService {
     public void deletePost(Long postId, Long memberId) {
         Post post = findPostByIdOrThrow(postId);
         if (!post.getAuthor().getId().equals(memberId)) {
-                throw PostDeleteNotAllowedException.EXCEPTION;
+            throw PostDeleteNotAllowedException.EXCEPTION;
         }
         postRepository.deleteById(postId);
     }

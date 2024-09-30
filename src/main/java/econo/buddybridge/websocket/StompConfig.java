@@ -11,6 +11,7 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 @Configuration
 @EnableWebSocketMessageBroker
 public class StompConfig extends AbstractSessionWebSocketMessageBrokerConfigurer<MapSession> {
+
     @Override
     protected void configureStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/socket/connect") // ws://{BASE_URL}/socket/connect 로 연결 설정
@@ -19,7 +20,7 @@ public class StompConfig extends AbstractSessionWebSocketMessageBrokerConfigurer
     }
 
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry){
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
 
         registry.enableSimpleBroker("/api/queue"); // /api/queue/chat/{room-id} // 메시지 받기
         // 구독 경로 설정에 사용(서버 -> 클라이언트)

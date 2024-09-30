@@ -1,23 +1,26 @@
 package econo.buddybridge.post.repository;
 
+import static econo.buddybridge.post.entity.QPost.post;
+import static econo.buddybridge.post.entity.QPostLike.postLike;
+
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostResDto;
-import econo.buddybridge.post.entity.*;
+import econo.buddybridge.post.entity.AssistanceType;
+import econo.buddybridge.post.entity.District;
+import econo.buddybridge.post.entity.Post;
+import econo.buddybridge.post.entity.PostStatus;
+import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.exception.PostInvalidSortValueException;
 import econo.buddybridge.post.exception.PostNotFoundException;
-import lombok.RequiredArgsConstructor;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static econo.buddybridge.post.entity.QPost.post;
-import static econo.buddybridge.post.entity.QPostLike.postLike;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom {
@@ -46,7 +49,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     @Override
     public PostCustomPage findPosts(Long memberId, Integer page, Integer size, String sort, PostType postType,
-                                    PostStatus postStatus, List<DisabilityType> disabilityType, AssistanceType assistanceType) {
+            PostStatus postStatus, List<DisabilityType> disabilityType, AssistanceType assistanceType) {
 
         List<Post> posts = queryFactory
                 .selectFrom(post)

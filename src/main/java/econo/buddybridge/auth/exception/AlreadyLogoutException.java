@@ -6,7 +6,7 @@ public class AlreadyLogoutException extends BusinessException {
 
     public static BusinessException EXCEPTION = new AlreadyLogoutException();
 
-    public AlreadyLogoutException() {
+    private AlreadyLogoutException() {
         super(AuthErrorCode.ALREADY_LOGOUT);
     }
 

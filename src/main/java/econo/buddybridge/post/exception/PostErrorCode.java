@@ -35,5 +35,4 @@ public enum PostErrorCode implements ErrorCode {
     public String getMessage() {
         return message;
     }
-
 }

@@ -9,5 +9,4 @@ public class CommentDeleteNotAllowedException extends BusinessException {
     private CommentDeleteNotAllowedException() {
         super(CommentErrorCode.COMMENT_DELETE_NOT_ALLOWED);
     }
-
 }

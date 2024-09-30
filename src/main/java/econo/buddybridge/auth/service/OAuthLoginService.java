@@ -1,7 +1,6 @@
 package econo.buddybridge.auth.service;
 
 import econo.buddybridge.auth.OAuthProvider;
-import econo.buddybridge.auth.dto.OAuthInfoResponse;
 import econo.buddybridge.auth.dto.OAuthLoginParams;
 import econo.buddybridge.auth.dto.kakao.UserInfoWithKakaoToken;
 import econo.buddybridge.member.dto.MemberResDto;
@@ -25,4 +24,3 @@ public class OAuthLoginService {
         OAuthInfoService.logout(provider);
     }
 }
-

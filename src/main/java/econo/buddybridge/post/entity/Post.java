@@ -7,13 +7,30 @@ import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.dto.PostReqDto;
-import jakarta.persistence.*;
-import lombok.*;
-import lombok.Builder.Default;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Getter
@@ -23,6 +40,7 @@ import java.util.List;
 @AllArgsConstructor
 @EntityListeners(value = AuditingEntityListener.class)
 public class Post extends BaseEntity {
+
     @Id
     @Column(name = "post_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,11 +80,11 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<Comment> comments = new ArrayList<>();
 
-    public void changeStatus(PostStatus status){ // 상태 변경
+    public void changeStatus(PostStatus status) { // 상태 변경
         this.postStatus = status;
     }
 
-    public void updatePost(PostReqDto postReqDto){
+    public void updatePost(PostReqDto postReqDto) {
         Schedule schedule = new Schedule(postReqDto.startTime(), postReqDto.endTime(),
                 postReqDto.scheduleType(), postReqDto.scheduleDetails());
 

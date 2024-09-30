@@ -9,5 +9,4 @@ public class NotificationNotFoundException extends BusinessException {
     private NotificationNotFoundException() {
         super(NotificationErrorCode.NOTIFICATION_NOT_FOUND);
     }
-
 }

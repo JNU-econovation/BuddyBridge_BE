@@ -54,5 +54,4 @@ public class MatchingRoomController {
         ChatMessageCustomPage chatMessages = matchingRoomService.getMatchingRoomMessages(memberId, matchingId, size, cursor);
         return ApiResponseGenerator.success(chatMessages, HttpStatus.OK);
     }
-
 }
