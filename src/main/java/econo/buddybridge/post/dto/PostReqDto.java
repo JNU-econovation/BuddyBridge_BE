@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 
 @Builder
 public record PostReqDto(
-        Long memberId,
         @NotBlank(message = "제목을 입력해주세요.")
         String title,
         @NotBlank(message = "도움 종류를 선택해주세요. 교육 or 생활")
