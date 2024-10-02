@@ -31,6 +31,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,7 +82,11 @@ public class Post extends BaseEntity {
 
     private Integer age; // 게시글 - 나이 필드
 
-    private String assistanceTime; // 게시글 - 봉사 시간 필드
+    private LocalDateTime assistanceStartTime; // 게시글 - 봉사 시작 시간 필드
+
+    private LocalDateTime assistanceEndTime; // 게시글 - 봉사 종료 시간 필드
+
+    private Integer headcount; // 모집 최대 인원
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<Matching> matchings = new ArrayList<>();
@@ -94,7 +99,7 @@ public class Post extends BaseEntity {
     }
 
     public void updatePost(PostReqDto postReqDto) {
-        Schedule schedule = new Schedule(postReqDto.startTime(), postReqDto.endTime(),
+        Schedule schedule = new Schedule(postReqDto.startDate(), postReqDto.endDate(),
                 postReqDto.scheduleType(), postReqDto.scheduleDetails());
 
         this.title = postReqDto.title();
@@ -105,6 +110,9 @@ public class Post extends BaseEntity {
         this.postType = postReqDto.postType();
         this.gender = postReqDto.gender(); // 게시글 - 성별 필드
         this.age = postReqDto.age(); // 게시글 - 나이 필드
-        this.assistanceTime = postReqDto.assistanceTime(); // 게시글 - 봉사 시간 필드
+        this.disabilityType = postReqDto.disabilityType();
+        this.assistanceStartTime = postReqDto.assistanceStartTime(); // 게시글 - 봉사 시작 시
+        this.assistanceEndTime = postReqDto.assistanceEndTime(); // 게시글 - 봉사 종료 시
+        this.headcount = postReqDto.headcount();
     }
 }
