@@ -23,9 +23,9 @@ public record PostReqDto(
         @NotNull(message = "도움 종류를 선택해주세요. 교육 or 생활")
         AssistanceType assistanceType,
         @NotNull(message = "봉사 시작 날짜를 입력해주세요.")
-        LocalDateTime startTime,
+        LocalDateTime startDate,
         @NotNull(message = "봉사 종료 날짜를 입력해주세요.")
-        LocalDateTime endTime,
+        LocalDateTime endDate,
         @NotNull(message = "일정 종류를 선택해주세요. 정기 or 비정기")
         ScheduleType scheduleType,
         @NotBlank(message = "일정 상세를 입력해주세요. 예) 매주 월요일, 화목")
@@ -41,8 +41,13 @@ public record PostReqDto(
         Gender gender,
         @NotNull(message = "나이를 입력해주세요.")
         Integer age,
-        @NotBlank(message = "봉사 시간을 입력해주세요.")
-        String assistanceTime
+        @NotNull(message = "봉사 시작 시간을 입력해주세요.")
+        LocalDateTime assistanceStartTime,
+        @NotNull(message = "봉사 종료 시간을 입력해주세요.")
+        LocalDateTime assistanceEndTime,
+        @NotNull(message = "모집 인원을 입력해주세요.")
+        Integer headcount
+
 ) {
 
     public Post toEntity(Member author) {
@@ -51,8 +56,8 @@ public record PostReqDto(
                 .title(title)
                 .assistanceType(assistanceType)
                 .schedule(Schedule.builder()
-                        .startTime(startTime)
-                        .endTime(endTime)
+                        .startDate(startDate)
+                        .endDate(endDate)
                         .scheduleType(scheduleType)
                         .scheduleDetails(scheduleDetails)
                         .build())
@@ -63,7 +68,9 @@ public record PostReqDto(
                 .disabilityType(disabilityType)
                 .gender(gender)
                 .age(age)
-                .assistanceTime(assistanceTime)
+                .assistanceStartTime(assistanceStartTime)
+                .assistanceEndTime(assistanceEndTime)
+                .headcount(headcount)
                 .build();
     }
 }
