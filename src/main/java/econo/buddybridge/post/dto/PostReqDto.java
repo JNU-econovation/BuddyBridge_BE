@@ -3,6 +3,7 @@ package econo.buddybridge.post.dto;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.post.entity.AssistanceTime;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.Post;
@@ -81,8 +82,10 @@ public record PostReqDto(
                 .disabilityType(disabilityType)
                 .gender(gender)
                 .age(age)
-                .assistanceStartTime(assistanceStartTime)
-                .assistanceEndTime(assistanceEndTime)
+                .assistanceTime(AssistanceTime.builder()
+                        .assistanceStartTime(assistanceStartTime)
+                        .assistanceEndTime(assistanceEndTime)
+                        .build())
                 .headcount(headcount)
                 .build();
     }

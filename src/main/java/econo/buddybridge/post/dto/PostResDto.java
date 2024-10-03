@@ -57,8 +57,8 @@ public record PostResDto(
                 post.getDisabilityType(),
                 post.getGender(),
                 post.getAge(),
-                post.getAssistanceStartTime(),
-                post.getAssistanceEndTime(),
+                post.getAssistanceTime().getAssistanceStartTime(),
+                post.getAssistanceTime().getAssistanceEndTime(),
                 post.getHeadcount(),
                 isLiked
         );
