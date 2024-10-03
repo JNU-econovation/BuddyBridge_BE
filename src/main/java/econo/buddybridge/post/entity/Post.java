@@ -7,7 +7,7 @@ import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.member.entity.Member;
-import econo.buddybridge.post.dto.PostReqDto;
+import econo.buddybridge.post.dto.PostUpdateReqDto;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -29,6 +29,7 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -41,6 +42,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
+@DynamicUpdate
 @EntityListeners(value = AuditingEntityListener.class)
 public class Post extends BaseEntity {
 
@@ -98,21 +100,48 @@ public class Post extends BaseEntity {
         this.postStatus = status;
     }
 
-    public void updatePost(PostReqDto postReqDto) {
-        Schedule schedule = new Schedule(postReqDto.startDate(), postReqDto.endDate(),
-                postReqDto.scheduleType(), postReqDto.scheduleDetails());
+    public void updatePost(PostUpdateReqDto postUpdateReqDto) {
+        if (postUpdateReqDto.startDate() != null || postUpdateReqDto.endDate() != null ||
+                postUpdateReqDto.scheduleType() != null || postUpdateReqDto.scheduleDetails() != null) {
 
-        this.title = postReqDto.title();
-        this.assistanceType = postReqDto.assistanceType();
-        this.schedule = schedule;
-        this.district = postReqDto.district();
-        this.content = postReqDto.content();
-        this.postType = postReqDto.postType();
-        this.gender = postReqDto.gender(); // 게시글 - 성별 필드
-        this.age = postReqDto.age(); // 게시글 - 나이 필드
-        this.disabilityType = postReqDto.disabilityType();
-        this.assistanceStartTime = postReqDto.assistanceStartTime(); // 게시글 - 봉사 시작 시
-        this.assistanceEndTime = postReqDto.assistanceEndTime(); // 게시글 - 봉사 종료 시
-        this.headcount = postReqDto.headcount();
+            Schedule updateSchedule = new Schedule(
+                    postUpdateReqDto.startDate() != null ? postUpdateReqDto.startDate() : this.schedule.getStartDate(),
+                    postUpdateReqDto.endDate() != null ? postUpdateReqDto.endDate() : this.schedule.getEndDate(),
+                    postUpdateReqDto.scheduleType() != null ? postUpdateReqDto.scheduleType() : this.schedule.getScheduleType(),
+                    postUpdateReqDto.scheduleDetails() != null ? postUpdateReqDto.scheduleDetails() : this.schedule.getScheduleDetails()
+            );
+            this.schedule = updateSchedule;
+        }
+
+        if (postUpdateReqDto.title() != null) {
+            this.title = postUpdateReqDto.title();
+        }
+        if (postUpdateReqDto.assistanceType() != null) {
+            this.assistanceType = postUpdateReqDto.assistanceType();
+        }
+        if (postUpdateReqDto.district() != null) {
+            this.district = postUpdateReqDto.district();
+        }
+        if (postUpdateReqDto.content() != null) {
+            this.content = postUpdateReqDto.content();
+        }
+        if (postUpdateReqDto.gender() != null) {
+            this.gender = postUpdateReqDto.gender();
+        }
+        if (postUpdateReqDto.age() != null) {
+            this.age = postUpdateReqDto.age();
+        }
+        if (postUpdateReqDto.disabilityType() != null) {
+            this.disabilityType = postUpdateReqDto.disabilityType();
+        }
+        if (postUpdateReqDto.assistanceStartTime() != null) {
+            this.assistanceStartTime = postUpdateReqDto.assistanceStartTime();
+        }
+        if (postUpdateReqDto.assistanceEndTime() != null) {
+            this.assistanceEndTime = postUpdateReqDto.assistanceEndTime();
+        }
+        if (postUpdateReqDto.headcount() != null) {
+            this.headcount = postUpdateReqDto.headcount();
+        }
     }
 }
