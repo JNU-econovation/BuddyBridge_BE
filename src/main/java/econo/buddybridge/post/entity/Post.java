@@ -99,50 +99,37 @@ public class Post extends BaseEntity {
     }
 
     public void updatePost(PostUpdateReqDto postUpdateReqDto) {
+        Schedule updateSchedule = null;
+        AssistanceTime updateAssistanceTime = null;
+
         if (postUpdateReqDto.startDate() != null || postUpdateReqDto.endDate() != null ||
                 postUpdateReqDto.scheduleType() != null || postUpdateReqDto.scheduleDetails() != null) {
-
-            Schedule updateSchedule = new Schedule(
+            updateSchedule = new Schedule(
                     postUpdateReqDto.startDate() != null ? postUpdateReqDto.startDate() : this.schedule.getStartDate(),
                     postUpdateReqDto.endDate() != null ? postUpdateReqDto.endDate() : this.schedule.getEndDate(),
                     postUpdateReqDto.scheduleType() != null ? postUpdateReqDto.scheduleType() : this.schedule.getScheduleType(),
                     postUpdateReqDto.scheduleDetails() != null ? postUpdateReqDto.scheduleDetails() : this.schedule.getScheduleDetails()
             );
-            this.schedule = updateSchedule;
         }
 
         if (postUpdateReqDto.assistanceStartTime() != null || postUpdateReqDto.assistanceEndTime() != null) {
 
-            AssistanceTime updateAssistanceTime = new AssistanceTime(
+            updateAssistanceTime = new AssistanceTime(
                     postUpdateReqDto.assistanceStartTime() != null ? postUpdateReqDto.assistanceStartTime() : this.assistanceTime.getAssistanceStartTime(),
                     postUpdateReqDto.assistanceEndTime() != null ? postUpdateReqDto.assistanceEndTime() : this.assistanceTime.getAssistanceEndTime()
             );
-            this.assistanceTime = updateAssistanceTime;
         }
 
-        if (postUpdateReqDto.title() != null) {
-            this.title = postUpdateReqDto.title();
-        }
-        if (postUpdateReqDto.assistanceType() != null) {
-            this.assistanceType = postUpdateReqDto.assistanceType();
-        }
-        if (postUpdateReqDto.district() != null) {
-            this.district = postUpdateReqDto.district();
-        }
-        if (postUpdateReqDto.content() != null) {
-            this.content = postUpdateReqDto.content();
-        }
-        if (postUpdateReqDto.gender() != null) {
-            this.gender = postUpdateReqDto.gender();
-        }
-        if (postUpdateReqDto.age() != null) {
-            this.age = postUpdateReqDto.age();
-        }
-        if (postUpdateReqDto.disabilityType() != null) {
-            this.disabilityType = postUpdateReqDto.disabilityType();
-        }
-        if (postUpdateReqDto.headcount() != null) {
-            this.headcount = postUpdateReqDto.headcount();
-        }
+        this.title = postUpdateReqDto.title() != null ? postUpdateReqDto.title() : this.title;
+        this.assistanceType = postUpdateReqDto.assistanceType() != null ? postUpdateReqDto.assistanceType() : this.assistanceType;
+        this.schedule = updateSchedule != null ? updateSchedule : this.schedule;
+        this.district = postUpdateReqDto.district() != null ? postUpdateReqDto.district() : this.district;
+        this.content = postUpdateReqDto.content() != null ? postUpdateReqDto.content() : this.content;
+        this.disabilityType = postUpdateReqDto.disabilityType() != null ? postUpdateReqDto.disabilityType() : this.disabilityType;
+        this.gender = postUpdateReqDto.gender() != null ? postUpdateReqDto.gender() : this.gender;
+        this.age = postUpdateReqDto.age() != null ? postUpdateReqDto.age() : this.age;
+        this.assistanceTime = updateAssistanceTime != null ? updateAssistanceTime : this.assistanceTime;
+        this.headcount = postUpdateReqDto.headcount() != null ? postUpdateReqDto.headcount() : this.headcount;
     }
+
 }
