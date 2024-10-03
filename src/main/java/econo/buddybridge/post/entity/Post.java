@@ -32,7 +32,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,9 +83,8 @@ public class Post extends BaseEntity {
 
     private Integer age; // 게시글 - 나이 필드
 
-    private LocalDateTime assistanceStartTime; // 게시글 - 봉사 시작 시간 필드
-
-    private LocalDateTime assistanceEndTime; // 게시글 - 봉사 종료 시간 필드
+    @Embedded
+    private AssistanceTime assistanceTime; // 게시글 - 봉사 시간(시작 & 종료)
 
     private Integer headcount; // 모집 최대 인원
 
@@ -113,6 +111,15 @@ public class Post extends BaseEntity {
             this.schedule = updateSchedule;
         }
 
+        if (postUpdateReqDto.assistanceStartTime() != null || postUpdateReqDto.assistanceEndTime() != null) {
+
+            AssistanceTime updateAssistanceTime = new AssistanceTime(
+                    postUpdateReqDto.assistanceStartTime() != null ? postUpdateReqDto.assistanceStartTime() : this.assistanceTime.getAssistanceStartTime(),
+                    postUpdateReqDto.assistanceEndTime() != null ? postUpdateReqDto.assistanceEndTime() : this.assistanceTime.getAssistanceEndTime()
+            );
+            this.assistanceTime = updateAssistanceTime;
+        }
+
         if (postUpdateReqDto.title() != null) {
             this.title = postUpdateReqDto.title();
         }
@@ -133,12 +140,6 @@ public class Post extends BaseEntity {
         }
         if (postUpdateReqDto.disabilityType() != null) {
             this.disabilityType = postUpdateReqDto.disabilityType();
-        }
-        if (postUpdateReqDto.assistanceStartTime() != null) {
-            this.assistanceStartTime = postUpdateReqDto.assistanceStartTime();
-        }
-        if (postUpdateReqDto.assistanceEndTime() != null) {
-            this.assistanceEndTime = postUpdateReqDto.assistanceEndTime();
         }
         if (postUpdateReqDto.headcount() != null) {
             this.headcount = postUpdateReqDto.headcount();
