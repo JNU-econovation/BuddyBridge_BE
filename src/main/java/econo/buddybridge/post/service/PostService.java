@@ -6,7 +6,6 @@ import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostResDto;
-import econo.buddybridge.post.dto.PostUpdateReqDto;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostStatus;
@@ -15,11 +14,10 @@ import econo.buddybridge.post.exception.PostDeleteNotAllowedException;
 import econo.buddybridge.post.exception.PostNotFoundException;
 import econo.buddybridge.post.exception.PostUpdateNotAllowedException;
 import econo.buddybridge.post.repository.PostRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 
 @Service
@@ -62,14 +60,14 @@ public class PostService {
     }
 
     @Transactional // 게시글 수정
-    public Long updatePost(Long postId, PostUpdateReqDto postUpdateReqDto, Long memberId) {
+    public Long updatePost(Long postId, PostReqDto postReqDto, Long memberId) {
         Post post = findPostByIdOrThrow(postId);
 
         if (!post.getAuthor().getId().equals(memberId)) {
             throw PostUpdateNotAllowedException.EXCEPTION;
         }
 
-        post.updatePost(postUpdateReqDto);
+        post.updatePost(postReqDto);
 
         return post.getId();
     }
