@@ -20,34 +20,47 @@ import java.time.LocalDateTime;
 public record PostReqDto(
         @NotBlank(message = "제목을 입력해주세요.")
         String title,
+
         @NotNull(message = "도움 종류를 선택해주세요. 교육 or 생활")
         AssistanceType assistanceType,
+
         @NotNull(message = "봉사 시작 날짜를 입력해주세요.")
         LocalDateTime startDate,
+
         @NotNull(message = "봉사 종료 날짜를 입력해주세요.")
         LocalDateTime endDate,
+
         @NotNull(message = "일정 종류를 선택해주세요. 정기 or 비정기")
         ScheduleType scheduleType,
+
         @NotBlank(message = "일정 상세를 입력해주세요. 예) 매주 월요일, 화목")
         String scheduleDetails,
+
         @NotNull(message = "지역을 선택해주세요.")
         District district,
+
         @NotBlank(message = "상세 내용을 입력해주세요.")
         String content,
+
         PostType postType,
+
         @NotNull(message = "장애 종류를 선택해주세요.")
         DisabilityType disabilityType,
+
         @NotNull(message = "성별을 선택해주세요.")
         Gender gender,
+
         @NotNull(message = "나이를 입력해주세요.")
         Integer age,
+
         @NotNull(message = "봉사 시작 시간을 입력해주세요.")
         LocalDateTime assistanceStartTime,
+
         @NotNull(message = "봉사 종료 시간을 입력해주세요.")
         LocalDateTime assistanceEndTime,
+
         @NotNull(message = "모집 인원을 입력해주세요.")
         Integer headcount
-
 ) {
 
     public Post toEntity(Member author) {
