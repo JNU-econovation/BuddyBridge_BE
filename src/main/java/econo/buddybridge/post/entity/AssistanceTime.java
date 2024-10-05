@@ -1,8 +1,6 @@
 package econo.buddybridge.post.entity;
 
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,13 +16,8 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @EqualsAndHashCode
-public class Schedule {
+public class AssistanceTime {
 
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
-
-    @Enumerated(EnumType.STRING)
-    private ScheduleType scheduleType;
-
-    private String scheduleDetails;
+    LocalDateTime assistanceStartTime;
+    LocalDateTime assistanceEndTime;
 }

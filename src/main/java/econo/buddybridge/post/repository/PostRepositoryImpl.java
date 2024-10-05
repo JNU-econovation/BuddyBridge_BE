@@ -1,8 +1,5 @@
 package econo.buddybridge.post.repository;
 
-import static econo.buddybridge.post.entity.QPost.post;
-import static econo.buddybridge.post.entity.QPostLike.postLike;
-
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -16,11 +13,15 @@ import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.exception.PostInvalidSortValueException;
 import econo.buddybridge.post.exception.PostNotFoundException;
+import lombok.RequiredArgsConstructor;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
+
+import static econo.buddybridge.post.entity.QPost.post;
+import static econo.buddybridge.post.entity.QPostLike.postLike;
 
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom {
@@ -111,7 +112,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         }
 
         return posts.stream()
-                .map(PostResDto::new)
+                .map(post -> new PostResDto(post, false))
                 .toList();
 
     }
