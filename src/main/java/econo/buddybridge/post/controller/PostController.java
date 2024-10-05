@@ -64,7 +64,7 @@ public class PostController {
             @RequestParam(defaultValue = "desc", required = false) String sort,
             @RequestParam(value = "post-status", required = false) PostStatus postStatus,
             @RequestParam(value = "disability-type", required = false) List<DisabilityType> disabilityType,
-            @RequestParam(value = "assistance-type", required = false) AssistanceType assistanceType,
+            @RequestParam(value = "assistance-type", required = false) List<AssistanceType> assistanceType,
             HttpServletRequest request
     ) {
         Long memberId = SessionUtils.getMemberId(request);

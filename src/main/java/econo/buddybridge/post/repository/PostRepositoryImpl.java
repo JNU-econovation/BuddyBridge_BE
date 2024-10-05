@@ -50,12 +50,12 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     @Override
     public PostCustomPage findPosts(Long memberId, Integer page, Integer size, String sort, PostType postType,
-            PostStatus postStatus, List<DisabilityType> disabilityType, AssistanceType assistanceType) {
+            PostStatus postStatus, List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
 
         List<Post> posts = queryFactory
                 .selectFrom(post)
                 .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType),
-                        buildPostDisabilityTypesExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType))
+                        buildPostDisabilityTypesExpression(disabilityType), buildPostAssistanceTypesExpression(assistanceType))
                 .offset((long) page * size)
                 .limit(size)
                 .orderBy(buildOrderSpecifier(sort))
@@ -67,7 +67,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .select(post.count())
                 .from(post)
                 .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType),
-                        buildPostDisabilityTypesExpression(disabilityType), buildPostAssistanceTypeExpression(assistanceType))
+                        buildPostDisabilityTypesExpression(disabilityType), buildPostAssistanceTypesExpression(assistanceType))
                 .fetchOne();
 
         return new PostCustomPage(content, totalElements, content.size() < size);
@@ -142,9 +142,12 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return district == null ? null : post.district.eq(district);
     }
 
-    // 교육, 생활
-    private BooleanExpression buildPostAssistanceTypeExpression(AssistanceType assistanceType) {
-        return assistanceType == null ? null : post.assistanceType.eq(assistanceType);
+    // 학습, 식사, 이동
+    private BooleanExpression buildPostAssistanceTypesExpression(List<AssistanceType> assistanceTypes) {
+        if (assistanceTypes == null || assistanceTypes.isEmpty()) {
+            return null;
+        }
+        return post.assistanceType.in(assistanceTypes);
     }
 
     private OrderSpecifier<?> buildOrderSpecifier(String sort) {

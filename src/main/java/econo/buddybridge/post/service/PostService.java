@@ -48,7 +48,7 @@ public class PostService {
 
     @Transactional(readOnly = true) // 전체 게시글 조회
     public PostCustomPage getPosts(Long memberId, Integer page, Integer size, String sort, PostType postType, PostStatus postStatus,
-            List<DisabilityType> disabilityType, AssistanceType assistanceType) {
+            List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
         return postRepository.findPosts(memberId, page - 1, size, sort, postType, postStatus, disabilityType, assistanceType);
     }
 

@@ -4,8 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum AssistanceType {
-    교육("교육"),
-    생활("생활");
+    학습("학습"),
+    식사("식사"),
+    이동("이동");
 
     private final String assistanceType;
 
