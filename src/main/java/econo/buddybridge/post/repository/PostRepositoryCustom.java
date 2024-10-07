@@ -13,7 +13,7 @@ public interface PostRepositoryCustom {
     PostResDto findByMemberIdAndPostId(Long memberId, Long postId);
 
     PostCustomPage findPosts(Long memberId, Integer page, Integer size, String sort, PostType postType,
-            PostStatus postStatus, List<DisabilityType> disabilityType, AssistanceType assistanceType);
+            PostStatus postStatus, List<DisabilityType> disabilityType, List<AssistanceType> assistanceType);
 
     PostCustomPage findPostsMyPage(Long memberId, Integer page, Integer size, String sort, PostType postType);
 }
