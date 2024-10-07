@@ -35,6 +35,7 @@ public record PostResDto(
         LocalDateTime assistanceStartTime,
         LocalDateTime assistanceEndTime,
         Integer headcount,
+        Integer matchingDoneCount,
         Boolean isLiked
 ) {
 
@@ -60,6 +61,7 @@ public record PostResDto(
                 post.getAssistanceTime().getAssistanceStartTime(),
                 post.getAssistanceTime().getAssistanceEndTime(),
                 post.getHeadcount(),
+                post.getMatchingDoneCount(),
                 isLiked
         );
     }

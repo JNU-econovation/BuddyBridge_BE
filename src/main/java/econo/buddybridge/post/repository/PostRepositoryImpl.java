@@ -50,7 +50,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     @Override
     public PostCustomPage findPosts(Long memberId, Integer page, Integer size, String sort, PostType postType,
-            PostStatus postStatus, List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
+                                    PostStatus postStatus, List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
 
         List<Post> posts = queryFactory
                 .selectFrom(post)
@@ -114,7 +114,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return posts.stream()
                 .map(post -> new PostResDto(post, false))
                 .toList();
-
     }
 
     private BooleanExpression buildMemberIdExpression(Long memberId) {
