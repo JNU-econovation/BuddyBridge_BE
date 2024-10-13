@@ -7,7 +7,7 @@ import econo.buddybridge.matching.dto.MatchingReqDto;
 import econo.buddybridge.matching.dto.MatchingUpdateDto;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
-import econo.buddybridge.matching.exception.ExceededMatchingLimitException;
+import econo.buddybridge.matching.exception.MatchingCompletedException;
 import econo.buddybridge.matching.exception.MatchingNotFoundException;
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.Member;
@@ -83,7 +83,7 @@ public class MatchingService {
     
         // 모집이 완료되었으며, 상태가 DONE인 경우 예외 처리
         if (isFullAndMatchingStatusIsDone(matching.getPost(), matchingUpdateDto.matchingStatus())) {
-            throw ExceededMatchingLimitException.EXCEPTION;
+            throw MatchingCompletedException.EXCEPTION;
         }
 
         matching.updateMatching(matchingUpdateDto.matchingStatus());
