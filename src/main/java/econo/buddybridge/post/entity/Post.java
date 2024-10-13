@@ -30,7 +30,6 @@ import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.Formula;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.ArrayList;
@@ -88,9 +87,6 @@ public class Post extends BaseEntity {
     private AssistanceTime assistanceTime; // 게시글 - 봉사 시간(시작 & 종료)
 
     private Integer headcount; // 모집 최대 인원
-
-    @Formula("(SELECT COUNT(*) FROM MATCHING m WHERE m.post_id = post_id AND m.matchingStatus = 'DONE')")
-    private Integer matchingDoneCount;
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<Matching> matchings = new ArrayList<>();
