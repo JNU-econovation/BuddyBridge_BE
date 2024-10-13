@@ -120,7 +120,8 @@ public class MatchingService {
     }
 
     private boolean isFullAndMatchingStatusIsDone(Post post, MatchingStatus matchingStatus) {
-        return post.getHeadcount().equals(post.getMatchingDoneCount()) && matchingStatus == MatchingStatus.DONE;
+        Integer matchingDoneCount = matchingRepository.countMatchingDoneByPostId(post.getId());
+        return post.getHeadcount().equals(matchingDoneCount) && matchingStatus == MatchingStatus.DONE;
     }
 
     // 게시글 작성 회원과 현재 로그인한 회원 일치 여부 판단
