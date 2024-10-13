@@ -39,7 +39,7 @@ public record PostResDto(
         Boolean isLiked
 ) {
 
-    public PostResDto(Post post, Boolean isLiked) {
+    public PostResDto(Post post, Boolean isLiked, Integer matchingDoneCount) {
         this(
                 post.getId(),
                 new MemberResDto(post.getAuthor()),
@@ -61,7 +61,7 @@ public record PostResDto(
                 post.getAssistanceTime().getAssistanceStartTime(),
                 post.getAssistanceTime().getAssistanceEndTime(),
                 post.getHeadcount(),
-                post.getMatchingDoneCount(),
+                matchingDoneCount,
                 isLiked
         );
     }

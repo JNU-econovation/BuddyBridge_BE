@@ -3,6 +3,7 @@ package econo.buddybridge.post.repository;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostResDto;
@@ -27,8 +28,8 @@ import static econo.buddybridge.post.entity.QPostLike.postLike;
 public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-    @Override
+    private final MatchingRepository matchingRepository;
+    @Override // 단일 게시글 조회
     public PostResDto findByMemberIdAndPostId(Long memberId, Long postId) {
         Post content = queryFactory
                 .selectFrom(post)
@@ -45,10 +46,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .where(postLike.member.id.eq(memberId), postLike.post.id.eq(postId))
                 .fetchOne() != null;
 
-        return new PostResDto(content, isLiked);
+        return new PostResDto(content, isLiked, getMatchingDoneCount(postId));
     }
 
-    @Override
+    @Override // 게시글 목록 조회
     public PostCustomPage findPosts(Long memberId, Integer page, Integer size, String sort, PostType postType,
                                     PostStatus postStatus, List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
 
@@ -73,7 +74,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return new PostCustomPage(content, totalElements, content.size() < size);
     }
 
-    @Override
+    @Override // 내가 작성한 게시글 목록 조회 - 마이페이지
     public PostCustomPage findPostsMyPage(Long memberId, Integer page, Integer size, String sort, PostType postType) {
 
         List<Post> posts = queryFactory
@@ -107,13 +108,17 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
             );
 
             return posts.stream()
-                    .map(post -> new PostResDto(post, postLikedIds.contains(post.getId())))
+                    .map(post -> new PostResDto(post, postLikedIds.contains(post.getId()), getMatchingDoneCount(post.getId())))
                     .toList();
         }
 
         return posts.stream()
-                .map(post -> new PostResDto(post, false))
+                .map(post -> new PostResDto(post, false, getMatchingDoneCount(post.getId())))
                 .toList();
+    }
+
+    private Integer getMatchingDoneCount(Long postId) {
+        return matchingRepository.countMatchingDoneByPostId(postId);
     }
 
     private BooleanExpression buildMemberIdExpression(Long memberId) {

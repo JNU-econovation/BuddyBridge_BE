@@ -3,6 +3,7 @@ package econo.buddybridge.post.repository;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostResDto;
 import econo.buddybridge.post.entity.PostLike;
@@ -19,6 +20,7 @@ import static econo.buddybridge.post.entity.QPostLike.postLike;
 public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+    private final MatchingRepository matchingRepository;
 
     @Override
     public Optional<PostLike> findByPostIdAndMemberId(Long postId, Long memberId) {
@@ -30,6 +32,7 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
         return Optional.ofNullable(like);
     }
 
+    // Todo: 이거 PostRepositoryImpl로 보내버리기 -> PostLike는 Like만 관리
     @Override
     public PostCustomPage findPostsByLikes(Long memberId, Integer page, Integer size, String sort, PostType postType) {
 
@@ -41,7 +44,7 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
                 .orderBy(buildOrderSpecifier(sort))
                 .fetch()
                 .stream()
-                .map(post -> new PostResDto(post, true))
+                .map(post -> new PostResDto(post, true, getMatchingDoneCount(post.getId())))
                 .toList();
 
         Long totalElements = queryFactory
@@ -51,6 +54,10 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
                 .fetchOne();
 
         return new PostCustomPage(content, totalElements, content.size() < size);
+    }
+
+    private Integer getMatchingDoneCount(Long postId) {
+        return matchingRepository.countMatchingDoneByPostId(postId);
     }
 
     private BooleanExpression buildPostTypeExpression(PostType postType) {
