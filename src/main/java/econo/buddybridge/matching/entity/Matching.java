@@ -4,7 +4,6 @@ import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
 import econo.buddybridge.common.persistence.BaseEntity;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.entity.Post;
-import econo.buddybridge.post.entity.PostStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,12 +17,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -63,16 +63,7 @@ public class Matching extends BaseEntity {
         this.matchingStatus = matchingStatus;
     }
 
-    // 매칭 상태 변경
     public void updateMatching(MatchingStatus matchingStatus) {
         this.matchingStatus = matchingStatus;
-        switch (matchingStatus) {
-            case PENDING, FAILED:
-                post.changeStatus(PostStatus.RECRUITING);
-                break;
-            case DONE:
-                post.changeStatus(PostStatus.FINISHED);
-                break;
-        }
     }
 }
