@@ -52,6 +52,11 @@ public class PostService {
         return postRepository.findPosts(memberId, page - 1, size, sort, postType, postStatus, disabilityType, assistanceType);
     }
 
+    @Transactional(readOnly = true) // 찜한 게시글 조회
+    public PostCustomPage getPostsLikes(Long memberId, Integer page, Integer size, String sort, PostType postType) {
+        return postRepository.findPostsByLikes(memberId, page - 1, size, sort, postType);
+    }
+
     // 검증 과정 필요성 고려
     @Transactional // 게시글 생성
     public Long createPost(PostReqDto postReqDto, Long memberId) {

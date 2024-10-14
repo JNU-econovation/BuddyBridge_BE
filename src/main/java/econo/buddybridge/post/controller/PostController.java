@@ -39,6 +39,20 @@ public class PostController {
 
     private final PostService postService;
 
+    @Operation(summary = "찜한 게시글 목록 조회", description = "찜한 게시글 목록을 조회합니다.")
+    @GetMapping("/likes/my-page")
+    public ApiResponse<ApiResponse.CustomBody<PostCustomPage>> getPostLikes(
+            @RequestParam("page") Integer page,
+            @RequestParam("size") Integer size,
+            @RequestParam(defaultValue = "desc", required = false) String sort,
+            @RequestParam(value = "post-type", required = false) PostType postType,
+            HttpServletRequest request
+    ) {
+        Long memberId = SessionUtils.getMemberId(request);
+        PostCustomPage posts = postService.getPostsLikes(memberId, page, size, sort, postType);
+        return ApiResponseGenerator.success(posts, HttpStatus.OK);
+    }
+
     @Operation(summary = "내가 작성한 게시글 조회", description = "내가 작성한 게시글 목록을 조회합니다.")
     @GetMapping("/my-page")
     public ApiResponse<ApiResponse.CustomBody<PostCustomPage>> getAllPostsMyPage(
@@ -121,5 +135,4 @@ public class PostController {
         postService.deletePost(postId, memberId);
         return ApiResponseGenerator.success(HttpStatus.NO_CONTENT);
     }
-
 }

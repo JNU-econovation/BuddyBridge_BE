@@ -29,6 +29,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
     private final MatchingRepository matchingRepository;
+
     @Override // 단일 게시글 조회
     public PostResDto findByMemberIdAndPostId(Long memberId, Long postId) {
         Post content = queryFactory
@@ -96,6 +97,29 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return new PostCustomPage(content, totalElements, content.size() < size);
     }
 
+    @Override // 내가 좋아요한 게시글 목록 조회
+    public PostCustomPage findPostsByLikes(Long memberId, Integer page, Integer size, String sort, PostType postType) {
+
+        List<PostResDto> content = queryFactory
+                .select(postLike.post)
+                .from(postLike)
+                .where(postLike.member.id.eq(memberId), buildPostLikeTypeExpression(postType))
+                .offset((long) page * size)
+                .orderBy(buildPostLikeOrderSpecifier(sort))
+                .fetch()
+                .stream()
+                .map(post -> new PostResDto(post, true, getMatchingDoneCount(post.getId())))
+                .toList();
+
+        Long totalElements = queryFactory
+                .select(postLike.count())
+                .from(postLike)
+                .where(postLike.member.id.eq(memberId))
+                .fetchOne();
+
+        return new PostCustomPage(content, totalElements, content.size() < size);
+    }
+
     private List<PostResDto> getPostResDtos(Long memberId, List<Post> posts) {
         if (memberId != null) {
             List<Long> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
@@ -154,10 +178,24 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return post.assistanceType.in(assistanceTypes);
     }
 
+    // postLike.post.postType
+    private BooleanExpression buildPostLikeTypeExpression(PostType postType) {
+        return postType != null ? postLike.post.postType.eq(postType) : null;
+    }
+
+    // Todo: EntityPathBase 적용
     private OrderSpecifier<?> buildOrderSpecifier(String sort) {
         return switch (sort.toLowerCase()) {
             case "desc" -> post.createdAt.desc();
             case "asc" -> post.createdAt.asc();
+            default -> throw PostInvalidSortValueException.EXCEPTION;
+        };
+    }
+
+    private OrderSpecifier<?> buildPostLikeOrderSpecifier(String sort) {
+        return switch (sort.toLowerCase()) {
+            case "desc" -> postLike.post.createdAt.desc();
+            case "asc" -> postLike.post.createdAt.asc();
             default -> throw PostInvalidSortValueException.EXCEPTION;
         };
     }
