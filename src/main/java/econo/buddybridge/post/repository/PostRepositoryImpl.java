@@ -12,6 +12,7 @@ import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
+import econo.buddybridge.post.entity.QPost;
 import econo.buddybridge.post.exception.PostInvalidSortValueException;
 import econo.buddybridge.post.exception.PostNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -56,11 +57,11 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
         List<Post> posts = queryFactory
                 .selectFrom(post)
-                .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType),
+                .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType, post),
                         buildPostDisabilityTypesExpression(disabilityType), buildPostAssistanceTypesExpression(assistanceType))
                 .offset((long) page * size)
                 .limit(size)
-                .orderBy(buildOrderSpecifier(sort))
+                .orderBy(buildOrderSpecifier(sort, post))
                 .fetch();
 
         List<PostResDto> content = getPostResDtos(memberId, posts);
@@ -68,7 +69,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         Long totalElements = queryFactory
                 .select(post.count())
                 .from(post)
-                .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType),
+                .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType, post),
                         buildPostDisabilityTypesExpression(disabilityType), buildPostAssistanceTypesExpression(assistanceType))
                 .fetchOne();
 
@@ -80,10 +81,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
         List<Post> posts = queryFactory
                 .selectFrom(post)
-                .where(buildMemberIdExpression(memberId), buildPostTypeExpression(postType))
+                .where(buildMemberIdExpression(memberId), buildPostTypeExpression(postType, post))
                 .offset((long) page * size)
                 .limit(size)
-                .orderBy(buildOrderSpecifier(sort))
+                .orderBy(buildOrderSpecifier(sort, post))
                 .fetch();
 
         List<PostResDto> content = getPostResDtos(memberId, posts);
@@ -91,7 +92,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         Long totalElements = queryFactory
                 .select(post.count())
                 .from(post)
-                .where(buildMemberIdExpression(memberId), buildPostTypeExpression(postType))
+                .where(buildMemberIdExpression(memberId), buildPostTypeExpression(postType, post))
                 .fetchOne();
 
         return new PostCustomPage(content, totalElements, content.size() < size);
@@ -103,9 +104,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         List<PostResDto> content = queryFactory
                 .select(postLike.post)
                 .from(postLike)
-                .where(postLike.member.id.eq(memberId), buildPostLikeTypeExpression(postType))
+                .where(postLike.member.id.eq(memberId), buildPostTypeExpression(postType, postLike.post))
                 .offset((long) page * size)
-                .orderBy(buildPostLikeOrderSpecifier(sort))
+                .orderBy(buildOrderSpecifier(sort, postLike.post))
                 .fetch()
                 .stream()
                 .map(post -> new PostResDto(post, true, getMatchingDoneCount(post.getId())))
@@ -149,8 +150,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return memberId == null ? null : post.author.id.eq(memberId);
     }
 
-    private BooleanExpression buildPostTypeExpression(PostType postType) {
-        return postType == null ? null : post.postType.eq(postType);
+    private BooleanExpression buildPostTypeExpression(PostType postType, QPost qPost) {
+        return postType == null ? null :  qPost.postType.eq(postType);
     }
 
     private BooleanExpression buildPostStatusExpression(PostStatus postStatus) {
@@ -178,24 +179,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return post.assistanceType.in(assistanceTypes);
     }
 
-    // postLike.post.postType
-    private BooleanExpression buildPostLikeTypeExpression(PostType postType) {
-        return postType != null ? postLike.post.postType.eq(postType) : null;
-    }
-
-    // Todo: EntityPathBase 적용
-    private OrderSpecifier<?> buildOrderSpecifier(String sort) {
+    private OrderSpecifier<?> buildOrderSpecifier(String sort, QPost post) {
         return switch (sort.toLowerCase()) {
             case "desc" -> post.createdAt.desc();
             case "asc" -> post.createdAt.asc();
-            default -> throw PostInvalidSortValueException.EXCEPTION;
-        };
-    }
-
-    private OrderSpecifier<?> buildPostLikeOrderSpecifier(String sort) {
-        return switch (sort.toLowerCase()) {
-            case "desc" -> postLike.post.createdAt.desc();
-            case "asc" -> postLike.post.createdAt.asc();
             default -> throw PostInvalidSortValueException.EXCEPTION;
         };
     }
