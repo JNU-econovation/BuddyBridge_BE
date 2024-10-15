@@ -16,4 +16,6 @@ public interface PostRepositoryCustom {
             PostStatus postStatus, List<DisabilityType> disabilityType, List<AssistanceType> assistanceType);
 
     PostCustomPage findPostsMyPage(Long memberId, Integer page, Integer size, String sort, PostType postType);
+
+    PostCustomPage findPostsByLikes(Long memberId, Integer page, Integer size, String sort, PostType postType);
 }

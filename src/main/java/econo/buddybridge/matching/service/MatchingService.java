@@ -7,11 +7,13 @@ import econo.buddybridge.matching.dto.MatchingReqDto;
 import econo.buddybridge.matching.dto.MatchingUpdateDto;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
+import econo.buddybridge.matching.exception.MatchingCompletedException;
 import econo.buddybridge.matching.exception.MatchingNotFoundException;
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.entity.Post;
+import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.exception.PostUnauthorizedAccessException;
 import econo.buddybridge.post.service.PostService;
@@ -77,11 +79,15 @@ public class MatchingService {
     public Long updateMatching(Long matchingId, MatchingUpdateDto matchingUpdateDto, Long memberId) {
 
         Matching matching = findMatchingByIdOrThrow(matchingId);
-
         validatePostAuthor(matching.getPost(), memberId);
+    
+        // 모집이 완료되었으며, 상태가 DONE인 경우 예외 처리
+        if (isFullAndMatchingStatusIsDone(matching.getPost(), matchingUpdateDto.matchingStatus())) {
+            throw MatchingCompletedException.EXCEPTION;
+        }
 
         matching.updateMatching(matchingUpdateDto.matchingStatus());
-
+        updatePostStatusByMatchingDoneCount(matching.getPost().getId());
         return matching.getId();
     }
 
@@ -101,6 +107,21 @@ public class MatchingService {
                 .giver(giver)
                 .matchingStatus(MatchingStatus.PENDING) // 매칭 생성시 PENDING
                 .build();
+    }
+
+    private void updatePostStatusByMatchingDoneCount(Long postId) {
+        Post post = postService.findPostByIdOrThrow(postId);
+
+        Integer headcount = post.getHeadcount();
+        Integer matchingDoneCount = matchingRepository.countMatchingDoneByPostId(postId);
+
+        PostStatus status = headcount.equals(matchingDoneCount) ? PostStatus.FINISHED : PostStatus.RECRUITING;
+        post.changeStatus(status);
+    }
+
+    private boolean isFullAndMatchingStatusIsDone(Post post, MatchingStatus matchingStatus) {
+        Integer matchingDoneCount = matchingRepository.countMatchingDoneByPostId(post.getId());
+        return post.getHeadcount().equals(matchingDoneCount) && matchingStatus == MatchingStatus.DONE;
     }
 
     // 게시글 작성 회원과 현재 로그인한 회원 일치 여부 판단

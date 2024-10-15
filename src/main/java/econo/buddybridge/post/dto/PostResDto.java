@@ -35,10 +35,11 @@ public record PostResDto(
         LocalDateTime assistanceStartTime,
         LocalDateTime assistanceEndTime,
         Integer headcount,
+        Integer matchingDoneCount,
         Boolean isLiked
 ) {
 
-    public PostResDto(Post post, Boolean isLiked) {
+    public PostResDto(Post post, Boolean isLiked, Integer matchingDoneCount) {
         this(
                 post.getId(),
                 new MemberResDto(post.getAuthor()),
@@ -60,6 +61,7 @@ public record PostResDto(
                 post.getAssistanceTime().getAssistanceStartTime(),
                 post.getAssistanceTime().getAssistanceEndTime(),
                 post.getHeadcount(),
+                matchingDoneCount,
                 isLiked
         );
     }
