@@ -8,6 +8,7 @@ public enum CommentErrorCode implements ErrorCode {
     COMMENT_UPDATE_NOT_ALLOWED("C002", HttpStatus.FORBIDDEN, "본인의 댓글만 수정할 수 있습니다."),
     COMMENT_DELETE_NOT_ALLOWED("C003", HttpStatus.FORBIDDEN, "본인의 댓글만 삭제할 수 있습니다."),
     COMMENT_INVALID_DIRECTION("C004", HttpStatus.BAD_REQUEST, "올바르지 않은 정렬 방식입니다."),
+    COMMENT_ALREADY_WRITTEN("C005", HttpStatus.BAD_REQUEST, "이미 댓글을 작성했습니다. 댓글은 하나만 작성할 수 있습니다.")
     ;
 
     private final String code;
