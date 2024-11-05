@@ -38,6 +38,10 @@ server:
         secure: true
         http-only: true
 
+custom:
+  jwt:
+    secretKey: ${JWT_SECRET_KEY}
+
 oauth:
   kakao:
     client-id: ${OAUTH_KAKAO_CLIENT_ID}
