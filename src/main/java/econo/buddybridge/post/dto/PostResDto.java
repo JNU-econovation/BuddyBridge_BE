@@ -1,5 +1,6 @@
 package econo.buddybridge.post.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Gender;
@@ -32,8 +33,8 @@ public record PostResDto(
         DisabilityType disabilityType,
         Gender gender,
         Integer age,
-        LocalTime assistanceStartTime,
-        LocalTime assistanceEndTime,
+        @JsonFormat(pattern = "HH:mm") LocalTime assistanceStartTime,
+        @JsonFormat(pattern = "HH:mm") LocalTime assistanceEndTime,
         Integer headcount,
         Integer matchingDoneCount,
         Boolean isLiked
