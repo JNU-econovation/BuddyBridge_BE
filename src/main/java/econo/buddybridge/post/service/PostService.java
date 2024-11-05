@@ -4,10 +4,12 @@ import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.dto.PostCustomPage;
+import econo.buddybridge.post.dto.PostEnumResDto;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostResDto;
 import econo.buddybridge.post.dto.PostUpdateReqDto;
 import econo.buddybridge.post.entity.AssistanceType;
+import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
@@ -64,6 +66,15 @@ public class PostService {
 
         Post post = postReqDto.toEntity(member);
         return postRepository.save(post).getId();
+    }
+
+    // 게시글 작성을 위한 열거형 타입의 값들을 가져오는 메서드
+    public PostEnumResDto getPostEnums() {
+        return PostEnumResDto.builder()
+                .assistanceTypes(List.of(AssistanceType.values()))
+                .disabilityTypes(List.of(DisabilityType.values()))
+                .districts(List.of(District.values()))
+                .build();
     }
 
     @Transactional // 게시글 수정

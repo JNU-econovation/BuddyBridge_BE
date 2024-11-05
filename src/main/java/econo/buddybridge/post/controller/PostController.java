@@ -3,6 +3,7 @@ package econo.buddybridge.post.controller;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.dto.PostCustomPage;
+import econo.buddybridge.post.dto.PostEnumResDto;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostResDto;
 import econo.buddybridge.post.dto.PostUpdateReqDto;
@@ -96,6 +97,14 @@ public class PostController {
         Long memberId = SessionUtils.getMemberId(request);
         Long createdPostId = postService.createPost(postReqDto, memberId);
         return ApiResponseGenerator.success(createdPostId, HttpStatus.CREATED);
+    }
+
+    // 게시글 생성을 위한 열거형 정보들 제공
+    @Operation(summary = "게시글 생성을 위한 열거형 정보들 제공", description = "게시글 생성을 위한 열거형 정보들을 제공합니다.")
+    @GetMapping("/enums")
+    public ApiResponse<ApiResponse.CustomBody<PostEnumResDto>> getPostEnums() {
+        PostEnumResDto postEnums = postService.getPostEnums();
+        return ApiResponseGenerator.success(postEnums, HttpStatus.OK);
     }
 
     // 단일 게시글 조회
