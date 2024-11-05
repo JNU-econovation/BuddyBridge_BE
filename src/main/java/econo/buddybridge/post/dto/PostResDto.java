@@ -9,9 +9,9 @@ import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.entity.ScheduleType;
-import lombok.Builder;
-
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import lombok.Builder;
 
 @Builder
 public record PostResDto(
@@ -32,8 +32,8 @@ public record PostResDto(
         DisabilityType disabilityType,
         Gender gender,
         Integer age,
-        LocalDateTime assistanceStartTime,
-        LocalDateTime assistanceEndTime,
+        LocalTime assistanceStartTime,
+        LocalTime assistanceEndTime,
         Integer headcount,
         Integer matchingDoneCount,
         Boolean isLiked
