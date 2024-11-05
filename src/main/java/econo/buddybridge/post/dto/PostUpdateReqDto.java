@@ -5,9 +5,9 @@ import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.ScheduleType;
-import lombok.Builder;
-
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import lombok.Builder;
 
 @Builder
 public record PostUpdateReqDto(
@@ -22,8 +22,9 @@ public record PostUpdateReqDto(
         DisabilityType disabilityType,
         Gender gender,
         Integer age,
-        LocalDateTime assistanceStartTime,
-        LocalDateTime assistanceEndTime,
+        LocalTime assistanceStartTime,
+        LocalTime assistanceEndTime,
         Integer headcount
 ) {
+
 }

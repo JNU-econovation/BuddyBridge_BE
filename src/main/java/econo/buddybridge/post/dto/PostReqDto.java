@@ -13,9 +13,9 @@ import econo.buddybridge.post.entity.Schedule;
 import econo.buddybridge.post.entity.ScheduleType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import lombok.Builder;
 
 @Builder
 public record PostReqDto(
@@ -55,10 +55,10 @@ public record PostReqDto(
         Integer age,
 
         @NotNull(message = "봉사 시작 시간을 입력해주세요.")
-        LocalDateTime assistanceStartTime,
+        LocalTime assistanceStartTime,
 
         @NotNull(message = "봉사 종료 시간을 입력해주세요.")
-        LocalDateTime assistanceEndTime,
+        LocalTime assistanceEndTime,
 
         @NotNull(message = "모집 인원을 입력해주세요.")
         Integer headcount
