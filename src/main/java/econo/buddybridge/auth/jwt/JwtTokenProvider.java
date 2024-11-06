@@ -1,6 +1,7 @@
 package econo.buddybridge.auth.jwt;
 
-import econo.buddybridge.auth.jwt.exception.InvalidAccessTokenException;
+import econo.buddybridge.auth.jwt.exception.ExpiredTokenException;
+import econo.buddybridge.auth.jwt.exception.InvalidTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -62,10 +63,16 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            parseClaims(token);
+            Claims claims = parseClaims(token);
+
+            Date expiration = claims.getExpiration();
+            if (expiration.before(new Date())) {
+                throw ExpiredTokenException.EXCEPTION;
+            }
+
             return true;
         } catch (JwtException e) {
-            throw InvalidAccessTokenException.EXCEPTION;
+            throw InvalidTokenException.EXCEPTION;
         }
     }
 
