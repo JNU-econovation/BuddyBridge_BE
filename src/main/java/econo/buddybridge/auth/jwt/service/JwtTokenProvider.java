@@ -56,7 +56,7 @@ public class JwtTokenProvider {
 
     public String extractToken(String header) {
         if (header == null || !header.startsWith(BEARER_PREFIX)) {
-            return null;
+            throw MissingTokenException.EXCEPTION;
         }
         return header.substring(BEARER_PREFIX.length());
     }
