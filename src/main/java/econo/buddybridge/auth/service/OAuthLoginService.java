@@ -12,15 +12,15 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class OAuthLoginService {
 
-    private final OAuthInfoService OAuthInfoService;
+    private final OAuthInfoService oAuthInfoService;
     private final MemberService memberService;
 
     public MemberResDto login(OAuthLoginParams params) {
-        UserInfoWithKakaoToken userInfo = OAuthInfoService.getUserInfo(params);
+        UserInfoWithKakaoToken userInfo = oAuthInfoService.getUserInfo(params);
         return memberService.findOrCreateMemberByEmail(userInfo);
     }
 
     public void logout(OAuthProvider provider) {
-        OAuthInfoService.logout(provider);
+        oAuthInfoService.logout(provider);
     }
 }
