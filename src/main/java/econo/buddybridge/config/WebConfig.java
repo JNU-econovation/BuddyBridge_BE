@@ -1,7 +1,10 @@
 package econo.buddybridge.config;
 
+import econo.buddybridge.auth.resolver.MemberTokenResolver;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -11,6 +14,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     private final SessionInterceptor sessionInterceptor;
+    private final JwtInterceptor jwtInterceptor;
+    private final MemberTokenResolver memberTokenResolver;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {    // CORS 설정
@@ -29,7 +34,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(sessionInterceptor)
+        registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/api/oauth/login",
@@ -38,5 +43,10 @@ public class WebConfig implements WebMvcConfigurer {
                         "/swagger-resources/**",
                         "/v3/api-docs/**"
                 );
+    }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(memberTokenResolver);
     }
 }
