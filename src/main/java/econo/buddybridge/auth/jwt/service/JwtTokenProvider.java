@@ -1,9 +1,13 @@
-package econo.buddybridge.auth.jwt;
+package econo.buddybridge.auth.jwt.service;
 
+import econo.buddybridge.auth.jwt.RefreshToken;
+import econo.buddybridge.auth.jwt.TokenType;
 import econo.buddybridge.auth.jwt.exception.ExpiredTokenException;
-import econo.buddybridge.auth.jwt.exception.InvalidTokenException;
+import econo.buddybridge.auth.jwt.exception.InvalidAccessTokenException;
+import econo.buddybridge.auth.jwt.exception.InvalidRefreshTokenException;
+import econo.buddybridge.auth.jwt.exception.MissingTokenException;
+import econo.buddybridge.auth.jwt.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.time.Duration;
@@ -21,17 +25,20 @@ public class JwtTokenProvider {
     private final SecretKey refreshSecretKey;
     private final Long accessTokenExpireTime;
     private final Long refreshTokenExpireTime;
+    private final TokenRepository tokenRepository;
 
     public JwtTokenProvider(
-        @Value("${custom.jwt.access-secret-key}") String accessSecretKey,
-        @Value("${custom.jwt.refresh-secret-key}") String refreshSecretKey,
-        @Value("${custom.jwt.access-token-expire-time}") Long accessTokenExpireTime,
-        @Value("${custom.jwt.refresh-token-expire-time}") Long refreshTokenExpireTime
+            @Value("${custom.jwt.access-secret-key}") String accessSecretKey,
+            @Value("${custom.jwt.refresh-secret-key}") String refreshSecretKey,
+            @Value("${custom.jwt.access-token-expire-time}") Long accessTokenExpireTime,
+            @Value("${custom.jwt.refresh-token-expire-time}") Long refreshTokenExpireTime,
+            TokenRepository tokenRepository
     ) {
         this.accessSecretKey = Keys.hmacShaKeyFor(accessSecretKey.getBytes());
         this.refreshSecretKey = Keys.hmacShaKeyFor(refreshSecretKey.getBytes());
         this.accessTokenExpireTime = accessTokenExpireTime;
         this.refreshTokenExpireTime = refreshTokenExpireTime;
+        this.tokenRepository = tokenRepository;
     }
 
     public String generateAccessToken(Long memberId) {
@@ -46,12 +53,22 @@ public class JwtTokenProvider {
 
     public String generateRefreshToken(Long memberId) {
         Date now = new Date();
-        return Jwts.builder()
+        String refreshToken = Jwts.builder()
                 .claim("id", memberId)
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + Duration.ofSeconds(refreshTokenExpireTime).toMillis()))
                 .signWith(refreshSecretKey)  // JWS(JSON Web Signature)를 생성하기 위한 key 설정
                 .compact();
+
+        RefreshToken token = new RefreshToken(memberId, refreshToken, refreshTokenExpireTime);
+        tokenRepository.save(token);    // 이미 저장되어있는 토큰이 있다면 덮어씌움
+
+        return refreshToken;
+    }
+
+    public Long getMemberIdFromRefreshToken(String refreshToken) {
+        Claims claims = parseClaims(refreshToken, TokenType.REFRESH);
+        return claims.get("id", Long.class);
     }
 
     public String extractToken(String header) {
@@ -61,26 +78,34 @@ public class JwtTokenProvider {
         return header.substring(BEARER_PREFIX.length());
     }
 
-    public boolean validateToken(String token) {
-        try {
-            Claims claims = parseClaims(token);
+    public boolean validateToken(String token, TokenType tokenType) {
+        Claims claims = parseClaims(token, tokenType);
 
-            Date expiration = claims.getExpiration();
-            if (expiration.before(new Date())) {
-                throw ExpiredTokenException.EXCEPTION;
-            }
-
-            return true;
-        } catch (JwtException e) {
-            throw InvalidTokenException.EXCEPTION;
+        Date expiration = claims.getExpiration();
+        if (expiration.before(new Date())) {
+            throw ExpiredTokenException.EXCEPTION;
         }
+
+        return true;
     }
 
-    private Claims parseClaims(String accessToken) {
-        return Jwts.parser()
-                .verifyWith(accessSecretKey)
-                .build()
-                .parseSignedClaims(accessToken)
-                .getPayload();
+    public boolean existsByMemberIdAndRefreshToken(String refreshToken) {
+        return tokenRepository.existsByToken(refreshToken);
+    }
+
+    private Claims parseClaims(String token, TokenType tokenType) {
+        SecretKey secretKey = tokenType.equals(TokenType.ACCESS) ? accessSecretKey : refreshSecretKey;
+        try {
+            return Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (Exception e) {
+            if (tokenType.equals(TokenType.ACCESS)) {
+                throw InvalidAccessTokenException.EXCEPTION;
+            }
+            throw InvalidRefreshTokenException.EXCEPTION;
+        }
     }
 }
