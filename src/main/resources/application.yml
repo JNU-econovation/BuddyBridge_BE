@@ -19,11 +19,6 @@ spring:
     defer-datasource-initialization: true
     open-in-view: false
 
-  session:
-    store-type: redis
-    redis:
-      namespace: ${SESSION_KEY_NAMESPACE}
-
   data:
     redis:
       host: ${REDIS_HOST}
@@ -33,14 +28,6 @@ spring:
   sql:
     init:
       data-locations: classpath:data.sql
-
-server:
-  servlet:
-    session:
-      cookie:
-        same-site: none
-        secure: true
-        http-only: true
 
 custom:
   jwt:
@@ -56,7 +43,7 @@ oauth:
       auth-url: ${OAUTH_KAKAO_AUTH_URL}
       api-url: ${OAUTH_KAKAO_API_URL}
       redirect-url: ${OAUTH_KAKAO_REDIRECT_URI}
-      logout-redirect-url:  ${OAUTH_KAKAO_LOGOUT_REDIRECT_URI}
+      logout-redirect-url: ${OAUTH_KAKAO_LOGOUT_REDIRECT_URI}
       front-url: ${OAUTH_KAKAO_FRONT_URL}
 
 logging:
