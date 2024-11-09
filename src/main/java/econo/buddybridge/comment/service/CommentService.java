@@ -7,6 +7,7 @@ import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentReqDto;
 import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
 import econo.buddybridge.comment.entity.Comment;
+import econo.buddybridge.comment.exception.CommentAlreadyWrittenException;
 import econo.buddybridge.comment.exception.CommentDeleteNotAllowedException;
 import econo.buddybridge.comment.exception.CommentInvalidDirectionException;
 import econo.buddybridge.comment.exception.CommentNotFoundException;
@@ -58,10 +59,13 @@ public class CommentService {
 
     @Transactional  // 댓글 생성
     public Long createComment(CommentReqDto commentReqDto, Long postId, Long memberId) {
-
         Member member = memberService.findMemberByIdOrThrow(memberId);
-
         Post post = postService.findPostByIdOrThrow(postId);
+
+        // 기존에 댓글을 작성한 적이 있는지 확인하고 있다면 댓글 작성 불가
+        if (commentRepository.existsByPostAndAuthor(post, member)) {
+            throw CommentAlreadyWrittenException.EXCEPTION;
+        }
 
         Comment comment = commentReqToComment(commentReqDto, post, member);
 
