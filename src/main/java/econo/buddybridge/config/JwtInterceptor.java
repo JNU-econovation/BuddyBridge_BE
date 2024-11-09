@@ -1,6 +1,7 @@
 package econo.buddybridge.config;
 
-import econo.buddybridge.auth.jwt.JwtTokenProvider;
+import econo.buddybridge.auth.jwt.TokenType;
+import econo.buddybridge.auth.jwt.service.JwtTokenProvider;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,6 +38,12 @@ public class JwtInterceptor implements HandlerInterceptor {
         }
 
         String token = jwtTokenProvider.extractToken(request.getHeader(HttpHeaders.AUTHORIZATION));
-        return jwtTokenProvider.validateToken(token);
+
+        // reissue 엔드포인트로 요청이 들어오면 refresh token 검증
+        if (request.getRequestURI().contains("/reissue")) {
+            return jwtTokenProvider.validateToken(token, TokenType.REFRESH);
+        }
+
+        return jwtTokenProvider.validateToken(token, TokenType.ACCESS);
     }
 }
