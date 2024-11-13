@@ -3,6 +3,8 @@ package econo.buddybridge.auth.controller;
 import econo.buddybridge.auth.OAuthProvider;
 import econo.buddybridge.auth.dto.kakao.KakaoLoginParams;
 import econo.buddybridge.auth.exception.AlreadyLogoutException;
+import econo.buddybridge.auth.jwt.AuthToken;
+import econo.buddybridge.auth.resolver.MemberToken;
 import econo.buddybridge.auth.service.OAuthLoginService;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.member.dto.MemberResDto;
@@ -77,5 +79,21 @@ public class AuthController {
         session.setAttribute("memberId", memberDto.memberId());
 
         return ApiResponseGenerator.success(memberDto, HttpStatus.OK);
+    }
+
+    // 소셜로그인 with JWT
+    @Operation(summary = "카카오 소셜 로그인 (JWT)", description = "JWT를 이용하여 로그인합니다.")
+    @PostMapping("/login/jwt")
+    public ApiResponse<CustomBody<AuthToken>> loginWithToken(@RequestBody KakaoLoginParams params) {
+        AuthToken authToken = oAuthLoginService.loginWithToken(params);
+        return ApiResponseGenerator.success(authToken, HttpStatus.OK);
+    }
+
+    // refresh token 재발급
+    @Operation(summary = "Access Token, Refresh Token 재발급", description = "Refresh Token을 이용하여 두 토큰 모두 재발급합니다.")
+    @PostMapping("/reissue")
+    public ApiResponse<CustomBody<AuthToken>> reissue(@MemberToken String token) {
+        AuthToken authToken = oAuthLoginService.reissue(token);
+        return ApiResponseGenerator.success(authToken, HttpStatus.OK);
     }
 }

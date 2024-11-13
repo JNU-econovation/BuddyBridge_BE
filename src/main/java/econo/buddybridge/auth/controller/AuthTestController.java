@@ -1,6 +1,8 @@
 package econo.buddybridge.auth.controller;
 
 import econo.buddybridge.auth.exception.SessionAlreadyExistsException;
+import econo.buddybridge.auth.jwt.AuthToken;
+import econo.buddybridge.auth.jwt.service.AuthTokenService;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.service.MemberService;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthTestController {
 
     private final MemberService memberService;
+    private final AuthTokenService authTokenService;
 
     // 테스트용 로그인 엔드포인트
     @Operation(summary = "테스트용 로그인", description = "회원 ID로 로그인합니다. 개발 및 로컬 환경에서만 사용 가능합니다.")
@@ -50,5 +53,15 @@ public class AuthTestController {
         session.setAttribute("memberId", member.memberId());
 
         return ApiResponseGenerator.success(member, HttpStatus.OK);
+    }
+
+    // 테스트용 JWT 로그인
+    @Operation(summary = "테스트용 JWT 로그인", description = "회원 ID로 JWT 토큰을 발급받습니다. 개발 및 로컬 환경에서만 사용 가능합니다.")
+    @AllowAnonymous
+    @GetMapping("/login/jwt/{member-id}")
+    public ApiResponse<CustomBody<AuthToken>> testLoginWithJwt(@PathVariable("member-id") Long memberId) {
+        MemberResDto member = memberService.findMemberById(memberId);
+        AuthToken authToken = authTokenService.generateAuthToken(member.memberId());
+        return ApiResponseGenerator.success(authToken, HttpStatus.OK);
     }
 }
