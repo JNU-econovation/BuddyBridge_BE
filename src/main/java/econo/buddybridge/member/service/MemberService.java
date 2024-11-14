@@ -8,6 +8,7 @@ import econo.buddybridge.member.dto.MemberSignUpReqDto;
 import econo.buddybridge.member.dto.MemberSignUpResDto;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.exception.MemberAlreadyExistsException;
 import econo.buddybridge.member.exception.MemberNotFoundException;
 import econo.buddybridge.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -65,11 +66,15 @@ public class MemberService {
 
     @Transactional
     public MemberSignUpResDto createSignUpMember(MemberSignUpReqDto memberSignUpReqDto) {
-        Member member = newSignUpMember(memberSignUpReqDto);
+        boolean existsByEmail = memberRepository.existsByEmail(memberSignUpReqDto.email());
+        if (existsByEmail) {
+            throw MemberAlreadyExistsException.EXCEPTION;
+        }
+        newSignUpMember(memberSignUpReqDto);
         return new MemberSignUpResDto("회원가입에 성공하셨습니다.");
     }
 
-    private Member newSignUpMember(MemberSignUpReqDto memberSignUpReqDto) {
+    private void newSignUpMember(MemberSignUpReqDto memberSignUpReqDto) {
         int age = Period.between(memberSignUpReqDto.birthDate(), LocalDate.now()).getYears();
 
         // Todo : passwordEncoder를 사용하여 password와 salt를 생성 좋은 패턴일까?
@@ -89,7 +94,7 @@ public class MemberService {
                 .salt(salt)
                 .build();
 
-        return memberRepository.save(member);
+        memberRepository.save(member);
     }
 
 }
