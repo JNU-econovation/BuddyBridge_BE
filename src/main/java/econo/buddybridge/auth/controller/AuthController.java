@@ -9,6 +9,7 @@ import econo.buddybridge.utils.api.ApiResponse.CustomBody;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,9 +28,10 @@ public class AuthController {
     @Operation(summary = "회원 가입", description = "회원을 추가합니다.")
     @PostMapping("/signup")
     @AllowAnonymous
-    public ApiResponse<CustomBody<MemberSignUpResDto>> signUp(@RequestBody MemberSignUpReqDto memberSignUpReqDto) {
+    public ApiResponse<CustomBody<MemberSignUpResDto>> signUp(
+            @Valid @RequestBody MemberSignUpReqDto memberSignUpReqDto
+    ) {
         MemberSignUpResDto memberSignUpResDto = authService.signUp(memberSignUpReqDto);
         return ApiResponseGenerator.success(memberSignUpResDto, HttpStatus.OK);
     }
-
 }
