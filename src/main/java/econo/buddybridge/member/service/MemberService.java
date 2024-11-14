@@ -64,7 +64,7 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberSignUpResDto findOrCreateSignUpMemberByEmail(MemberSignUpReqDto memberSignUpReqDto) {
+    public MemberSignUpResDto createSignUpMember(MemberSignUpReqDto memberSignUpReqDto) {
         Member member = memberRepository.findByEmail(memberSignUpReqDto.email())
                 .orElseGet(() -> newSignUpMember(memberSignUpReqDto));
         return new MemberSignUpResDto(member);

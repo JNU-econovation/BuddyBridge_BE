@@ -13,6 +13,6 @@ public class AuthService {
     private final MemberService memberService;
 
     public MemberSignUpResDto signUp(MemberSignUpReqDto memberSignUpReqDto) {
-        return memberService.findOrCreateSignUpMemberByEmail(memberSignUpReqDto);
+        return memberService.createSignUpMember(memberSignUpReqDto);
     }
 }
