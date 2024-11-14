@@ -8,7 +8,7 @@ import econo.buddybridge.member.dto.MemberSignUpReqDto;
 import econo.buddybridge.member.dto.MemberSignUpResDto;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
-import econo.buddybridge.member.exception.MemberAlreadyExistsException;
+import econo.buddybridge.member.exception.MemberEmailAlreadyExistsException;
 import econo.buddybridge.member.exception.MemberNotFoundException;
 import econo.buddybridge.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -68,7 +68,7 @@ public class MemberService {
     public MemberSignUpResDto createSignUpMember(MemberSignUpReqDto memberSignUpReqDto) {
         boolean existsByEmail = memberRepository.existsByEmail(memberSignUpReqDto.email());
         if (existsByEmail) {
-            throw MemberAlreadyExistsException.EXCEPTION;
+            throw MemberEmailAlreadyExistsException.EXCEPTION;
         }
         newSignUpMember(memberSignUpReqDto);
         return new MemberSignUpResDto("회원가입에 성공하셨습니다.");
