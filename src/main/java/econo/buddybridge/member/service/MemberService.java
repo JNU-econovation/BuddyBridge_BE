@@ -65,9 +65,8 @@ public class MemberService {
 
     @Transactional
     public MemberSignUpResDto createSignUpMember(MemberSignUpReqDto memberSignUpReqDto) {
-        Member member = memberRepository.findByEmail(memberSignUpReqDto.email())
-                .orElseGet(() -> newSignUpMember(memberSignUpReqDto));
-        return new MemberSignUpResDto(member);
+        Member member = newSignUpMember(memberSignUpReqDto);
+        return new MemberSignUpResDto("회원가입에 성공하셨습니다.");
     }
 
     private Member newSignUpMember(MemberSignUpReqDto memberSignUpReqDto) {
