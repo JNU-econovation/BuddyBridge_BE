@@ -34,7 +34,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 @RequestMapping("/api/oauth")
 @Tag(name = "인증 API", description = "인증 관련 API")
-public class AuthController {
+public class OAuthController {
 
     private final OAuthLoginService oAuthLoginService;
 
