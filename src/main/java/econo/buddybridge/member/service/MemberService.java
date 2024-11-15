@@ -78,8 +78,9 @@ public class MemberService {
         int age = Period.between(memberSignUpReqDto.birthDate(), LocalDate.now()).getYears();
 
         // Todo : passwordEncoder를 사용하여 password와 salt를 생성 좋은 패턴일까?
-        String password = passwordEncoder.encrypt(memberSignUpReqDto.password()).hashedPassword();
-        String salt = passwordEncoder.encrypt(memberSignUpReqDto.password()).salt();
+        PasswordEncoder.PasswordHashDto passwordHashDto = passwordEncoder.encrypt(memberSignUpReqDto.password());
+        String password = passwordHashDto.hashedPassword();
+        String salt = passwordHashDto.salt();
 
         // Todo : 해당 설계가 올바른지, kakaoToken은 어떻게 처리할지
         Member member = Member.builder()
