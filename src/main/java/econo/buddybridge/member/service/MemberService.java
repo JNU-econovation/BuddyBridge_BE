@@ -1,5 +1,6 @@
 package econo.buddybridge.member.service;
 
+import econo.buddybridge.auth.dto.LoginReqDto;
 import econo.buddybridge.auth.dto.PasswordHashDto;
 import econo.buddybridge.auth.dto.kakao.UserInfoWithKakaoToken;
 import econo.buddybridge.auth.utils.PasswordEncoder;
@@ -97,4 +98,15 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    @Transactional
+    public MemberResDto findMemberByEmailAndPassword(LoginReqDto loginReqDto) {
+        Member member = memberRepository.findByEmail(loginReqDto.email())
+                .orElseThrow(() -> MemberNotFoundException.EXCEPTION);
+
+        if (!passwordEncoder.verify(loginReqDto.password(), member.getPassword(), member.getSalt())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        return new MemberResDto(member);
+    }
 }
