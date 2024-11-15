@@ -25,4 +25,8 @@ public class AuthService {
         MemberResDto member = memberService.findMemberByEmailAndPassword(params);
         return authTokenService.generateAuthToken(member.memberId());
     }
+
+    public AuthToken reissue(String refreshToken) {
+        return authTokenService.reissue(refreshToken);
+    }
 }
