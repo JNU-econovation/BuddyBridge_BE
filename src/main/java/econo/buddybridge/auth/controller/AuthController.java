@@ -1,5 +1,7 @@
 package econo.buddybridge.auth.controller;
 
+import econo.buddybridge.auth.dto.LoginReqDto;
+import econo.buddybridge.auth.jwt.AuthToken;
 import econo.buddybridge.auth.service.AuthService;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.member.dto.MemberSignUpReqDto;
@@ -33,5 +35,15 @@ public class AuthController {
     ) {
         MemberSignUpResDto memberSignUpResDto = authService.signUp(memberSignUpReqDto);
         return ApiResponseGenerator.success(memberSignUpResDto, HttpStatus.OK);
+    }
+
+    @Operation(summary = "자체 로그인 (JWT)", description = "이메일과 비밀번호를 이용해 JWT 토큰을 발급합니다.")
+    @PostMapping("/login")
+    @AllowAnonymous
+    public ApiResponse<CustomBody<AuthToken>> login(
+            @Valid @RequestBody LoginReqDto params
+    ) {
+        AuthToken authToken = authService.loginWithToken(params);
+        return ApiResponseGenerator.success(authToken, HttpStatus.OK);
     }
 }
