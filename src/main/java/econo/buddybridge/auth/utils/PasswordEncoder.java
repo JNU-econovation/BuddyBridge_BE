@@ -1,5 +1,6 @@
 package econo.buddybridge.auth.utils;
 
+import econo.buddybridge.auth.dto.PasswordHashDto;
 import econo.buddybridge.auth.exception.EncryptFailedException;
 import econo.buddybridge.auth.exception.GenerateSaltFailedException;
 import lombok.extern.slf4j.Slf4j;
@@ -16,12 +17,6 @@ import java.util.Base64;
 @Slf4j
 @Component
 public class PasswordEncoder {
-
-    public record PasswordHashDto(
-            String hashedPassword,
-            String salt
-    ) {
-    }
 
     public PasswordHashDto encrypt(String password) {
         byte[] salt = generateRandomSalt();

@@ -1,5 +1,6 @@
 package econo.buddybridge.member.service;
 
+import econo.buddybridge.auth.dto.PasswordHashDto;
 import econo.buddybridge.auth.dto.kakao.UserInfoWithKakaoToken;
 import econo.buddybridge.auth.utils.PasswordEncoder;
 import econo.buddybridge.member.dto.MemberReqDto;
@@ -78,7 +79,7 @@ public class MemberService {
         int age = Period.between(memberSignUpReqDto.birthDate(), LocalDate.now()).getYears();
 
         // Todo : passwordEncoder를 사용하여 password와 salt를 생성 좋은 패턴일까?
-        PasswordEncoder.PasswordHashDto passwordHashDto = passwordEncoder.encrypt(memberSignUpReqDto.password());
+        PasswordHashDto passwordHashDto = passwordEncoder.encrypt(memberSignUpReqDto.password());
         String password = passwordHashDto.hashedPassword();
         String salt = passwordHashDto.salt();
 
