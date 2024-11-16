@@ -45,9 +45,13 @@ public class Member extends BaseEntity {
 
     private String kakaoToken;
 
+    private String password; // 암호화된 비밀번호
+
+    private String salt; // 비밀번호 암호화에 사용되는 salt
+
     @Builder
     public Member(String name, String nickname, String profileImageUrl, String email,
-            Integer age, DisabilityType disabilityType, Gender gender, String kakaoToken) {
+                  Integer age, DisabilityType disabilityType, Gender gender, String kakaoToken, String password, String salt) {
         this.name = name;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
@@ -56,6 +60,8 @@ public class Member extends BaseEntity {
         this.disabilityType = disabilityType;
         this.gender = gender;
         this.kakaoToken = kakaoToken;
+        this.password = password;
+        this.salt = salt;
     }
 
     public void updateKakaoToken(String kakaoToken) {
@@ -63,7 +69,7 @@ public class Member extends BaseEntity {
     }
 
     public void updateMemberInfo(String name, String nickname, String profileImageUrl, String email, Integer age,
-            DisabilityType disabilityType, Gender gender) {
+                                 DisabilityType disabilityType, Gender gender) {
         this.name = name;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;

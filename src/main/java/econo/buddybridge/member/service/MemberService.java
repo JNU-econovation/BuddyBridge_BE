@@ -1,20 +1,30 @@
 package econo.buddybridge.member.service;
 
+import econo.buddybridge.auth.dto.PasswordHashDto;
 import econo.buddybridge.auth.dto.kakao.UserInfoWithKakaoToken;
+import econo.buddybridge.auth.utils.PasswordEncoder;
 import econo.buddybridge.member.dto.MemberReqDto;
 import econo.buddybridge.member.dto.MemberResDto;
+import econo.buddybridge.member.dto.MemberSignUpReqDto;
+import econo.buddybridge.member.dto.MemberSignUpResDto;
+import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.exception.MemberEmailAlreadyExistsException;
 import econo.buddybridge.member.exception.MemberNotFoundException;
 import econo.buddybridge.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.Period;
+
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public MemberResDto findMemberById(Long memberId) {
@@ -54,4 +64,37 @@ public class MemberService {
         member.updateMemberInfo(memberReqDto.name(), memberReqDto.nickname(), memberReqDto.profileImageUrl(),
                 memberReqDto.email(), memberReqDto.age(), memberReqDto.disabilityType(), member.getGender());
     }
+
+    @Transactional
+    public MemberSignUpResDto createSignUpMember(MemberSignUpReqDto memberSignUpReqDto) {
+        boolean existsByEmail = memberRepository.existsByEmail(memberSignUpReqDto.email());
+        if (existsByEmail) {
+            throw MemberEmailAlreadyExistsException.EXCEPTION;
+        }
+        signUpMember(memberSignUpReqDto);
+        return new MemberSignUpResDto("회원가입에 성공하셨습니다.");
+    }
+
+    private void signUpMember(MemberSignUpReqDto memberSignUpReqDto) {
+        int age = Period.between(memberSignUpReqDto.birthDate(), LocalDate.now()).getYears();
+
+        PasswordHashDto passwordHashDto = passwordEncoder.encrypt(memberSignUpReqDto.password());
+        String password = passwordHashDto.hashedPassword();
+        String salt = passwordHashDto.salt();
+
+        Member member = Member.builder()
+                .name(memberSignUpReqDto.name())
+                .nickname("닉네임을 설정해주세요")
+                .profileImageUrl("https://img1.kakaocdn.net/thumb/R640x640.q70/?fname=http://t1.kakaocdn.net/account_images/default_profile.jpeg")
+                .email(memberSignUpReqDto.email())
+                .age(age)
+                .disabilityType(DisabilityType.없음)
+                .gender(memberSignUpReqDto.gender())
+                .password(password)
+                .salt(salt)
+                .build();
+
+        memberRepository.save(member);
+    }
+
 }

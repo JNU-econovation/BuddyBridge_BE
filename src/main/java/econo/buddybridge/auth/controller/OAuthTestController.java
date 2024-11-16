@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/oauth")
 @Tag(name = "인증 API")
-public class AuthTestController {
+public class OAuthTestController {
 
     private final MemberService memberService;
     private final AuthTokenService authTokenService;

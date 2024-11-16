@@ -1,18 +1,18 @@
-package econo.buddybridge.member.exception;
+package econo.buddybridge.auth.exception;
 
 import econo.buddybridge.common.exception.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-public enum MemberErrorCode implements ErrorCode {
-    MEMBER_NOT_FOUND("M001", HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
-    MEMBER_EMAIL_ALREADY_EXISTS("M002", HttpStatus.BAD_REQUEST, "이미 사용중인 이메일입니다."),
+public enum EncoderErrorCode implements ErrorCode {
+    ENCRYPT_FAILED("EN001", HttpStatus.INTERNAL_SERVER_ERROR, "서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요."),
+    GENERATE_SALT_FAILED("EN002", HttpStatus.INTERNAL_SERVER_ERROR, "서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요."),
     ;
 
     private final String code;
     private final HttpStatus httpStatus;
     private final String message;
 
-    MemberErrorCode(String code, HttpStatus httpStatus, String message) {
+    EncoderErrorCode(String code, HttpStatus httpStatus, String message) {
         this.code = code;
         this.httpStatus = httpStatus;
         this.message = message;
