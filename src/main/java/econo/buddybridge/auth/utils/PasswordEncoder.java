@@ -28,7 +28,7 @@ public class PasswordEncoder {
 
     private String hashPassword(String password, byte[] salt) {
         try {
-            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 10000, 128);
             SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
             byte[] hash = factory.generateSecret(spec).getEncoded();
             return Base64.getEncoder().encodeToString(hash);
