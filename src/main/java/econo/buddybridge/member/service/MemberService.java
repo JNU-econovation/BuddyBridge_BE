@@ -71,19 +71,17 @@ public class MemberService {
         if (existsByEmail) {
             throw MemberEmailAlreadyExistsException.EXCEPTION;
         }
-        newSignUpMember(memberSignUpReqDto);
+        signUpMember(memberSignUpReqDto);
         return new MemberSignUpResDto("회원가입에 성공하셨습니다.");
     }
 
-    private void newSignUpMember(MemberSignUpReqDto memberSignUpReqDto) {
+    private void signUpMember(MemberSignUpReqDto memberSignUpReqDto) {
         int age = Period.between(memberSignUpReqDto.birthDate(), LocalDate.now()).getYears();
 
-        // Todo : passwordEncoder를 사용하여 password와 salt를 생성 좋은 패턴일까?
         PasswordHashDto passwordHashDto = passwordEncoder.encrypt(memberSignUpReqDto.password());
         String password = passwordHashDto.hashedPassword();
         String salt = passwordHashDto.salt();
 
-        // Todo : 해당 설계가 올바른지, kakaoToken은 어떻게 처리할지
         Member member = Member.builder()
                 .name(memberSignUpReqDto.name())
                 .nickname("닉네임을 설정해주세요")
