@@ -10,6 +10,7 @@ import econo.buddybridge.member.dto.MemberSignUpReqDto;
 import econo.buddybridge.member.dto.MemberSignUpResDto;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.exception.InvalidPasswordException;
 import econo.buddybridge.member.exception.MemberEmailAlreadyExistsException;
 import econo.buddybridge.member.exception.MemberNotFoundException;
 import econo.buddybridge.member.repository.MemberRepository;
@@ -104,7 +105,7 @@ public class MemberService {
                 .orElseThrow(() -> MemberNotFoundException.EXCEPTION);
 
         if (!passwordEncoder.verify(loginReqDto.password(), member.getPassword(), member.getSalt())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw InvalidPasswordException.EXCEPTION;
         }
 
         return new MemberResDto(member);
