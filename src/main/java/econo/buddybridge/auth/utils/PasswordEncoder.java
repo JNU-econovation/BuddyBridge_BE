@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -17,6 +18,16 @@ import java.util.Base64;
 @Slf4j
 @Component
 public class PasswordEncoder {
+    
+    /*
+     * 사용자가 입력한 비밀번호, 저장된 비밀번호(해싱됨), 저장된 솔트(암호화) 를 입력 받아
+     * 비밀번호의 일치 여부를 확인합니다.
+     * */
+    public boolean verify(String password, String storedPassword, String storedSalt) {
+        byte[] salt = Base64.getDecoder().decode(storedSalt);
+        String hashedKey = hashPassword(password, salt);
+        return MessageDigest.isEqual(storedPassword.getBytes(), hashedKey.getBytes());
+    }
 
     public PasswordHashDto encrypt(String password) {
         byte[] salt = generateRandomSalt();
@@ -26,6 +37,9 @@ public class PasswordEncoder {
         return new PasswordHashDto(hashedPassword, saltString);
     }
 
+    /*
+     * 사용자가 입력한 비밀번호와 솔트를 이용해 해싱된 비밀번호를 반환합니다.
+     * */
     private String hashPassword(String password, byte[] salt) {
         try {
             KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 10000, 128);
@@ -38,6 +52,10 @@ public class PasswordEncoder {
         }
     }
 
+    /*
+     * 솔트를 생성합니다
+     * 솔트 : 암호화된 비밀번호를 해독하는데 사용되는 임의의 바이트 배열
+     * */
     private byte[] generateRandomSalt() {
         try {
             SecureRandom random = new SecureRandom();

@@ -1,5 +1,6 @@
 package econo.buddybridge.member.service;
 
+import econo.buddybridge.auth.dto.LoginReqDto;
 import econo.buddybridge.auth.dto.PasswordHashDto;
 import econo.buddybridge.auth.dto.kakao.UserInfoWithKakaoToken;
 import econo.buddybridge.auth.utils.PasswordEncoder;
@@ -9,6 +10,7 @@ import econo.buddybridge.member.dto.MemberSignUpReqDto;
 import econo.buddybridge.member.dto.MemberSignUpResDto;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.exception.InvalidPasswordException;
 import econo.buddybridge.member.exception.MemberEmailAlreadyExistsException;
 import econo.buddybridge.member.exception.MemberNotFoundException;
 import econo.buddybridge.member.repository.MemberRepository;
@@ -97,4 +99,15 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    @Transactional
+    public MemberResDto findMemberByEmailAndPassword(LoginReqDto loginReqDto) {
+        Member member = memberRepository.findByEmail(loginReqDto.email())
+                .orElseThrow(() -> MemberNotFoundException.EXCEPTION);
+
+        if (!passwordEncoder.verify(loginReqDto.password(), member.getPassword(), member.getSalt())) {
+            throw InvalidPasswordException.EXCEPTION;
+        }
+
+        return new MemberResDto(member);
+    }
 }
