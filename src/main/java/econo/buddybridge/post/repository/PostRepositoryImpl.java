@@ -1,5 +1,8 @@
 package econo.buddybridge.post.repository;
 
+import static econo.buddybridge.post.entity.QPost.post;
+import static econo.buddybridge.post.entity.QPostLike.postLike;
+
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -8,22 +11,16 @@ import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostResDto;
 import econo.buddybridge.post.entity.AssistanceType;
-import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.entity.QPost;
 import econo.buddybridge.post.exception.PostInvalidSortValueException;
 import econo.buddybridge.post.exception.PostNotFoundException;
-import lombok.RequiredArgsConstructor;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import static econo.buddybridge.post.entity.QPost.post;
-import static econo.buddybridge.post.entity.QPostLike.postLike;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom {
@@ -53,7 +50,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     @Override // 게시글 목록 조회
     public PostCustomPage findPosts(Long memberId, Integer page, Integer size, String sort, PostType postType,
-                                    PostStatus postStatus, List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
+            PostStatus postStatus, List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
 
         List<Post> posts = queryFactory
                 .selectFrom(post)
@@ -123,7 +120,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private List<PostResDto> getPostResDtos(Long memberId, List<Post> posts) {
         if (memberId != null) {
-            List<Long> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
+            List<Long> postIds = posts.stream().map(Post::getId).toList();
             Set<Long> postLikedIds = new HashSet<>(
                     queryFactory
                             .select(postLike.post.id)
@@ -151,7 +148,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     private BooleanExpression buildPostTypeExpression(PostType postType, QPost qPost) {
-        return postType == null ? null :  qPost.postType.eq(postType);
+        return postType == null ? null : qPost.postType.eq(postType);
     }
 
     private BooleanExpression buildPostStatusExpression(PostStatus postStatus) {
@@ -164,11 +161,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
             return null;
         }
         return post.disabilityType.in(disabilityTypes);
-    }
-
-    // 광주광역시, 남구, 북구, 서구, 동구, 광산구
-    private BooleanExpression buildPostDistrictExpression(District district) {
-        return district == null ? null : post.district.eq(district);
     }
 
     // 학습, 식사, 이동

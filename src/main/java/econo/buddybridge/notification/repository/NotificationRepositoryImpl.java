@@ -7,6 +7,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import econo.buddybridge.notification.dto.NotificationCustomPage;
 import econo.buddybridge.notification.dto.NotificationResDto;
 import econo.buddybridge.notification.dto.QNotificationResDto;
+import econo.buddybridge.notification.entity.NotificationType;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public NotificationCustomPage findByMemberId(Long memberId, Integer size, Long cursor, Boolean isRead) {
+    public NotificationCustomPage findByMemberId(Long memberId, Integer size, Long cursor, NotificationType type, Boolean isRead) {
         List<NotificationResDto> content = queryFactory
                 .select(
                         new QNotificationResDto(
@@ -31,12 +32,12 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
                 )
                 .from(notification)
                 .where(notification.receiver.id.eq(memberId), notification.createdAt.gt(LocalDateTime.now().minusDays(3)), // 3일 이내 알림만 조회
-                        buildCursorPredicate(cursor), buildIsReadPredicate(isRead))
+                        buildCursorPredicate(cursor), buildIsReadPredicate(isRead), buildTypePredicate(type))
                 .orderBy(notification.id.desc())
-                .limit(size + 1)
+                .limit(size + 1L)
                 .fetch();
 
-        Boolean nextPage = false;
+        boolean nextPage = false;
         if (content.size() > size) {
             content.removeLast();
             nextPage = true;
@@ -67,5 +68,12 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
             return null;
         }
         return notification.isRead.eq(isRead);
+    }
+
+    private BooleanExpression buildTypePredicate(NotificationType type) {
+        if (type == null) {
+            return null;
+        }
+        return notification.type.eq(type);
     }
 }

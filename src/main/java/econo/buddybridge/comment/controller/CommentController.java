@@ -1,5 +1,6 @@
 package econo.buddybridge.comment.controller;
 
+import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentReqDto;
 import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
@@ -9,13 +10,20 @@ import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponse.CustomBody;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
-import econo.buddybridge.utils.session.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,9 +40,8 @@ public class CommentController {
             @RequestParam("size") Integer size,
             @RequestParam(defaultValue = "DESC", required = false) String sort,
             @RequestParam(value = "post-type", required = false) PostType postType,
-            HttpServletRequest request
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        Long memberId = SessionUtils.getMemberId(request);
         MyPageCommentCustomPage comments = commentService.getMyPageComments(memberId, page, size, sort, postType);
         return ApiResponseGenerator.success(comments, HttpStatus.OK);
     }
@@ -57,9 +64,8 @@ public class CommentController {
     public ApiResponse<CustomBody<Long>> createComment(
             @PathVariable("post-id") Long postId,
             @RequestBody CommentReqDto commentReqDto,
-            HttpServletRequest request
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        Long memberId = SessionUtils.getMemberId(request);
         Long createdCommentId = commentService.createComment(commentReqDto, postId, memberId);
         return ApiResponseGenerator.success(createdCommentId, HttpStatus.CREATED);
     }
@@ -69,9 +75,8 @@ public class CommentController {
     public ApiResponse<CustomBody<Long>> updateComment(
             @PathVariable("comment-id") Long commentId,
             @RequestBody CommentReqDto commentReqDto,
-            HttpServletRequest request
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        Long memberId = SessionUtils.getMemberId(request);
         Long updatedCommentId = commentService.updateComment(commentId, commentReqDto, memberId);
         return ApiResponseGenerator.success(updatedCommentId, HttpStatus.OK);
     }
@@ -80,9 +85,8 @@ public class CommentController {
     @DeleteMapping("/{comment-id}")
     public ApiResponse<CustomBody<Void>> deleteComment(
             @PathVariable("comment-id") Long commentId,
-            HttpServletRequest request
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        Long memberId = SessionUtils.getMemberId(request);
         commentService.deleteComment(commentId, memberId);
         return ApiResponseGenerator.success(HttpStatus.NO_CONTENT);
     }

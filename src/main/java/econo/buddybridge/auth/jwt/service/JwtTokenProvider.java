@@ -12,6 +12,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.time.Duration;
 import java.util.Date;
+import java.util.Optional;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -66,6 +67,11 @@ public class JwtTokenProvider {
         return refreshToken;
     }
 
+    public Long getMemberIdFromAccessToken(String accessToken) {
+        Claims claims = parseClaims(accessToken, TokenType.ACCESS);
+        return claims.get("id", Long.class);
+    }
+
     public Long getMemberIdFromRefreshToken(String refreshToken) {
         Claims claims = parseClaims(refreshToken, TokenType.REFRESH);
         return claims.get("id", Long.class);
@@ -76,6 +82,13 @@ public class JwtTokenProvider {
             throw MissingTokenException.EXCEPTION;
         }
         return header.substring(BEARER_PREFIX.length());
+    }
+
+    public Optional<String> extractTokenOptional(String header) {
+        if (header == null || !header.startsWith(BEARER_PREFIX)) {
+            return Optional.empty();
+        }
+        return Optional.of(header.substring(BEARER_PREFIX.length()));
     }
 
     public boolean validateToken(String token, TokenType tokenType) {

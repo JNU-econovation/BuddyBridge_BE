@@ -1,14 +1,15 @@
 package econo.buddybridge.notification.controller;
 
+import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.notification.dto.NotificationCustomPage;
+import econo.buddybridge.notification.entity.NotificationType;
 import econo.buddybridge.notification.service.NotificationService;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponse.CustomBody;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
-import econo.buddybridge.utils.session.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,11 +32,11 @@ public class NotificationController {
     public ApiResponse<CustomBody<NotificationCustomPage>> getNotifications(
             @RequestParam("limit") Integer size,
             @RequestParam(value = "cursor", required = false) Long cursor,
+            @RequestParam(value = "type", required = false) NotificationType type,
             @RequestParam(value = "is-read", required = false) Boolean isRead,
-            HttpServletRequest request
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        Long memberId = SessionUtils.getMemberId(request);
-        NotificationCustomPage notifications = notificationService.getNotifications(memberId, size, cursor, isRead);
+        NotificationCustomPage notifications = notificationService.getNotifications(memberId, size, cursor, type, isRead);
         return ApiResponseGenerator.success(notifications, HttpStatus.OK);
     }
 
@@ -43,16 +44,14 @@ public class NotificationController {
     @PostMapping("/{notification-id}/read")
     public ApiResponse<CustomBody<Void>> markAsRead(
             @PathVariable("notification-id") Long notificationId,
-            HttpServletRequest request
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        Long memberId = SessionUtils.getMemberId(request);
         notificationService.markAsRead(notificationId, memberId);
         return ApiResponseGenerator.success(HttpStatus.OK);
     }
 
     @PostMapping("/read-all")
-    public ApiResponse<CustomBody<Void>> markAllAsRead(HttpServletRequest request) {
-        Long memberId = SessionUtils.getMemberId(request);
+    public ApiResponse<CustomBody<Void>> markAllAsRead(@Parameter(hidden = true) @MemberTokenId Long memberId) {
         notificationService.markAllAsRead(memberId);
         return ApiResponseGenerator.success(HttpStatus.OK);
     }

@@ -1,6 +1,7 @@
 package econo.buddybridge.auth.resolver;
 
 import econo.buddybridge.auth.jwt.service.JwtTokenProvider;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
@@ -13,13 +14,13 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 @Component
 @RequiredArgsConstructor
-public class MemberTokenResolver implements HandlerMethodArgumentResolver {
+public class MemberTokenIdResolver implements HandlerMethodArgumentResolver {
 
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.hasParameterAnnotation(MemberToken.class);
+        return parameter.hasParameterAnnotation(MemberTokenId.class);
     }
 
     @Override
@@ -29,6 +30,8 @@ public class MemberTokenResolver implements HandlerMethodArgumentResolver {
             @NonNull NativeWebRequest webRequest,
             WebDataBinderFactory binderFactory
     ) {
-        return jwtTokenProvider.extractToken(webRequest.getHeader(HttpHeaders.AUTHORIZATION));
+        Optional<String> token = jwtTokenProvider.extractTokenOptional(webRequest.getHeader(HttpHeaders.AUTHORIZATION));
+        // 있으면 memberId 반환, 없으면 null 반환
+        return token.map(jwtTokenProvider::getMemberIdFromAccessToken).orElse(null);
     }
 }
