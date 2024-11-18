@@ -3,6 +3,7 @@ package econo.buddybridge.member.service;
 import econo.buddybridge.member.dto.EmailReqDto;
 import econo.buddybridge.member.dto.NicknameReqDto;
 import econo.buddybridge.member.exception.MemberEmailAlreadyExistsException;
+import econo.buddybridge.member.exception.MemberNicknameAlreadyExistsException;
 import econo.buddybridge.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class DuplicationCheckService {
     @Transactional(readOnly = true)
     public void checkNickname(NicknameReqDto nicknameReqDto) {
         if (memberRepository.existsByNickname(nicknameReqDto.nickname())) {
-            throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
+            throw MemberNicknameAlreadyExistsException.EXCEPTION;
         }
     }
 }

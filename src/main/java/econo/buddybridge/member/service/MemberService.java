@@ -12,6 +12,7 @@ import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.exception.InvalidPasswordException;
 import econo.buddybridge.member.exception.MemberEmailAlreadyExistsException;
+import econo.buddybridge.member.exception.MemberNicknameAlreadyExistsException;
 import econo.buddybridge.member.exception.MemberNotFoundException;
 import econo.buddybridge.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -75,7 +76,7 @@ public class MemberService {
             throw MemberEmailAlreadyExistsException.EXCEPTION;
         }
         if (existsByNickname) {
-            throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
+            throw MemberNicknameAlreadyExistsException.EXCEPTION;
         }
         signUpMember(memberSignUpReqDto);
         return new MemberSignUpResDto("회원가입에 성공하셨습니다.");
