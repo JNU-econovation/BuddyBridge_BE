@@ -11,6 +11,9 @@ public record MemberSignUpReqDto(
         @NotBlank(message = "이름을 입력해주세요.")
         String name,
 
+        @NotBlank(message = "닉네임을 입력해주세요.")
+        String nickname,
+
         @NotNull(message = "성별을 선택해주세요.")
         Gender gender,
 

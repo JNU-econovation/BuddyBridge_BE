@@ -10,8 +10,9 @@ import econo.buddybridge.member.dto.MemberSignUpReqDto;
 import econo.buddybridge.member.dto.MemberSignUpResDto;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
-import econo.buddybridge.member.exception.InvalidPasswordException;
+import econo.buddybridge.member.exception.InvalidPasswordOrEmailException;
 import econo.buddybridge.member.exception.MemberEmailAlreadyExistsException;
+import econo.buddybridge.member.exception.MemberNicknameAlreadyExistsException;
 import econo.buddybridge.member.exception.MemberNotFoundException;
 import econo.buddybridge.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -70,9 +71,16 @@ public class MemberService {
     @Transactional
     public MemberSignUpResDto createSignUpMember(MemberSignUpReqDto memberSignUpReqDto) {
         boolean existsByEmail = memberRepository.existsByEmail(memberSignUpReqDto.email());
+        boolean existsByNickname = memberRepository.existsByNickname(memberSignUpReqDto.nickname());
+
         if (existsByEmail) {
             throw MemberEmailAlreadyExistsException.EXCEPTION;
         }
+
+        if (existsByNickname) {
+            throw MemberNicknameAlreadyExistsException.EXCEPTION;
+        }
+
         signUpMember(memberSignUpReqDto);
         return new MemberSignUpResDto("회원가입에 성공하셨습니다.");
     }
@@ -86,7 +94,7 @@ public class MemberService {
 
         Member member = Member.builder()
                 .name(memberSignUpReqDto.name())
-                .nickname("닉네임을 설정해주세요")
+                .nickname(memberSignUpReqDto.nickname())
                 .profileImageUrl("https://img1.kakaocdn.net/thumb/R640x640.q70/?fname=http://t1.kakaocdn.net/account_images/default_profile.jpeg")
                 .email(memberSignUpReqDto.email())
                 .age(age)
@@ -102,10 +110,10 @@ public class MemberService {
     @Transactional
     public MemberResDto findMemberByEmailAndPassword(LoginReqDto loginReqDto) {
         Member member = memberRepository.findByEmail(loginReqDto.email())
-                .orElseThrow(() -> MemberNotFoundException.EXCEPTION);
+                .orElseThrow(() -> InvalidPasswordOrEmailException.EXCEPTION);
 
         if (!passwordEncoder.verify(loginReqDto.password(), member.getPassword(), member.getSalt())) {
-            throw InvalidPasswordException.EXCEPTION;
+            throw InvalidPasswordOrEmailException.EXCEPTION;
         }
 
         return new MemberResDto(member);
