@@ -1,10 +1,10 @@
 package econo.buddybridge.auth.resolver;
 
 import econo.buddybridge.auth.jwt.service.JwtTokenProvider;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -26,7 +26,7 @@ public class MemberTokenResolver implements HandlerMethodArgumentResolver {
     public Object resolveArgument(
             @NonNull MethodParameter parameter,
             ModelAndViewContainer mavContainer,
-            NativeWebRequest webRequest,
+            @NonNull NativeWebRequest webRequest,
             WebDataBinderFactory binderFactory
     ) {
         return jwtTokenProvider.extractToken(webRequest.getHeader(HttpHeaders.AUTHORIZATION));
