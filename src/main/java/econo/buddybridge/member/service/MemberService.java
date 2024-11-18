@@ -10,7 +10,7 @@ import econo.buddybridge.member.dto.MemberSignUpReqDto;
 import econo.buddybridge.member.dto.MemberSignUpResDto;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
-import econo.buddybridge.member.exception.InvalidPasswordException;
+import econo.buddybridge.member.exception.InvalidPasswordOrEmailException;
 import econo.buddybridge.member.exception.MemberEmailAlreadyExistsException;
 import econo.buddybridge.member.exception.MemberNicknameAlreadyExistsException;
 import econo.buddybridge.member.exception.MemberNotFoundException;
@@ -110,10 +110,10 @@ public class MemberService {
     @Transactional
     public MemberResDto findMemberByEmailAndPassword(LoginReqDto loginReqDto) {
         Member member = memberRepository.findByEmail(loginReqDto.email())
-                .orElseThrow(() -> MemberNotFoundException.EXCEPTION);
+                .orElseThrow(() -> InvalidPasswordOrEmailException.EXCEPTION);
 
         if (!passwordEncoder.verify(loginReqDto.password(), member.getPassword(), member.getSalt())) {
-            throw InvalidPasswordException.EXCEPTION;
+            throw InvalidPasswordOrEmailException.EXCEPTION;
         }
 
         return new MemberResDto(member);
