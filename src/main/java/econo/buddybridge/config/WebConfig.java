@@ -13,7 +13,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    private final SessionInterceptor sessionInterceptor;
     private final JwtInterceptor jwtInterceptor;
     private final MemberTokenResolver memberTokenResolver;
 
