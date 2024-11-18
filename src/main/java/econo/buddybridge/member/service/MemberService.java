@@ -72,12 +72,15 @@ public class MemberService {
     public MemberSignUpResDto createSignUpMember(MemberSignUpReqDto memberSignUpReqDto) {
         boolean existsByEmail = memberRepository.existsByEmail(memberSignUpReqDto.email());
         boolean existsByNickname = memberRepository.existsByNickname(memberSignUpReqDto.nickname());
+
         if (existsByEmail) {
             throw MemberEmailAlreadyExistsException.EXCEPTION;
         }
+
         if (existsByNickname) {
             throw MemberNicknameAlreadyExistsException.EXCEPTION;
         }
+
         signUpMember(memberSignUpReqDto);
         return new MemberSignUpResDto("회원가입에 성공하셨습니다.");
     }
