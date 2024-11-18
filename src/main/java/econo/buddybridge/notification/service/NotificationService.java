@@ -6,6 +6,7 @@ import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.dto.NotificationCustomPage;
 import econo.buddybridge.notification.entity.Notification;
+import econo.buddybridge.notification.entity.NotificationType;
 import econo.buddybridge.notification.exception.NotificationAccessDeniedException;
 import econo.buddybridge.notification.exception.NotificationNotFoundException;
 import econo.buddybridge.notification.repository.NotificationRepository;
@@ -26,9 +27,9 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
-    public NotificationCustomPage getNotifications(Long memberId, Integer size, Long cursor, Boolean isRead) {
+    public NotificationCustomPage getNotifications(Long memberId, Integer size, Long cursor, NotificationType type, Boolean isRead) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
-        return notificationRepository.findByMemberId(member.getId(), size, cursor, isRead);
+        return notificationRepository.findByMemberId(member.getId(), size, cursor, type, isRead);
     }
 
     @Transactional
