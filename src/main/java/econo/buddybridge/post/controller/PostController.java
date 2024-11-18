@@ -1,5 +1,6 @@
 package econo.buddybridge.post.controller;
 
+import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.dto.PostCustomPage;
@@ -13,11 +14,11 @@ import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.service.PostService;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
-import econo.buddybridge.utils.session.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,8 +30,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,9 +46,8 @@ public class PostController {
             @RequestParam("size") Integer size,
             @RequestParam(defaultValue = "desc", required = false) String sort,
             @RequestParam(value = "post-type", required = false) PostType postType,
-            HttpServletRequest request
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        Long memberId = SessionUtils.getMemberId(request);
         PostCustomPage posts = postService.getPostsLikes(memberId, page, size, sort, postType);
         return ApiResponseGenerator.success(posts, HttpStatus.OK);
     }
@@ -61,9 +59,8 @@ public class PostController {
             @RequestParam("page") Integer page,
             @RequestParam("size") Integer size,
             @RequestParam(defaultValue = "desc", required = false) String sort,
-            HttpServletRequest request
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        Long memberId = SessionUtils.getMemberId(request);
         PostCustomPage posts = postService.getPostsMyPage(memberId, page, size, sort, postType);
         return ApiResponseGenerator.success(posts, HttpStatus.OK);
     }
@@ -80,9 +77,8 @@ public class PostController {
             @RequestParam(value = "post-status", required = false) PostStatus postStatus,
             @RequestParam(value = "disability-type", required = false) List<DisabilityType> disabilityType,
             @RequestParam(value = "assistance-type", required = false) List<AssistanceType> assistanceType,
-            HttpServletRequest request
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        Long memberId = SessionUtils.getMemberId(request);
         PostCustomPage posts = postService.getPosts(memberId, page, size, sort, postType, postStatus, disabilityType, assistanceType);
         return ApiResponseGenerator.success(posts, HttpStatus.OK);
     }
@@ -92,9 +88,8 @@ public class PostController {
     @PostMapping
     public ApiResponse<ApiResponse.CustomBody<Long>> createPost(
             @Valid @RequestBody PostReqDto postReqDto,
-            HttpServletRequest request
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        Long memberId = SessionUtils.getMemberId(request);
         Long createdPostId = postService.createPost(postReqDto, memberId);
         return ApiResponseGenerator.success(createdPostId, HttpStatus.CREATED);
     }
@@ -113,9 +108,8 @@ public class PostController {
     @AllowAnonymous
     public ApiResponse<ApiResponse.CustomBody<PostResDto>> getPost(
             @PathVariable("post-id") Long postId,
-            HttpServletRequest request
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        Long memberId = SessionUtils.getMemberId(request);
         PostResDto postResDto = postService.findPost(memberId, postId);
         return ApiResponseGenerator.success(postResDto, HttpStatus.OK);
     }
@@ -126,9 +120,8 @@ public class PostController {
     public ApiResponse<ApiResponse.CustomBody<Long>> updatePost(
             @PathVariable("post-id") Long postId,
             @RequestBody PostUpdateReqDto postUpdateReqDto,
-            HttpServletRequest request
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        Long memberId = SessionUtils.getMemberId(request);
         Long updatedPostId = postService.updatePost(postId, postUpdateReqDto, memberId);
         return ApiResponseGenerator.success(updatedPostId, HttpStatus.OK);
     }
@@ -138,9 +131,8 @@ public class PostController {
     @DeleteMapping("/{post-id}")
     public ApiResponse<ApiResponse.CustomBody<Void>> deletePost(
             @PathVariable("post-id") Long postId,
-            HttpServletRequest request
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        Long memberId = SessionUtils.getMemberId(request);
         postService.deletePost(postId, memberId);
         return ApiResponseGenerator.success(HttpStatus.NO_CONTENT);
     }

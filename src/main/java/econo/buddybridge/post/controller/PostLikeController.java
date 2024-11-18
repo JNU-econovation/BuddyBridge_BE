@@ -1,12 +1,12 @@
 package econo.buddybridge.post.controller;
 
+import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.post.service.PostLikeService;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
-import econo.buddybridge.utils.session.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,9 +26,8 @@ public class PostLikeController {
     @PostMapping("/{post-id}")
     public ApiResponse<ApiResponse.CustomBody<Boolean>> managePostLike(
             @PathVariable(name = "post-id") Long postId,
-            HttpServletRequest request
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        Long memberId = SessionUtils.getMemberId(request);
         Boolean isLike = postLikeService.managePostLike(memberId, postId);
         return ApiResponseGenerator.success(isLike, HttpStatus.OK);
     }

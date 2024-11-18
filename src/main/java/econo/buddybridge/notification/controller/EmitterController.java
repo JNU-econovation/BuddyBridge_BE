@@ -1,10 +1,10 @@
 package econo.buddybridge.notification.controller;
 
+import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.notification.service.EmitterService;
-import econo.buddybridge.utils.session.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -27,12 +27,11 @@ public class EmitterController {
     public SseEmitter connect(
             @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "")
             String lastEventId,
-            HttpServletRequest request,
-            HttpServletResponse response
+            HttpServletResponse response,
+            @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
         // Nginx에서 버퍼링을 사용하지 않도록 설정: X-Accel-Buffering=no
         response.addHeader("X-Accel-Buffering", "no");
-        Long memberId = SessionUtils.getMemberId(request);
         return emitterService.connect(memberId.toString(), lastEventId);
     }
 }
