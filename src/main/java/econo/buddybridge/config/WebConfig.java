@@ -1,5 +1,6 @@
 package econo.buddybridge.config;
 
+import econo.buddybridge.auth.resolver.MemberTokenIdResolver;
 import econo.buddybridge.auth.resolver.MemberTokenResolver;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final JwtInterceptor jwtInterceptor;
     private final MemberTokenResolver memberTokenResolver;
+    private final MemberTokenIdResolver memberTokenIdResolver;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {    // CORS 설정
@@ -46,6 +48,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(memberTokenResolver);
+        resolvers.addAll(List.of(
+                memberTokenResolver,
+                memberTokenIdResolver
+        ));
     }
 }
