@@ -70,8 +70,12 @@ public class MemberService {
     @Transactional
     public MemberSignUpResDto createSignUpMember(MemberSignUpReqDto memberSignUpReqDto) {
         boolean existsByEmail = memberRepository.existsByEmail(memberSignUpReqDto.email());
+        boolean existsByNickname = memberRepository.existsByNickname(memberSignUpReqDto.nickname());
         if (existsByEmail) {
             throw MemberEmailAlreadyExistsException.EXCEPTION;
+        }
+        if (existsByNickname) {
+            throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
         }
         signUpMember(memberSignUpReqDto);
         return new MemberSignUpResDto("회원가입에 성공하셨습니다.");
@@ -86,7 +90,7 @@ public class MemberService {
 
         Member member = Member.builder()
                 .name(memberSignUpReqDto.name())
-                .nickname("닉네임을 설정해주세요")
+                .nickname(memberSignUpReqDto.nickname())
                 .profileImageUrl("https://img1.kakaocdn.net/thumb/R640x640.q70/?fname=http://t1.kakaocdn.net/account_images/default_profile.jpeg")
                 .email(memberSignUpReqDto.email())
                 .age(age)
