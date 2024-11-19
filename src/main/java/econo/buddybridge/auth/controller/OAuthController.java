@@ -12,6 +12,7 @@ import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponse.CustomBody;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -93,7 +94,7 @@ public class OAuthController {
     // refresh token 재발급
     @Operation(summary = "Access Token, Refresh Token 재발급", description = "Refresh Token을 이용하여 두 토큰 모두 재발급합니다.")
     @PostMapping("/reissue")
-    public ApiResponse<CustomBody<AuthToken>> reissue(@MemberToken String token) {
+    public ApiResponse<CustomBody<AuthToken>> reissue(@Parameter(hidden = true) @MemberToken String token) {
         AuthToken authToken = oAuthLoginService.reissue(token);
         return ApiResponseGenerator.success(authToken, HttpStatus.OK);
     }
