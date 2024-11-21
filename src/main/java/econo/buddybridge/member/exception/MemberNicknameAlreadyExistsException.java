@@ -4,7 +4,7 @@ import econo.buddybridge.common.exception.BusinessException;
 
 public class MemberNicknameAlreadyExistsException extends BusinessException {
 
-    public static BusinessException EXCEPTION = new MemberNicknameAlreadyExistsException();
+    public static final BusinessException EXCEPTION = new MemberNicknameAlreadyExistsException();
 
     private MemberNicknameAlreadyExistsException() {
         super(MemberErrorCode.MEMBER_NICKNAME_ALREADY_EXISTS);
