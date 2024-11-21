@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateCommentExceptionDocs implements SwaggerExceptionDoc {
 
-    @ExplainError("회원이 존재하지 않을 때 발생하는 예외입니다")
+    @ExplainError("댓글을 작성하려는 회원이 존재하지 않을 때 발생하는 예외입니다")
     public static final BusinessException 회원이_존재하지_않을_때 = MemberNotFoundException.EXCEPTION;
 
     @ExplainError("게시글이 존재하지 않을 때 발생하는 예외입니다")
