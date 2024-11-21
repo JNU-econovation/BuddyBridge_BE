@@ -1,5 +1,6 @@
 package econo.buddybridge.utils.api;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import econo.buddybridge.common.exception.ErrorResponse;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,7 @@ public class ApiResponse<B> extends ResponseEntity<B> {
 
     @Getter
     @AllArgsConstructor
+    @JsonInclude
     public static class CustomBody<D> implements Serializable {
         private Boolean success;
         private D data;
