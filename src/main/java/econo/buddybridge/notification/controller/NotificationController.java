@@ -1,6 +1,10 @@
 package econo.buddybridge.notification.controller;
 
 import econo.buddybridge.auth.resolver.MemberTokenId;
+import econo.buddybridge.common.docs.notification.BatchUpdateNotificationExceptionDocs;
+import econo.buddybridge.common.docs.notification.GetNotificationExceptionDocs;
+import econo.buddybridge.common.docs.notification.UpdateNotificationExceptionDocs;
+import econo.buddybridge.common.swagger.ApiExceptionExamples;
 import econo.buddybridge.notification.dto.NotificationCustomPage;
 import econo.buddybridge.notification.entity.NotificationType;
 import econo.buddybridge.notification.service.NotificationService;
@@ -29,6 +33,7 @@ public class NotificationController {
 
     @Operation(summary = "알림 조회", description = "알림을 조회합니다.")
     @GetMapping
+    @ApiExceptionExamples(GetNotificationExceptionDocs.class)
     public ApiResponse<CustomBody<NotificationCustomPage>> getNotifications(
             @RequestParam("limit") Integer size,
             @RequestParam(value = "cursor", required = false) Long cursor,
@@ -42,6 +47,7 @@ public class NotificationController {
 
     @Operation(summary = "알림 읽음 처리", description = "알림을 읽음 처리합니다.")
     @PostMapping("/{notification-id}/read")
+    @ApiExceptionExamples(UpdateNotificationExceptionDocs.class)
     public ApiResponse<CustomBody<Void>> markAsRead(
             @PathVariable("notification-id") Long notificationId,
             @Parameter(hidden = true) @MemberTokenId Long memberId
@@ -50,7 +56,9 @@ public class NotificationController {
         return ApiResponseGenerator.success(HttpStatus.OK);
     }
 
+    @Operation(summary = "모든 알림 읽음 처리", description = "모든 알림을 읽음 처리합니다.")
     @PostMapping("/read-all")
+    @ApiExceptionExamples(BatchUpdateNotificationExceptionDocs.class)
     public ApiResponse<CustomBody<Void>> markAllAsRead(@Parameter(hidden = true) @MemberTokenId Long memberId) {
         notificationService.markAllAsRead(memberId);
         return ApiResponseGenerator.success(HttpStatus.OK);
