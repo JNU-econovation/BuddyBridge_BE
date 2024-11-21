@@ -6,6 +6,11 @@ import econo.buddybridge.comment.dto.CommentReqDto;
 import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
 import econo.buddybridge.comment.service.CommentService;
 import econo.buddybridge.common.annotation.AllowAnonymous;
+import econo.buddybridge.common.docs.comment.CreateCommentExceptionDocs;
+import econo.buddybridge.common.docs.comment.DeleteCommentExceptionDocs;
+import econo.buddybridge.common.docs.comment.GetCommentExceptionDocs;
+import econo.buddybridge.common.docs.comment.UpdateCommentExceptionDocs;
+import econo.buddybridge.common.swagger.ApiExceptionExamples;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponse.CustomBody;
@@ -49,6 +54,7 @@ public class CommentController {
     @Operation(summary = "댓글 조회", description = "게시글의 댓글을 조회합니다.")
     @GetMapping("/{post-id}")
     @AllowAnonymous
+    @ApiExceptionExamples(GetCommentExceptionDocs.class)
     public ApiResponse<CustomBody<CommentCustomPage>> getComments(
             @PathVariable("post-id") Long postId,
             @RequestParam("limit") Integer size,
@@ -61,6 +67,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 생성", description = "게시글에 댓글을 생성합니다.")
     @PostMapping("/{post-id}")
+    @ApiExceptionExamples(CreateCommentExceptionDocs.class)
     public ApiResponse<CustomBody<Long>> createComment(
             @PathVariable("post-id") Long postId,
             @RequestBody CommentReqDto commentReqDto,
@@ -72,6 +79,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 수정", description = "댓글을 수정합니다.")
     @PutMapping("/{comment-id}")
+    @ApiExceptionExamples(UpdateCommentExceptionDocs.class)
     public ApiResponse<CustomBody<Long>> updateComment(
             @PathVariable("comment-id") Long commentId,
             @RequestBody CommentReqDto commentReqDto,
@@ -83,6 +91,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 삭제", description = "댓글을 삭제합니다.")
     @DeleteMapping("/{comment-id}")
+    @ApiExceptionExamples(DeleteCommentExceptionDocs.class)
     public ApiResponse<CustomBody<Void>> deleteComment(
             @PathVariable("comment-id") Long commentId,
             @Parameter(hidden = true) @MemberTokenId Long memberId
