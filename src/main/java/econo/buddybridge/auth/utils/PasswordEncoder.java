@@ -3,22 +3,28 @@ package econo.buddybridge.auth.utils;
 import econo.buddybridge.auth.dto.PasswordHashDto;
 import econo.buddybridge.auth.exception.EncryptFailedException;
 import econo.buddybridge.auth.exception.GenerateSaltFailedException;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Base64;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class PasswordEncoder {
-    
+
+    @Value("${custom.key-stretching.iteration-count}")
+    private int iterationCount;
+
+    @Value("${custom.key-stretching.salt-length}")
+    private int saltLength;
+
     /*
      * 사용자가 입력한 비밀번호, 저장된 비밀번호(해싱됨), 저장된 솔트(암호화) 를 입력 받아
      * 비밀번호의 일치 여부를 확인합니다.
@@ -42,7 +48,7 @@ public class PasswordEncoder {
      * */
     private String hashPassword(String password, byte[] salt) {
         try {
-            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 10000, 128);
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterationCount, 128);
             SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
             byte[] hash = factory.generateSecret(spec).getEncoded();
             return Base64.getEncoder().encodeToString(hash);
@@ -59,7 +65,7 @@ public class PasswordEncoder {
     private byte[] generateRandomSalt() {
         try {
             SecureRandom random = new SecureRandom();
-            byte[] salt = new byte[16];
+            byte[] salt = new byte[saltLength];
             random.nextBytes(salt);
             return salt;
         } catch (Exception e) {

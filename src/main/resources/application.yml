@@ -35,6 +35,9 @@ custom:
     refresh-secret-key: ${JWT_REFRESH_SECRET_KEY}
     access-token-expire-time: ${JWT_ACCESS_TOKEN_EXPIRE_TIME}
     refresh-token-expire-time: ${JWT_REFRESH_TOKEN_EXPIRE_TIME}
+  key-stretching:
+    iteration-count: ${KEY_STRETCHING_ITERATION_COUNT}
+    salt-length: ${KEY_STRETCHING_SALT_LENGTH}
 
 oauth:
   kakao:
