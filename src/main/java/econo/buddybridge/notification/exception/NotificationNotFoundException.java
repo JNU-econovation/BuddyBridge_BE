@@ -4,7 +4,7 @@ import econo.buddybridge.common.exception.BusinessException;
 
 public class NotificationNotFoundException extends BusinessException {
 
-    public static BusinessException EXCEPTION = new NotificationNotFoundException();
+    public static final BusinessException EXCEPTION = new NotificationNotFoundException();
 
     private NotificationNotFoundException() {
         super(NotificationErrorCode.NOTIFICATION_NOT_FOUND);
