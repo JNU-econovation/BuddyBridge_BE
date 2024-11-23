@@ -5,17 +5,19 @@ import econo.buddybridge.auth.jwt.TokenType;
 import econo.buddybridge.auth.jwt.exception.ExpiredTokenException;
 import econo.buddybridge.auth.jwt.exception.InvalidAccessTokenException;
 import econo.buddybridge.auth.jwt.exception.InvalidRefreshTokenException;
+import econo.buddybridge.auth.jwt.exception.LoggedOutTokenException;
 import econo.buddybridge.auth.jwt.exception.MissingTokenException;
 import econo.buddybridge.auth.jwt.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Optional;
-import javax.crypto.SecretKey;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 @Component
 public class JwtTokenProvider {
@@ -92,8 +94,10 @@ public class JwtTokenProvider {
     }
 
     public boolean validateToken(String token, TokenType tokenType) {
+        // Todo : 토큰 만료 시간이 지났는데 parseClaims가 호출되어 토큰 만료가 아닌 올바른 토큰이 아니라는 예외 발생
         Claims claims = parseClaims(token, tokenType);
 
+        // Todo : parseClaims에서 JWT 라이브러리가 발생시키는 예외를 catch에서 잡기
         Date expiration = claims.getExpiration();
         if (expiration.before(new Date())) {
             throw ExpiredTokenException.EXCEPTION;
@@ -114,11 +118,21 @@ public class JwtTokenProvider {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-        } catch (Exception e) {
+        } catch (Exception e) { // Todo : 구체적인 예외 잡고, Exception으로 넘어가기
             if (tokenType.equals(TokenType.ACCESS)) {
                 throw InvalidAccessTokenException.EXCEPTION;
             }
             throw InvalidRefreshTokenException.EXCEPTION;
+        }
+    }
+
+    public void deleteByMemberId(Long memberId) {
+        tokenRepository.deleteById(memberId);
+    }
+
+    public void existsByMemberId(Long memberId) {
+        if (!tokenRepository.existsById(memberId)) {
+            throw LoggedOutTokenException.EXCEPTION;
         }
     }
 }
