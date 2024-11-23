@@ -2,13 +2,14 @@ package econo.buddybridge.config;
 
 import econo.buddybridge.auth.resolver.MemberTokenIdResolver;
 import econo.buddybridge.auth.resolver.MemberTokenResolver;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -42,7 +43,9 @@ public class WebConfig implements WebMvcConfigurer {
                         "/api/oauth/logout",
                         "/swagger-ui/**",
                         "/swagger-resources/**",
-                        "/v3/api-docs/**"
+                        "/v3/api-docs/**",
+                        "/api/auth/signup",
+                        "/api/auth/login"
                 );
     }
 
