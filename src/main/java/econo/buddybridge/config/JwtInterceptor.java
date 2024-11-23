@@ -44,6 +44,10 @@ public class JwtInterceptor implements HandlerInterceptor {
             return jwtTokenProvider.validateToken(token, TokenType.REFRESH);
         }
 
+        // Access Token에서 memberId 추출 후 Refresh Token이 tokenRepository에 존재하는지 확인
+        Long memberId = jwtTokenProvider.getMemberIdFromAccessToken(token);
+        jwtTokenProvider.existsByMemberId(memberId);
+
         return jwtTokenProvider.validateToken(token, TokenType.ACCESS);
     }
 }
