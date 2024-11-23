@@ -36,4 +36,9 @@ public class AuthTokenService {
 
         return generateAuthToken(memberId);
     }
+
+    @Transactional
+    public void logout(Long memberId) {
+        jwtTokenProvider.deleteByMemberId(memberId);
+    }
 }
