@@ -33,4 +33,9 @@ public class AuthService {
     public AuthToken reissue(String refreshToken) {
         return authTokenService.reissue(refreshToken);
     }
+
+    @Transactional
+    public void logout(Long memberId) {
+        authTokenService.logout(memberId);
+    }
 }

@@ -3,6 +3,7 @@ package econo.buddybridge.auth.controller;
 import econo.buddybridge.auth.dto.LoginReqDto;
 import econo.buddybridge.auth.jwt.AuthToken;
 import econo.buddybridge.auth.resolver.MemberToken;
+import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.auth.service.AuthService;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.member.dto.MemberSignUpReqDto;
@@ -26,6 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 @Tag(name = "인증 API", description = "인증 관련 API")
 public class AuthController {
+
+    private static final String LOGOUT_SUCCESS_MESSAGE = "로그아웃 성공";
 
     private final AuthService authService;
 
@@ -57,5 +60,14 @@ public class AuthController {
     ) {
         AuthToken authToken = authService.reissue(token);
         return ApiResponseGenerator.success(authToken, HttpStatus.OK);
+    }
+
+    @Operation(summary = "로그아웃", description = "로그아웃합니다.")
+    @PostMapping("/logout")
+    public ApiResponse<CustomBody<String>> logout(
+            @Parameter(hidden = true) @MemberTokenId Long memberId
+    ) {
+        authService.logout(memberId);
+        return ApiResponseGenerator.success(LOGOUT_SUCCESS_MESSAGE, HttpStatus.OK);
     }
 }
