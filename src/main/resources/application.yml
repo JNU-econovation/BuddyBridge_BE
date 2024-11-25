@@ -61,6 +61,13 @@ logging:
   file: # 로그 파일 설정
     name: /app/application.log
 
+  logback:
+    rollingpolicy:
+      max-history: 30
+      max-file-size: 50MB
+      file-name-pattern: /app/application-%d{yyyy-MM-dd}-%i.log
+      total-size-cap: 2GB
+
 # Register P6LogFactory to log JDBC events
 decorator:
   datasource:
