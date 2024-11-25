@@ -55,8 +55,7 @@ public class AuthController {
     @Operation(summary = "Access Token, Refresh Token 재발급", description = "Refresh Token을 이용해 Access Token과 Refresh Token을 재발급합니다.")
     @PostMapping("/reissue")
     public ApiResponse<CustomBody<AuthToken>> reissue(
-            @Parameter(hidden = true)
-            @MemberToken String token
+            @Parameter(hidden = true) @MemberToken String token
     ) {
         AuthToken authToken = authService.reissue(token);
         return ApiResponseGenerator.success(authToken, HttpStatus.OK);
