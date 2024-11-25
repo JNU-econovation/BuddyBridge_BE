@@ -26,37 +26,52 @@ public class StompChannelInterceptor implements ChannelInterceptor {
 
     private final static String PREFIX = "Bearer ";
     private final static String AUTHORIZATION = "Authorization";
-    private final static String MEMBER_ID = "memberId";
 
     @Override // 커스텀 헤더의 JWT를 가져옴
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-        processAuthentication(accessor);
+
+        if (accessor != null) {
+            processAuthentication(accessor);
+        }
+
         return message;
     }
 
     private void processAuthentication(StompHeaderAccessor accessor) {
-        if (accessor != null && accessor.getCommand() == StompCommand.CONNECT) { // 연결 시 헤더 확인
-            String token = Objects.requireNonNull(accessor.getFirstNativeHeader(AUTHORIZATION));
 
-            if (!token.startsWith(PREFIX)) {
-                throw InvalidAccessTokenException.EXCEPTION;
-            }
+        if (accessor.getCommand() == StompCommand.CONNECT) {
+            log.info("STOMP COMMAND : {}", accessor.getCommand());
+            Long memberId = validateAndGetMemberId(accessor);
+            setPrincipal(accessor, memberId);
+        }
 
-            token = token.replace(PREFIX, "");
-            validateAndSetHeader(token, accessor);
+        if (accessor.getCommand() == StompCommand.SEND) {
+            validateAndGetMemberId(accessor);
         }
     }
+    
+    private Long validateAndGetMemberId(StompHeaderAccessor accessor) {
+        String token = Objects.requireNonNull(accessor.getFirstNativeHeader(AUTHORIZATION));
 
-    private void validateAndSetHeader(String token, StompHeaderAccessor accessor) {
+        if (!token.startsWith(PREFIX)) {
+            throw InvalidAccessTokenException.EXCEPTION;
+        }
+
+        token = token.replace(PREFIX, "");
         jwtTokenProvider.validateToken(token, TokenType.ACCESS);
-        Long memberId = jwtTokenProvider.getMemberIdFromAccessToken(token);
-        accessor.addNativeHeader(MEMBER_ID, memberId.toString());
-        accessor.setUser(new Principal() {
-            @Override
-            public String getName() {
-                return memberId.toString();
-            }
-        });
+        return jwtTokenProvider.getMemberIdFromAccessToken(token);
+    }
+
+    private void setPrincipal(StompHeaderAccessor accessor, Long memberId) {
+
+        if (accessor.getUser() == null) {
+            accessor.setUser(new Principal() {
+                @Override
+                public String getName() {
+                    return memberId.toString();
+                }
+            });
+        }
     }
 }
