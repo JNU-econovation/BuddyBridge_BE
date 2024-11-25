@@ -37,35 +37,26 @@ public class StompChannelInterceptor implements ChannelInterceptor {
 
     private void processAuthentication(StompHeaderAccessor accessor) {
         if (accessor != null && accessor.getCommand() == StompCommand.CONNECT) { // 연결 시 헤더 확인
-            try {
-                String token = Objects.requireNonNull(accessor.getFirstNativeHeader(AUTHORIZATION));
+            String token = Objects.requireNonNull(accessor.getFirstNativeHeader(AUTHORIZATION));
 
-                if (!token.startsWith(PREFIX)) {
-                    throw InvalidAccessTokenException.EXCEPTION;
-                }
-
-                token = token.replace(PREFIX, "");
-                validateAndSetHeader(token, accessor);
-            } catch (Exception e) {
-                log.error("인가 실패 : {}", e.getMessage());
+            if (!token.startsWith(PREFIX)) {
                 throw InvalidAccessTokenException.EXCEPTION;
             }
+
+            token = token.replace(PREFIX, "");
+            validateAndSetHeader(token, accessor);
         }
     }
 
     private void validateAndSetHeader(String token, StompHeaderAccessor accessor) {
-        try {
-            jwtTokenProvider.validateToken(token, TokenType.ACCESS);
-            Long memberId = jwtTokenProvider.getMemberIdFromAccessToken(token);
-            accessor.addNativeHeader(MEMBER_ID, memberId.toString());
-            accessor.setUser(new Principal() {
-                @Override
-                public String getName() {
-                    return memberId.toString();
-                }
-            });
-        } catch (Exception e) {
-            throw InvalidAccessTokenException.EXCEPTION;
-        }
+        jwtTokenProvider.validateToken(token, TokenType.ACCESS);
+        Long memberId = jwtTokenProvider.getMemberIdFromAccessToken(token);
+        accessor.addNativeHeader(MEMBER_ID, memberId.toString());
+        accessor.setUser(new Principal() {
+            @Override
+            public String getName() {
+                return memberId.toString();
+            }
+        });
     }
 }
