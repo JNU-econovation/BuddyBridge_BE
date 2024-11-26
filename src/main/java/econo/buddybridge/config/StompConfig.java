@@ -1,5 +1,6 @@
 package econo.buddybridge.config;
 
+import econo.buddybridge.websocket.ChatErrorHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -14,11 +15,13 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
     private final StompChannelInterceptor stompChannelInterceptor;
+    private final ChatErrorHandler chatErrorHandler;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/socket/connect") // ws://{BASE_URL}/socket/connect 로 연결 설정
                 .setAllowedOriginPatterns("*"); // CORS 허용
+        registry.setErrorHandler(chatErrorHandler); // 에러 핸들러 설정(커스텀 에러 핸들러)
     }
 
     @Override
