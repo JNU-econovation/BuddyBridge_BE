@@ -56,7 +56,7 @@ logging:
 
     p6spy: info
 
-    study.learnsocket.auth.kakao: debug # FeignClient 로그 레벨 설정
+    econo.buddybridge.auth.client.kakao: debug
 
   file: # 로그 파일 설정
     name: /app/application.log
@@ -95,6 +95,14 @@ spring:
     init:
       mode: never
 
+logging:
+  level:
+    org.springframework:
+      transaction.interceptor: trace    # 트랜잭션 로그 설정
+
+    p6spy: warn
+
+    econo.buddybridge.auth.client.kakao: error
 ---
 spring:
   config:
@@ -108,3 +116,12 @@ spring:
   sql:
     init:
       mode: never
+
+logging:
+  level:
+    org.springframework:
+      transaction.interceptor:     # 트랜잭션 로그 설정
+
+    p6spy: warn
+
+    econo.buddybridge.auth.client.kakao: error
