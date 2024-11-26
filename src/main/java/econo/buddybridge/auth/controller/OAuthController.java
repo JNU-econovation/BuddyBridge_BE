@@ -57,19 +57,16 @@ public class OAuthController {
 
     @Operation(summary = "카카오 소셜 로그인 (코드로 로그인)", description = "Redirect URL이 백엔드 주소로 설정될 때 사용합니다.")
     @GetMapping("/login")
-    public ApiResponse<CustomBody<MemberResDto>> login(@RequestParam("code") String code, HttpServletRequest request) {
+    public ApiResponse<CustomBody<AuthToken>> login(@RequestParam("code") String code) {
         KakaoLoginParams params = new KakaoLoginParams(code);
 
-        MemberResDto memberDto = oAuthLoginService.login(params);
-
-        HttpSession session = request.getSession(true);
-        session.setAttribute("memberId", memberDto.memberId());
+        AuthToken authToken = oAuthLoginService.loginWithToken(params);
 
         // 프론트엔드 주소로 redirect
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(URI.create(frontUrl));
 
-        return ApiResponseGenerator.success(memberDto, httpHeaders, HttpStatus.PERMANENT_REDIRECT);
+        return ApiResponseGenerator.success(authToken, httpHeaders, HttpStatus.PERMANENT_REDIRECT);
     }
 
     @Operation(summary = "카카오 소셜 로그인 (토큰으로 로그인)", description = "Redirect URL이 프론트엔드 주소로 설정될 때 사용합니다.")
