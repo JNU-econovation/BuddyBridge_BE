@@ -68,14 +68,8 @@ public class Member extends BaseEntity {
         this.kakaoToken = kakaoToken;
     }
 
-    public void updateMemberInfo(String name, String nickname, String profileImageUrl, String email, Integer age,
-                                 DisabilityType disabilityType, Gender gender) {
-        this.name = name;
+    public void updateMemberInfo(String nickname, DisabilityType disabilityType) {
         this.nickname = nickname;
-        this.profileImageUrl = profileImageUrl;
-        this.email = email;
-        this.age = age;
         this.disabilityType = disabilityType;
-        this.gender = gender;
     }
 }

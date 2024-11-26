@@ -64,8 +64,7 @@ public class MemberService {
     public void updateMemberById(Long memberId, MemberReqDto memberReqDto) {
         Member member = findMemberByIdOrThrow(memberId);
 
-        member.updateMemberInfo(memberReqDto.name(), memberReqDto.nickname(), memberReqDto.profileImageUrl(),
-                memberReqDto.email(), memberReqDto.age(), memberReqDto.disabilityType(), member.getGender());
+        member.updateMemberInfo(memberReqDto.nickname(), memberReqDto.disabilityType());
     }
 
     @Transactional
