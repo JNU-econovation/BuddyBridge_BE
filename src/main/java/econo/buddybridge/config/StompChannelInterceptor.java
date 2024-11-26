@@ -2,7 +2,6 @@ package econo.buddybridge.config;
 
 
 import econo.buddybridge.auth.jwt.TokenType;
-import econo.buddybridge.auth.jwt.exception.InvalidAccessTokenException;
 import econo.buddybridge.auth.jwt.service.JwtTokenProvider;
 import econo.buddybridge.websocket.WebSocketPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +13,6 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -52,18 +49,13 @@ public class StompChannelInterceptor implements ChannelInterceptor {
     }
 
     private Long validateAndGetMemberId(StompHeaderAccessor accessor) {
-        String token = Objects.requireNonNull(accessor.getFirstNativeHeader(AUTHORIZATION));
-
-        if (!token.startsWith(PREFIX)) {
-            throw InvalidAccessTokenException.EXCEPTION;
-        }
-
-        token = token.replace(PREFIX, "");
+        String token = jwtTokenProvider.extractToken(accessor.getFirstNativeHeader(AUTHORIZATION));
         jwtTokenProvider.validateToken(token, TokenType.ACCESS);
         return jwtTokenProvider.getMemberIdFromAccessToken(token);
     }
 
     private void setPrincipal(StompHeaderAccessor accessor, Long memberId) {
+        
         if (accessor.getUser() == null) {
             accessor.setUser(WebSocketPrincipal.of(memberId));
         }
