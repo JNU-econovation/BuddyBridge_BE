@@ -24,9 +24,9 @@ public class ChatMessageController {
     public ChatMessageResDto sendMessage(
             @DestinationVariable("matching-id") Long matchingId,
             @Payload ChatMessageReqDto chatMessageReqDto,
-            @Header("Authorization") String token
+            @Header("Authorization") String header
     ) {
-        String accessToken = jwtTokenProvider.extractToken(token);
+        String accessToken = jwtTokenProvider.extractToken(header);
         Long senderId = jwtTokenProvider.getMemberIdFromAccessToken(accessToken);
         return chatMessageService.save(senderId, chatMessageReqDto, matchingId);
     }
