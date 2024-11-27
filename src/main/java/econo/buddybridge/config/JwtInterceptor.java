@@ -1,6 +1,5 @@
 package econo.buddybridge.config;
 
-import econo.buddybridge.auth.jwt.TokenType;
 import econo.buddybridge.auth.jwt.service.JwtTokenProvider;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +17,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 @RequiredArgsConstructor
 public class JwtInterceptor implements HandlerInterceptor {
+
+    private static final String REISSUE_URI = "/api/auth/reissue";
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -40,10 +41,12 @@ public class JwtInterceptor implements HandlerInterceptor {
         String token = jwtTokenProvider.extractToken(request.getHeader(HttpHeaders.AUTHORIZATION));
 
         // reissue 엔드포인트로 요청이 들어오면 refresh token 검증
-        if (request.getRequestURI().contains("/reissue")) {
-            return jwtTokenProvider.validateToken(token, TokenType.REFRESH);
+        if (request.getRequestURI().equals(REISSUE_URI)) {
+            return jwtTokenProvider.validateRefreshToken(token);
         }
 
-        return jwtTokenProvider.validateToken(token, TokenType.ACCESS);
+        // Access Token에서 memberId 추출 후 Refresh Token이 tokenRepository에 존재하는지 확인
+        Long memberId = jwtTokenProvider.getMemberIdFromAccessToken(token);
+        return jwtTokenProvider.existsByMemberIdOrThrow(memberId);
     }
 }
