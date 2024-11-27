@@ -125,7 +125,7 @@ public class JwtTokenProvider {
         tokenRepository.deleteById(memberId);
     }
 
-    public void existsByMemberId(Long memberId) {
+    public void validateRefreshTokenExistsByMemberId(Long memberId) {
         if (!tokenRepository.existsById(memberId)) {
             throw LoggedOutTokenException.EXCEPTION;
         }

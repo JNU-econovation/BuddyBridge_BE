@@ -41,7 +41,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 
         // Access Token에서 memberId 추출 후 Refresh Token이 tokenRepository에 존재하는지 확인
         Long memberId = jwtTokenProvider.getMemberIdFromAccessToken(token);
-        jwtTokenProvider.existsByMemberId(memberId);
+        jwtTokenProvider.validateRefreshTokenExistsByMemberId(memberId);
 
         // reissue 엔드포인트로 요청이 들어오면 refresh token 검증
         if (request.getRequestURI().contains("/reissue")) {
