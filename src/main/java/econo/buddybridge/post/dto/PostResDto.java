@@ -10,9 +10,10 @@ import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.entity.ScheduleType;
+import lombok.Builder;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import lombok.Builder;
 
 @Builder
 public record PostResDto(
@@ -35,7 +36,6 @@ public record PostResDto(
         Integer age,
         @JsonFormat(pattern = "HH:mm") LocalTime assistanceStartTime,
         @JsonFormat(pattern = "HH:mm") LocalTime assistanceEndTime,
-        Integer headcount,
         Integer matchingDoneCount,
         Boolean isLiked
 ) {
@@ -61,7 +61,6 @@ public record PostResDto(
                 post.getAge(),
                 post.getAssistanceTime().getAssistanceStartTime(),
                 post.getAssistanceTime().getAssistanceEndTime(),
-                post.getHeadcount(),
                 matchingDoneCount,
                 isLiked
         );

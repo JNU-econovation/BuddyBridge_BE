@@ -129,7 +129,6 @@ public class Post extends BaseEntity {
         this.gender = postUpdateReqDto.gender() != null ? postUpdateReqDto.gender() : this.gender;
         this.age = postUpdateReqDto.age() != null ? postUpdateReqDto.age() : this.age;
         this.assistanceTime = updateAssistanceTime != null ? updateAssistanceTime : this.assistanceTime;
-        this.headcount = postUpdateReqDto.headcount() != null ? postUpdateReqDto.headcount() : this.headcount;
     }
 
 }
