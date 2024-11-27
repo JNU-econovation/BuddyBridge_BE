@@ -11,6 +11,7 @@ import econo.buddybridge.post.entity.Schedule;
 import econo.buddybridge.post.entity.ScheduleType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import java.time.LocalTime;
 @Builder
 public record PostReqDto(
         @NotBlank(message = "제목을 입력해주세요.")
+        @Size(max = 30, message = "제목은 30자 이내로 작성해주세요.")
         String title,
 
         @NotNull(message = "도움 종류를 선택해주세요. 교육 or 생활")
@@ -40,6 +42,7 @@ public record PostReqDto(
         District district,
 
         @NotBlank(message = "상세 내용을 입력해주세요.")
+        @Size(max = 500, message = "상세 내용은 500자 이내로 작성해주세요.")
         String content,
 
         @NotNull(message = "게시글 종류를 선택해주세요. TAKER or GIVER")
