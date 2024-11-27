@@ -94,8 +94,8 @@ public class JwtTokenProvider {
         return Optional.of(header.substring(BEARER_PREFIX.length()));
     }
 
-    public boolean validateToken(String token, TokenType tokenType) {
-        parseClaims(token, tokenType);
+    public boolean validateRefreshToken(String token) {
+        parseClaims(token, TokenType.REFRESH);
         return true;
     }
 
@@ -125,13 +125,10 @@ public class JwtTokenProvider {
         tokenRepository.deleteById(memberId);
     }
 
-    public void validateRefreshTokenExistsByMemberId(Long memberId) {
+    public boolean existsByMemberIdOrThrow(Long memberId) {
         if (!tokenRepository.existsById(memberId)) {
             throw LoggedOutTokenException.EXCEPTION;
         }
-    }
-
-    public boolean existsByMemberId(Long memberId) {
         return tokenRepository.existsById(memberId);
     }
 }
