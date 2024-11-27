@@ -15,11 +15,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,8 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.net.URI;
 
 @Slf4j
 @RestController
@@ -57,16 +56,18 @@ public class OAuthController {
 
     @Operation(summary = "카카오 소셜 로그인 (코드로 로그인)", description = "Redirect URL이 백엔드 주소로 설정될 때 사용합니다.")
     @GetMapping("/login")
-    public ApiResponse<CustomBody<AuthToken>> login(@RequestParam("code") String code) {
+    public void login(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
         KakaoLoginParams params = new KakaoLoginParams(code);
 
         AuthToken authToken = oAuthLoginService.loginWithToken(params);
 
-        // 프론트엔드 주소로 redirect
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(URI.create(frontUrl));
+        String redirectUrl = String.format("%s/?accessToken=%s&refreshToken=%s",
+                frontUrl,
+                authToken.accessToken(),
+                authToken.refreshToken()
+        );
 
-        return ApiResponseGenerator.success(authToken, httpHeaders, HttpStatus.PERMANENT_REDIRECT);
+        response.sendRedirect(redirectUrl);
     }
 
     @Operation(summary = "카카오 소셜 로그인 (토큰으로 로그인)", description = "Redirect URL이 프론트엔드 주소로 설정될 때 사용합니다.")
