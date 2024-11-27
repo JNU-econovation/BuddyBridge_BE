@@ -63,13 +63,13 @@ public class CommentService {
         Member member = memberService.findMemberByIdOrThrow(memberId);
         Post post = postService.findPostByIdOrThrow(postId);
 
+        if (post.getGender() != member.getGender()) {
+            throw CommentSameGenderOnlyException.EXCEPTION;
+        }
+
         // 기존에 댓글을 작성한 적이 있는지 확인하고 있다면 댓글 작성 불가
         if (commentRepository.existsByPostAndAuthor(post, member)) {
             throw CommentAlreadyWrittenException.EXCEPTION;
-        }
-
-        if (post.getGender() != member.getGender()) {
-            throw CommentSameGenderOnlyException.EXCEPTION;
         }
 
         Comment comment = commentReqToComment(commentReqDto, post, member);
