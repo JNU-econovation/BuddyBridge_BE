@@ -1,8 +1,5 @@
 package econo.buddybridge.comment.service;
 
-import static econo.buddybridge.common.consts.BuddyBridgeStatic.COMMENT_NOTIFICATION_MESSAGE;
-import static econo.buddybridge.common.consts.BuddyBridgeStatic.getCommentNotificationUrl;
-
 import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentReqDto;
 import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
@@ -11,6 +8,7 @@ import econo.buddybridge.comment.exception.CommentAlreadyWrittenException;
 import econo.buddybridge.comment.exception.CommentDeleteNotAllowedException;
 import econo.buddybridge.comment.exception.CommentInvalidDirectionException;
 import econo.buddybridge.comment.exception.CommentNotFoundException;
+import econo.buddybridge.comment.exception.CommentSameGenderOnlyException;
 import econo.buddybridge.comment.exception.CommentUpdateNotAllowedException;
 import econo.buddybridge.comment.repository.CommentRepository;
 import econo.buddybridge.member.entity.Member;
@@ -26,6 +24,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static econo.buddybridge.common.consts.BuddyBridgeStatic.COMMENT_NOTIFICATION_MESSAGE;
+import static econo.buddybridge.common.consts.BuddyBridgeStatic.getCommentNotificationUrl;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +62,10 @@ public class CommentService {
     public Long createComment(CommentReqDto commentReqDto, Long postId, Long memberId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
         Post post = postService.findPostByIdOrThrow(postId);
+
+        if (post.getGender() != member.getGender()) {
+            throw CommentSameGenderOnlyException.EXCEPTION;
+        }
 
         // 기존에 댓글을 작성한 적이 있는지 확인하고 있다면 댓글 작성 불가
         if (commentRepository.existsByPostAndAuthor(post, member)) {
