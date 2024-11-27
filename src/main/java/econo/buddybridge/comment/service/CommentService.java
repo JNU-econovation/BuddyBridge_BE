@@ -63,7 +63,7 @@ public class CommentService {
         Member member = memberService.findMemberByIdOrThrow(memberId);
         Post post = postService.findPostByIdOrThrow(postId);
 
-        if (post.getGender() != (member.getGender())) {
+        if (post.getGender() != member.getGender()) {
             throw CommentSameGenderOnlyException.EXCEPTION;
         }
 
