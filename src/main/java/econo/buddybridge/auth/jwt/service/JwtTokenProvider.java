@@ -130,4 +130,8 @@ public class JwtTokenProvider {
             throw LoggedOutTokenException.EXCEPTION;
         }
     }
+
+    public boolean existsByMemberId(Long memberId) {
+        return tokenRepository.existsById(memberId);
+    }
 }

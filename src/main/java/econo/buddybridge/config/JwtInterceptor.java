@@ -48,6 +48,6 @@ public class JwtInterceptor implements HandlerInterceptor {
             return jwtTokenProvider.validateToken(token, TokenType.REFRESH);
         }
 
-        return jwtTokenProvider.validateToken(token, TokenType.ACCESS);
+        return jwtTokenProvider.existsByMemberId(memberId);
     }
 }
