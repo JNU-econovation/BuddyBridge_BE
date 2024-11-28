@@ -4,8 +4,8 @@ import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.dto.PostCustomPage;
+import econo.buddybridge.post.dto.PostDetailDto;
 import econo.buddybridge.post.dto.PostEnumResDto;
-import econo.buddybridge.post.dto.PostListItemDto;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostUpdateReqDto;
 import econo.buddybridge.post.entity.AssistanceType;
@@ -107,12 +107,12 @@ public class PostController {
     @Operation(summary = "게시글 조회", description = "게시글을 조회합니다.")
     @GetMapping("/{post-id}")
     @AllowAnonymous
-    public ApiResponse<ApiResponse.CustomBody<PostListItemDto>> getPost(
+    public ApiResponse<ApiResponse.CustomBody<PostDetailDto>> getPost(
             @PathVariable("post-id") Long postId,
             @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        PostListItemDto postListItemDto = postService.findPost(memberId, postId);
-        return ApiResponseGenerator.success(postListItemDto, HttpStatus.OK);
+        PostDetailDto postDetailDto = postService.findPost(memberId, postId);
+        return ApiResponseGenerator.success(postDetailDto, HttpStatus.OK);
     }
 
     // 게시글 업데이트

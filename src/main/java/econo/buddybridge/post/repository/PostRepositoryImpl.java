@@ -3,9 +3,9 @@ package econo.buddybridge.post.repository;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.dto.PostCustomPage;
+import econo.buddybridge.post.dto.PostDetailDto;
 import econo.buddybridge.post.dto.PostListItemDto;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.Post;
@@ -27,10 +27,9 @@ import static econo.buddybridge.post.entity.QPostLike.postLike;
 public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-    private final MatchingRepository matchingRepository;
 
     @Override // 단일 게시글 조회
-    public PostListItemDto findByMemberIdAndPostId(Long memberId, Long postId) {
+    public PostDetailDto findByMemberIdAndPostId(Long memberId, Long postId) {
         Post content = queryFactory
                 .selectFrom(post)
                 .where(post.id.eq(postId))
@@ -46,7 +45,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .where(postLike.member.id.eq(memberId), postLike.post.id.eq(postId))
                 .fetchOne() != null;
 
-        return new PostListItemDto(content, isLiked);
+        return new PostDetailDto(content, isLiked);
     }
 
     @Override // 게시글 목록 조회

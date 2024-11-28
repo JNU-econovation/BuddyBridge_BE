@@ -4,8 +4,8 @@ import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.dto.PostCustomPage;
+import econo.buddybridge.post.dto.PostDetailDto;
 import econo.buddybridge.post.dto.PostEnumResDto;
-import econo.buddybridge.post.dto.PostListItemDto;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostUpdateReqDto;
 import econo.buddybridge.post.entity.AssistanceType;
@@ -39,7 +39,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true) // 단일 게시글 조회
-    public PostListItemDto findPost(Long memberId, Long postId) {
+    public PostDetailDto findPost(Long memberId, Long postId) {
         return postRepository.findByMemberIdAndPostId(memberId, postId);
     }
 
