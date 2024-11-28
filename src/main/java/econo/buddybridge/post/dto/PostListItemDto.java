@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Builder
-public record PostResDto(
+public record PostListItemDto(
         Long id,
         MemberResDto author,
         String title,
@@ -40,7 +40,7 @@ public record PostResDto(
         Boolean isLiked
 ) {
 
-    public PostResDto(Post post, Boolean isLiked, Integer matchingDoneCount) {
+    public PostListItemDto(Post post, Boolean isLiked, Integer matchingDoneCount) {
         this(
                 post.getId(),
                 new MemberResDto(post.getAuthor()),
