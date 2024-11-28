@@ -86,8 +86,6 @@ public class Post extends BaseEntity {
     @Embedded
     private AssistanceTime assistanceTime; // 게시글 - 봉사 시간(시작 & 종료)
 
-    private Integer headcount; // 모집 최대 인원
-
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<Matching> matchings = new ArrayList<>();
 

@@ -77,7 +77,6 @@ public record PostReqDto(
                         .assistanceStartTime(assistanceStartTime)
                         .assistanceEndTime(assistanceEndTime)
                         .build())
-                .headcount(1)
                 .build();
     }
 }
