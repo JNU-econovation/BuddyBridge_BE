@@ -46,6 +46,7 @@ public class MatchingService {
     @Transactional
     public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId) {
         Post post = postService.findPostByIdOrThrow(matchingReqDto.postId());
+        validatePostAuthor(post, memberId);
 
         Member loginMember = memberService.findMemberByIdOrThrow(memberId);
 
@@ -59,7 +60,10 @@ public class MatchingService {
             taker = loginMember;
         }
 
-        validatePostAuthor(post, memberId);
+        // 매칭이 이미 완료된 경우 매칭 생성 불가
+        if (matchingRepository.existsByPostIdAndMatchingStatus(post.getId())) {
+            throw MatchingCompletedException.EXCEPTION;
+        }
 
         Matching matching = matchingReqToMatching(post, taker, giver);
 
@@ -77,17 +81,16 @@ public class MatchingService {
 
     @Transactional // 매칭 업데이트
     public Long updateMatching(Long matchingId, MatchingUpdateDto matchingUpdateDto, Long memberId) {
-
         Matching matching = findMatchingByIdOrThrow(matchingId);
         validatePostAuthor(matching.getPost(), memberId);
-    
-        // 모집이 완료되었으며, 상태가 DONE인 경우 예외 처리
-        if (isFullAndMatchingStatusIsDone(matching.getPost(), matchingUpdateDto.matchingStatus())) {
+
+        // 매칭이 완료되었으며, 상태가 DONE인 경우 예외 처리
+        if (isMatchingStatusDoneAndRequestIsDone(matching.getPost().getId(), matchingUpdateDto.matchingStatus())) {
             throw MatchingCompletedException.EXCEPTION;
         }
 
         matching.updateMatching(matchingUpdateDto.matchingStatus());
-        updatePostStatusByMatchingDoneCount(matching.getPost().getId());
+        updatePostStatusByMatchingDoneExists(matching.getPost().getId());
         return matching.getId();
     }
 
@@ -109,19 +112,16 @@ public class MatchingService {
                 .build();
     }
 
-    private void updatePostStatusByMatchingDoneCount(Long postId) {
+    private void updatePostStatusByMatchingDoneExists(Long postId) {
         Post post = postService.findPostByIdOrThrow(postId);
-
-        Integer headcount = post.getHeadcount();
-        Integer matchingDoneCount = matchingRepository.countMatchingDoneByPostId(postId);
-
-        PostStatus status = headcount.equals(matchingDoneCount) ? PostStatus.FINISHED : PostStatus.RECRUITING;
+        Boolean isMatchingDone = matchingRepository.existsByPostIdAndMatchingStatus(postId);
+        PostStatus status = isMatchingDone ? PostStatus.FINISHED : PostStatus.RECRUITING;
         post.changeStatus(status);
     }
 
-    private boolean isFullAndMatchingStatusIsDone(Post post, MatchingStatus matchingStatus) {
-        Integer matchingDoneCount = matchingRepository.countMatchingDoneByPostId(post.getId());
-        return post.getHeadcount().equals(matchingDoneCount) && matchingStatus == MatchingStatus.DONE;
+    private boolean isMatchingStatusDoneAndRequestIsDone(Long postId, MatchingStatus matchingStatus) {
+        Boolean isMatchingDone = matchingRepository.existsByPostIdAndMatchingStatus(postId);
+        return isMatchingDone && matchingStatus == MatchingStatus.DONE;
     }
 
     // 게시글 작성 회원과 현재 로그인한 회원 일치 여부 판단
