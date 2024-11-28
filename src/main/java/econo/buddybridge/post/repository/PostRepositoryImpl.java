@@ -46,7 +46,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .where(postLike.member.id.eq(memberId), postLike.post.id.eq(postId))
                 .fetchOne() != null;
 
-        return new PostListItemDto(content, isLiked, getMatchingDoneCount(postId));
+        return new PostListItemDto(content, isLiked);
     }
 
     @Override // 게시글 목록 조회
@@ -107,7 +107,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .orderBy(buildOrderSpecifier(sort, postLike.post))
                 .fetch()
                 .stream()
-                .map(post -> new PostListItemDto(post, true, getMatchingDoneCount(post.getId())))
+                .map(post -> new PostListItemDto(post, true))
                 .toList();
 
         Long totalElements = queryFactory
@@ -131,17 +131,13 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
             );
 
             return posts.stream()
-                    .map(post -> new PostListItemDto(post, postLikedIds.contains(post.getId()), getMatchingDoneCount(post.getId())))
+                    .map(post -> new PostListItemDto(post, postLikedIds.contains(post.getId())))
                     .toList();
         }
 
         return posts.stream()
-                .map(post -> new PostListItemDto(post, false, getMatchingDoneCount(post.getId())))
+                .map(post -> new PostListItemDto(post, false))
                 .toList();
-    }
-
-    private Integer getMatchingDoneCount(Long postId) {
-        return matchingRepository.countMatchingDoneByPostId(postId);
     }
 
     private BooleanExpression buildMemberIdExpression(Long memberId) {

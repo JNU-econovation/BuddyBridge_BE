@@ -1,9 +1,7 @@
 package econo.buddybridge.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.entity.DisabilityType;
-import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.Post;
@@ -18,50 +16,34 @@ import java.time.LocalTime;
 @Builder
 public record PostListItemDto(
         Long id,
-        MemberResDto author,
         String title,
         AssistanceType assistanceType,
         LocalDateTime startDate,
         LocalDateTime endDate,
         ScheduleType scheduleType,
-        String scheduleDetails,
         District district,
-        String content,
         PostType postType,
-        LocalDateTime createdAt,
-        LocalDateTime modifiedAt,
         PostStatus postStatus,
         DisabilityType disabilityType,
-        Gender gender,
-        Integer age,
         @JsonFormat(pattern = "HH:mm") LocalTime assistanceStartTime,
         @JsonFormat(pattern = "HH:mm") LocalTime assistanceEndTime,
-        Integer matchingDoneCount,
         Boolean isLiked
 ) {
 
-    public PostListItemDto(Post post, Boolean isLiked, Integer matchingDoneCount) {
+    public PostListItemDto(Post post, Boolean isLiked) {
         this(
                 post.getId(),
-                new MemberResDto(post.getAuthor()),
                 post.getTitle(),
                 post.getAssistanceType(),
                 post.getSchedule().getStartDate(),
                 post.getSchedule().getEndDate(),
                 post.getSchedule().getScheduleType(),
-                post.getSchedule().getScheduleDetails(),
                 post.getDistrict(),
-                post.getContent(),
                 post.getPostType(),
-                post.getCreatedAt(),
-                post.getModifiedAt(),
                 post.getPostStatus(),
                 post.getDisabilityType(),
-                post.getGender(),
-                post.getAge(),
                 post.getAssistanceTime().getAssistanceStartTime(),
                 post.getAssistanceTime().getAssistanceEndTime(),
-                matchingDoneCount,
                 isLiked
         );
     }
