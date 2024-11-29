@@ -13,7 +13,6 @@ import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.entity.Post;
-import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.exception.PostUnauthorizedAccessException;
 import econo.buddybridge.post.service.PostService;
@@ -95,8 +94,6 @@ public class MatchingService {
         }
 
         matching.updateMatchingStatus(updateStatus);
-        changePostStatus(post);
-
         return matching.getId();
     }
 
@@ -104,13 +101,6 @@ public class MatchingService {
         return matchingRepository.findByPostId(post.getId())
                 .stream()
                 .anyMatch(m -> m.getMatchingStatus() == MatchingStatus.DONE);
-    }
-
-    private void changePostStatus(Post post) {
-        boolean isMatchingDone = existsMatchingDone(post);
-
-        PostStatus postStatus = isMatchingDone ? PostStatus.FINISHED : PostStatus.RECRUITING;
-        post.updatePostStatus(postStatus);
     }
 
     @Transactional // 매칭 삭제
