@@ -46,17 +46,17 @@ public class MatchingService {
     @Transactional
     public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId) {
         Post post = postService.findPostByIdOrThrow(matchingReqDto.postId());
-        validatePostAuthor(post, memberId);
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+        validatePostAuthor(post, author);
 
-        Member loginMember = memberService.findMemberByIdOrThrow(memberId);
         Member taker, giver;
 
         if (post.getPostType() == PostType.GIVER) {
-            giver = loginMember;
+            giver = author;
             taker = memberService.findMemberByIdOrThrow(matchingReqDto.takerId());
         } else {
             giver = memberService.findMemberByIdOrThrow(matchingReqDto.giverId());
-            taker = loginMember;
+            taker = author;
         }
 
         if (existsMatchingDone(post)) {
@@ -85,7 +85,8 @@ public class MatchingService {
     public Long updateMatching(Long matchingId, MatchingUpdateDto matchingUpdateDto, Long memberId) {
         Matching matching = findMatchingByIdOrThrow(matchingId);
         Post post = postService.findPostByIdOrThrow(matching.getPost().getId());
-        validatePostAuthor(post, memberId);
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+        validatePostAuthor(post, author);
 
         MatchingStatus updateStatus = matchingUpdateDto.matchingStatus();
 
@@ -115,7 +116,8 @@ public class MatchingService {
     @Transactional // 매칭 삭제
     public void deleteMatching(Long matchingId, Long memberId) {
         Matching matching = findMatchingByIdOrThrow(matchingId);
-        validatePostAuthor(matching.getPost(), memberId);
+        Member loginMember = memberService.findMemberByIdOrThrow(memberId);
+        validatePostAuthor(matching.getPost(), loginMember);
 
         matchingRepository.delete(matching);
     }
@@ -131,9 +133,8 @@ public class MatchingService {
     }
 
     // 게시글 작성 회원과 현재 로그인한 회원 일치 여부 판단
-    private void validatePostAuthor(Post post, Long memberId) {
-        if ((post.getPostType() == PostType.GIVER && !post.getAuthor().getId().equals(memberId)) ||
-                (post.getPostType() == PostType.TAKER && !post.getAuthor().getId().equals(memberId))) {
+    private void validatePostAuthor(Post post, Member author) {
+        if (!post.getAuthor().equals(author)) {
             throw PostUnauthorizedAccessException.EXCEPTION;
         }
     }
