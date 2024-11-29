@@ -49,7 +49,6 @@ public class MatchingService {
         validatePostAuthor(post, memberId);
 
         Member loginMember = memberService.findMemberByIdOrThrow(memberId);
-
         Member taker, giver;
 
         if (post.getPostType() == PostType.GIVER) {
@@ -60,13 +59,18 @@ public class MatchingService {
             taker = loginMember;
         }
 
-        // 매칭이 이미 완료된 경우 매칭 생성 불가
-        if (matchingRepository.existsByPostIdAndMatchingStatus(post.getId())) {
+        if (existsMatchingDone(post)) {
             throw MatchingCompletedException.EXCEPTION;
         }
 
         Matching matching = matchingReqToMatching(post, taker, giver);
 
+        saveFirstChatMessage(matching, taker);
+
+        return matchingRepository.save(matching).getId();
+    }
+
+    private void saveFirstChatMessage(Matching matching, Member taker) {
         chatMessageRepository.save(
                 ChatMessage.builder()
                         .matching(matching)
@@ -75,23 +79,37 @@ public class MatchingService {
                         .sender(taker)
                         .build()
         );
-
-        return matchingRepository.save(matching).getId();
     }
 
     @Transactional // 매칭 업데이트
     public Long updateMatching(Long matchingId, MatchingUpdateDto matchingUpdateDto, Long memberId) {
         Matching matching = findMatchingByIdOrThrow(matchingId);
-        validatePostAuthor(matching.getPost(), memberId);
+        Post post = postService.findPostByIdOrThrow(matching.getPost().getId());
+        validatePostAuthor(post, memberId);
 
-        // 매칭이 완료되었으며, 상태가 DONE인 경우 예외 처리
-        if (isMatchingStatusDoneAndRequestIsDone(matching.getPost().getId(), matchingUpdateDto.matchingStatus())) {
+        MatchingStatus updateStatus = matchingUpdateDto.matchingStatus();
+
+        if (existsMatchingDone(post) && updateStatus == MatchingStatus.DONE) {
             throw MatchingCompletedException.EXCEPTION;
         }
 
-        matching.updateMatching(matchingUpdateDto.matchingStatus());
-        updatePostStatusByMatchingDoneExists(matching.getPost().getId());
+        matching.updateMatchingStatus(updateStatus);
+        changePostStatus(post);
+
         return matching.getId();
+    }
+
+    private boolean existsMatchingDone(Post post) {
+        return matchingRepository.findByPostId(post.getId())
+                .stream()
+                .anyMatch(m -> m.getMatchingStatus() == MatchingStatus.DONE);
+    }
+
+    private void changePostStatus(Post post) {
+        boolean isMatchingDone = existsMatchingDone(post);
+
+        PostStatus postStatus = isMatchingDone ? PostStatus.FINISHED : PostStatus.RECRUITING;
+        post.updatePostStatus(postStatus);
     }
 
     @Transactional // 매칭 삭제
@@ -110,18 +128,6 @@ public class MatchingService {
                 .giver(giver)
                 .matchingStatus(MatchingStatus.PENDING) // 매칭 생성시 PENDING
                 .build();
-    }
-
-    private void updatePostStatusByMatchingDoneExists(Long postId) {
-        Post post = postService.findPostByIdOrThrow(postId);
-        Boolean isMatchingDone = matchingRepository.existsByPostIdAndMatchingStatus(postId);
-        PostStatus status = isMatchingDone ? PostStatus.FINISHED : PostStatus.RECRUITING;
-        post.changeStatus(status);
-    }
-
-    private boolean isMatchingStatusDoneAndRequestIsDone(Long postId, MatchingStatus matchingStatus) {
-        Boolean isMatchingDone = matchingRepository.existsByPostIdAndMatchingStatus(postId);
-        return isMatchingDone && matchingStatus == MatchingStatus.DONE;
     }
 
     // 게시글 작성 회원과 현재 로그인한 회원 일치 여부 판단
