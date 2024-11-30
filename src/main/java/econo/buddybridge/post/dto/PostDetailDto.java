@@ -39,7 +39,7 @@ public record PostDetailDto(
         Boolean isLiked
 ) {
     
-    public PostDetailDto(Post post, Boolean isLiked) {
+    public PostDetailDto(Post post, Boolean isLiked, PostStatus postStatus) {
         this(
                 post.getId(),
                 new MemberResDto(post.getAuthor()),
@@ -54,7 +54,7 @@ public record PostDetailDto(
                 post.getPostType(),
                 post.getCreatedAt(),
                 post.getModifiedAt(),
-                post.getPostStatus(),
+                postStatus,
                 post.getDisabilityType(),
                 post.getGender(),
                 post.getAge(),

@@ -3,6 +3,8 @@ package econo.buddybridge.post.repository;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import econo.buddybridge.matching.entity.Matching;
+import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostDetailDto;
@@ -20,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static econo.buddybridge.matching.entity.QMatching.matching;
 import static econo.buddybridge.post.entity.QPost.post;
 import static econo.buddybridge.post.entity.QPostLike.postLike;
 
@@ -45,7 +48,16 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .where(postLike.member.id.eq(memberId), postLike.post.id.eq(postId))
                 .fetchOne() != null;
 
-        return new PostDetailDto(content, isLiked);
+        List<Matching> matchings = queryFactory.
+                selectFrom(matching)
+                .where(matching.post.id.eq(postId))
+                .fetch();
+
+        PostStatus postStatus = matchings
+                .stream()
+                .anyMatch(m -> m.getMatchingStatus() == MatchingStatus.DONE) ? PostStatus.FINISHED : PostStatus.RECRUITING;
+
+        return new PostDetailDto(content, isLiked, postStatus);
     }
 
     @Override // 게시글 목록 조회
