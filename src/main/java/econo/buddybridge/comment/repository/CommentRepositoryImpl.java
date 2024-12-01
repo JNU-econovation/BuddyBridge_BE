@@ -3,6 +3,7 @@ package econo.buddybridge.comment.repository;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentResDto;
@@ -11,12 +12,17 @@ import econo.buddybridge.comment.dto.MyPageCommentResDto;
 import econo.buddybridge.comment.dto.QAuthorDto;
 import econo.buddybridge.comment.dto.QCommentResDto;
 import econo.buddybridge.comment.dto.QMyPageCommentResDto;
+import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.post.entity.Post;
+import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
+import econo.buddybridge.post.repository.PostRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static econo.buddybridge.comment.entity.QComment.comment;
 import static econo.buddybridge.post.entity.QPost.post;
@@ -26,6 +32,7 @@ import static org.springframework.data.domain.Sort.Order;
 public class CommentRepositoryImpl implements CommentRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+    private final PostRepositoryImpl postRepositoryImpl;
 
     @Override
     public CommentCustomPage findByPost(Post post, Long cursor, Pageable page) {
@@ -73,6 +80,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         comment.id,
                         comment.post.id,
                         comment.post.title,
+                        Expressions.constant(PostStatus.RECRUITING),
                         comment.post.postType,
                         comment.post.disabilityType,
                         comment.post.assistanceType,
@@ -88,6 +96,15 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .offset((long) page * size)
                 .fetch();
 
+        // 해당하는 게시글 ID 리스트 조회
+        List<Long> postIds = content.stream().map(MyPageCommentResDto::postId).toList();
+
+        // 각 게시글 ID에 대해 전체 매칭 조회
+        Map<Long, List<Matching>> postMatchings = postRepositoryImpl.getMatchings(postIds);
+
+        // content를 순환하면서 각 게시글의 해당하는 postStatus 설정
+        List<MyPageCommentResDto> updatedContent = updatePostStatusInContent(content, postMatchings);
+
         // 댓글 단 게시글 수 조회
         Long totalElements = queryFactory
                 .select(comment.id.count())
@@ -98,7 +115,26 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 )
                 .fetchOne();
 
-        return new MyPageCommentCustomPage(content, totalElements, content.size() < size);
+        return new MyPageCommentCustomPage(updatedContent, totalElements, content.size() < size);
+    }
+
+    private List<MyPageCommentResDto> updatePostStatusInContent(List<MyPageCommentResDto> content, Map<Long, List<Matching>> postMatchings) {
+        return content.stream()
+                .map(comment -> {
+                    List<Matching> matchings = postMatchings.getOrDefault(comment.postId(), Collections.emptyList());
+                    PostStatus status = postRepositoryImpl.calculatePostStatus(matchings);
+                    return MyPageCommentResDto.builder()
+                            .content(comment.content())
+                            .commentId(comment.commentId())
+                            .postId(comment.postId())
+                            .postTitle(comment.postTitle())
+                            .postStatus(status)
+                            .postType(comment.postType())
+                            .disabilityType(comment.disabilityType())
+                            .assistanceType(comment.assistanceType())
+                            .postCreatedAt(comment.postCreatedAt())
+                            .build();
+                }).toList();
     }
 
     private BooleanExpression buildPostTypeExpression(PostType postType) {
