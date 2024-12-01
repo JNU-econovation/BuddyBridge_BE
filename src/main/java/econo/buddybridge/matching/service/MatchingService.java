@@ -106,8 +106,8 @@ public class MatchingService {
     @Transactional // 매칭 삭제
     public void deleteMatching(Long matchingId, Long memberId) {
         Matching matching = findMatchingByIdOrThrow(matchingId);
-        Member loginMember = memberService.findMemberByIdOrThrow(memberId);
-        validatePostAuthor(matching.getPost(), loginMember);
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+        validatePostAuthor(matching.getPost(), author);
 
         matchingRepository.delete(matching);
     }
