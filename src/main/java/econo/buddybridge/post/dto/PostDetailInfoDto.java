@@ -17,6 +17,7 @@ public record PostDetailInfoDto(
         PostType postType,
         LocalDateTime createdAt,
         AssistanceResDto assistance,
-        PostStatus postStatus
+        PostStatus postStatus,
+        Boolean isLiked
 ) {
 }
