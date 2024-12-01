@@ -15,6 +15,7 @@ public record PostListDto(
         PostStatus postStatus,
         DisabilityType disabilityType,
         AssistanceResDto assistance,
-        ScheduleListResDto schedule
+        ScheduleListResDto schedule,
+        Boolean isLiked
 ) {
 }

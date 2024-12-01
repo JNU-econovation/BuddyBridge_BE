@@ -7,8 +7,7 @@ import lombok.Builder;
 @Builder
 public record PostDetailDto(
         PostAuthorDto author,
-        PostDetailInfoDto post,
-        Boolean isLiked
+        PostDetailInfoDto post
 ) {
 
     public PostDetailDto(Post post, Boolean isLiked, PostStatus postStatus) {
@@ -44,8 +43,8 @@ public record PostDetailDto(
                                         .build()
                         )
                         .postStatus(postStatus)
-                        .build(),
-                isLiked
+                        .isLiked(isLiked)
+                        .build()
         );
     }
 }

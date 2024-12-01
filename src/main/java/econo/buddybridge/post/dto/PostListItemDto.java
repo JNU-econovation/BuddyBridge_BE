@@ -6,8 +6,7 @@ import lombok.Builder;
 
 @Builder
 public record PostListItemDto(
-        PostListDto post,
-        Boolean isLiked
+        PostListDto post
 ) {
 
     public PostListItemDto(Post post, Boolean isLiked, PostStatus postStatus) {
@@ -33,8 +32,8 @@ public record PostListItemDto(
                                         .scheduleType(post.getSchedule().getScheduleType())
                                         .build()
                         )
-                        .build(),
-                isLiked
+                        .isLiked(isLiked)
+                        .build()
         );
     }
 }
