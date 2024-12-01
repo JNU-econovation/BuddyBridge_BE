@@ -31,7 +31,7 @@ public class MatchingRoomService {
     private final MatchingService matchingService;
     private final NotificationService notificationService;
 
-    @Transactional
+    @Transactional(readOnly = true) // 매칭방 조회
     public MatchingCustomPage getMatchings(Long memberId, Integer size, LocalDateTime cursor, MatchingStatus matchingStatus) {
         PageRequest page = PageRequest.of(0, size);
         return matchingRepositoryCustom.findMatchings(memberId, size, cursor, matchingStatus, page);
