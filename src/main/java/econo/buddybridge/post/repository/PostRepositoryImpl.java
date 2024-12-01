@@ -185,7 +185,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .toList();
     }
 
-    private PostStatus calculatePostStatus(List<Matching> matchings) {
+    public PostStatus calculatePostStatus(List<Matching> matchings) {
         return matchings
                 .stream()
                 .anyMatch(m -> m.getMatchingStatus() == MatchingStatus.DONE)
@@ -193,7 +193,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 : PostStatus.RECRUITING;
     }
 
-    private Map<Long, List<Matching>> getMatchings(List<Long> postIds) {
+    public Map<Long, List<Matching>> getMatchings(List<Long> postIds) {
         return queryFactory
                 .selectFrom(matching)
                 .where(matching.post.id.in(postIds))
