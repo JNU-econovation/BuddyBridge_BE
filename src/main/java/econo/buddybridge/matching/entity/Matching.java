@@ -1,7 +1,7 @@
 package econo.buddybridge.matching.entity;
 
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
-import econo.buddybridge.common.persistence.BaseEntity;
+import econo.buddybridge.common.persistence.SoftDeletableEntity;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.entity.Post;
 import jakarta.persistence.CascadeType;
@@ -17,19 +17,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
 @Table(name = "MATCHING")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Matching extends BaseEntity {
+public class Matching extends SoftDeletableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

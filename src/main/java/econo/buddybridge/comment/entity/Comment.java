@@ -1,6 +1,6 @@
 package econo.buddybridge.comment.entity;
 
-import econo.buddybridge.common.persistence.BaseEntity;
+import econo.buddybridge.common.persistence.SoftDeletableEntity;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.entity.Post;
 import jakarta.persistence.Column;
@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "COMMENT")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Comment extends BaseEntity {
+public class Comment extends SoftDeletableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,11 +31,11 @@ public class Comment extends BaseEntity {
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="post_id")
+    @JoinColumn(name = "post_id")
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="author_id")
+    @JoinColumn(name = "author_id")
     private Member author;
 
     @Builder
