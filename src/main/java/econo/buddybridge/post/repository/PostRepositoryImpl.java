@@ -66,9 +66,22 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     public PostCustomPage findPosts(Long memberId, Integer page, Integer size, String sort, PostType postType,
                                     PostStatus postStatus, List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
 
+        List<Long> finishedPostIds = Collections.emptyList();
+
+        if (postStatus != null) {
+            finishedPostIds = queryFactory
+                    .select(matching.post.id)
+                    .from(matching)
+                    .where(
+                            matching.post.id.eq(post.id),
+                            matching.matchingStatus.eq(MatchingStatus.DONE)
+                    )
+                    .fetch();
+        }
+
         List<Post> posts = queryFactory
                 .selectFrom(post)
-                .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType, post),
+                .where(buildPostTypeExpression(postType, post), buildPostStatusExpression(finishedPostIds, postStatus),
                         buildPostDisabilityTypesExpression(disabilityType), buildPostAssistanceTypesExpression(assistanceType))
                 .offset((long) page * size)
                 .limit(size)
@@ -80,7 +93,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         Long totalElements = queryFactory
                 .select(post.count())
                 .from(post)
-                .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType, post),
+                .where(buildPostTypeExpression(postType, post), buildPostStatusExpression(finishedPostIds, postStatus),
                         buildPostDisabilityTypesExpression(disabilityType), buildPostAssistanceTypesExpression(assistanceType))
                 .fetchOne();
 
@@ -139,7 +152,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private List<PostListItemDto> getPostResDtos(Long memberId, List<Post> posts, Map<Long, List<Matching>> matchings, Boolean isLikedPage) {
 
-        if (isLikedPage) {
+        if (memberId != null && isLikedPage) {
             return posts.stream()
                     .map(post -> {
                         List<Matching> postMatchings = matchings.getOrDefault(post.getId(), Collections.emptyList());
@@ -193,17 +206,24 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return posts.stream().map(Post::getId).toList();
     }
 
+    private BooleanExpression buildPostStatusExpression(List<Long> finishedPostIds, PostStatus postStatus) {
+
+        if (postStatus == null) {
+            return null;
+        }
+
+        return switch (postStatus) {
+            case RECRUITING -> post.id.notIn(finishedPostIds);
+            case FINISHED -> post.id.in(finishedPostIds);
+        };
+    }
+
     private BooleanExpression buildMemberIdExpression(Long memberId) {
         return memberId == null ? null : post.author.id.eq(memberId);
     }
 
     private BooleanExpression buildPostTypeExpression(PostType postType, QPost qPost) {
         return postType == null ? null : qPost.postType.eq(postType);
-    }
-
-    // Todo : postStatus 필드 제거에 따른 Matching을 조회해 PostStatus를 계산하는 로직으로 변경
-    private BooleanExpression buildPostStatusExpression(PostStatus postStatus) {
-        return postStatus == null ? null : post.postStatus.eq(postStatus);
     }
 
     // 없음, 시각장애, 청각장애, 지적장애, 지체장애, 자폐성장애, 뇌병변장애, 정신장애
