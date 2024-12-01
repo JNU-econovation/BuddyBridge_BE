@@ -3,7 +3,6 @@ package econo.buddybridge.comment.dto;
 import com.querydsl.core.annotations.QueryProjection;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.entity.AssistanceType;
-import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import lombok.Builder;
 
@@ -15,7 +14,6 @@ public record MyPageCommentResDto(
         Long commentId,
         Long postId,
         String postTitle,
-        PostStatus postStatus,
         PostType postType,
         DisabilityType disabilityType,
         AssistanceType assistanceType,

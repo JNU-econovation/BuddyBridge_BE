@@ -1,9 +1,5 @@
 package econo.buddybridge.comment.repository;
 
-import static econo.buddybridge.comment.entity.QComment.comment;
-import static econo.buddybridge.post.entity.QPost.post;
-import static org.springframework.data.domain.Sort.Order;
-
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -17,9 +13,14 @@ import econo.buddybridge.comment.dto.QCommentResDto;
 import econo.buddybridge.comment.dto.QMyPageCommentResDto;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+
+import static econo.buddybridge.comment.entity.QComment.comment;
+import static econo.buddybridge.post.entity.QPost.post;
+import static org.springframework.data.domain.Sort.Order;
 
 @RequiredArgsConstructor
 public class CommentRepositoryImpl implements CommentRepositoryCustom {
@@ -72,7 +73,6 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         comment.id,
                         comment.post.id,
                         comment.post.title,
-                        comment.post.postStatus,
                         comment.post.postType,
                         comment.post.disabilityType,
                         comment.post.assistanceType,
@@ -87,17 +87,18 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .limit(size)
                 .offset((long) page * size)
                 .fetch();
+//        List<MyPageCommentResDto> content = Collections.emptyList();
 
         // 댓글 단 게시글 수 조회
-        Long totalElements = queryFactory
-                .select(comment.id.count())
-                .from(comment)
-                .where(
-                        buildPostTypeExpression(postType),
-                        comment.author.id.eq(memberId)
-                )
-                .fetchOne();
-
+//        Long totalElements = queryFactory
+//                .select(comment.id.count())
+//                .from(comment)
+//                .where(
+//                        buildPostTypeExpression(postType),
+//                        comment.author.id.eq(memberId)
+//                )
+//                .fetchOne();
+        Long totalElements = 0L;
         return new MyPageCommentCustomPage(content, totalElements, content.size() < size);
     }
 
