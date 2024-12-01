@@ -7,6 +7,7 @@ import econo.buddybridge.matching.dto.MatchingReqDto;
 import econo.buddybridge.matching.dto.MatchingUpdateDto;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
+import econo.buddybridge.matching.event.MatchingDeleteEvent;
 import econo.buddybridge.matching.exception.MatchingCompletedException;
 import econo.buddybridge.matching.exception.MatchingNotFoundException;
 import econo.buddybridge.matching.repository.MatchingRepository;
@@ -17,6 +18,7 @@ import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.exception.PostUnauthorizedAccessException;
 import econo.buddybridge.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,7 @@ public class MatchingService {
     private final MatchingRepository matchingRepository;
     private final MemberService memberService;
     private final PostService postService;
+    private final ApplicationEventPublisher publisher;
 
     // 존재하는 매칭인지 확인
     @Transactional(readOnly = true)
@@ -115,7 +118,7 @@ public class MatchingService {
         Member author = memberService.findMemberByIdOrThrow(memberId);
         validatePostAuthor(matching.getPost(), author);
 
-        matchingRepository.delete(matching);
+        publisher.publishEvent(MatchingDeleteEvent.from(matching));
     }
 
     // MatchingReqDto -> Matching

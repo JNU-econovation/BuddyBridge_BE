@@ -4,6 +4,7 @@ import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentReqDto;
 import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
 import econo.buddybridge.comment.entity.Comment;
+import econo.buddybridge.comment.event.CommentDeleteEvent;
 import econo.buddybridge.comment.exception.CommentAlreadyWrittenException;
 import econo.buddybridge.comment.exception.CommentDeleteNotAllowedException;
 import econo.buddybridge.comment.exception.CommentInvalidDirectionException;
@@ -20,6 +21,7 @@ import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -37,6 +39,7 @@ public class CommentService {
     private final PostService postService;
     private final CommentRepository commentRepository;
     private final EmitterService emitterService;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional(readOnly = true) // MyPage 댓글 조회
     public MyPageCommentCustomPage getMyPageComments(Long memberId, Integer page, Integer size, String sort, PostType postType) {
@@ -116,7 +119,7 @@ public class CommentService {
             throw CommentDeleteNotAllowedException.EXCEPTION;
         }
 
-        commentRepository.delete(comment);
+        publisher.publishEvent(CommentDeleteEvent.from(comment));
     }
 
     private Comment findCommentByIdOrThrow(Long commentId) {
