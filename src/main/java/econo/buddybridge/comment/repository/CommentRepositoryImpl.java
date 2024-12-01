@@ -87,18 +87,17 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .limit(size)
                 .offset((long) page * size)
                 .fetch();
-//        List<MyPageCommentResDto> content = Collections.emptyList();
 
         // 댓글 단 게시글 수 조회
-//        Long totalElements = queryFactory
-//                .select(comment.id.count())
-//                .from(comment)
-//                .where(
-//                        buildPostTypeExpression(postType),
-//                        comment.author.id.eq(memberId)
-//                )
-//                .fetchOne();
-        Long totalElements = 0L;
+        Long totalElements = queryFactory
+                .select(comment.id.count())
+                .from(comment)
+                .where(
+                        buildPostTypeExpression(postType),
+                        comment.author.id.eq(memberId)
+                )
+                .fetchOne();
+
         return new MyPageCommentCustomPage(content, totalElements, content.size() < size);
     }
 
