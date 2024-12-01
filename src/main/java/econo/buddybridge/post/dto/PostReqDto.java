@@ -5,7 +5,6 @@ import econo.buddybridge.post.entity.AssistanceTime;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.Post;
-import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.entity.Schedule;
 import econo.buddybridge.post.entity.ScheduleType;
@@ -69,7 +68,6 @@ public record PostReqDto(
                 .district(district)
                 .content(content)
                 .postType(postType)
-                .postStatus(PostStatus.RECRUITING)
                 .disabilityType(author.getDisabilityType())
                 .gender(author.getGender())
                 .age(author.getAge())

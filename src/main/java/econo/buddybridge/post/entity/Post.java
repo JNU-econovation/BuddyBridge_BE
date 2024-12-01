@@ -26,7 +26,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
@@ -71,10 +70,6 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PostType postType;
 
-    @Default
-    @Enumerated(EnumType.STRING)
-    private PostStatus postStatus = PostStatus.RECRUITING; // 모집 중, 모집 완료
-
     @Enumerated(EnumType.STRING)
     private DisabilityType disabilityType;
 
@@ -91,10 +86,6 @@ public class Post extends BaseEntity {
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<Comment> comments = new ArrayList<>();
-
-    public void updatePostStatus(PostStatus status) { // 상태 변경
-        this.postStatus = status;
-    }
 
     public void updatePost(PostUpdateReqDto postUpdateReqDto) {
         Schedule updateSchedule = null;
