@@ -19,7 +19,7 @@ public record PostDetailDto(
                         .id(post.getId())
                         .title(post.getTitle())
                         .schedule(
-                                ScheduleResDto.builder()
+                                ScheduleDetailResDto.builder()
                                         .startDate(post.getSchedule().getStartDate())
                                         .endDate(post.getSchedule().getEndDate())
                                         .scheduleType(post.getSchedule().getScheduleType())

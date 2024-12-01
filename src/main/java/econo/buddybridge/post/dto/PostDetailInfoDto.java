@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public record PostDetailInfoDto(
         Long id,
         String title,
-        ScheduleResDto schedule,
+        ScheduleDetailResDto schedule,
         District district,
         String content,
         PostType postType,

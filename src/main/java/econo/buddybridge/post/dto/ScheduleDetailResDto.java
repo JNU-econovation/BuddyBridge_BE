@@ -6,7 +6,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record ScheduleResDto(
+public record ScheduleDetailResDto(
         LocalDateTime startDate,
         LocalDateTime endDate,
         ScheduleType scheduleType,
