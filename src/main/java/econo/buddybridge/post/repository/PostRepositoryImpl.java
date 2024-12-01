@@ -87,7 +87,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return new PostCustomPage(content, totalElements, content.size() < size);
     }
 
-
     @Override // 내가 작성한 게시글 목록 조회 - 마이페이지
     public PostCustomPage findPostsMyPage(Long memberId, Integer page, Integer size, String sort, PostType postType) {
 
