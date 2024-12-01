@@ -32,4 +32,15 @@ public class SessionFilterManager {
         Session session = entityManager.unwrap(Session.class);
         session.disableFilter(filter);
     }
+
+    /**
+     * 필터 활성화 여부 확인
+     *
+     * @param filter 확인할 필터
+     * @return 활성화 여부
+     */
+    public boolean isFilterEnabled(String filter) {
+        Session session = entityManager.unwrap(Session.class);
+        return session.getEnabledFilter(filter) != null;
+    }
 }

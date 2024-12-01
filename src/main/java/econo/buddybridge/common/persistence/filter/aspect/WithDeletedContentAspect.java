@@ -29,6 +29,11 @@ public class WithDeletedContentAspect {
             return joinPoint.proceed();
         }
 
+        // 이미 활성화된 필터가 있는 경우
+        if (sessionFilterManager.isFilterEnabled(DELETED_FILTER)) {
+            return joinPoint.proceed();
+        }
+
         try {
             sessionFilterManager.enableFilter(DELETED_FILTER, DELETED_PARAM, false);
             return joinPoint.proceed();
