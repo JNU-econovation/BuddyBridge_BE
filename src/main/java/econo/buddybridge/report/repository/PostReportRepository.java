@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface PostReportRepository extends JpaRepository<PostReport, Long> {
 
     boolean existsByReportedPostAndReporter(Post reportedPost, Member reporter);
+
+    boolean existsByReportedPost(Post reportedPost);
 }

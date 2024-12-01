@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface MatchingReportRepository extends JpaRepository<MatchingReport, Long> {
 
     boolean existsByReportedMatchingAndReporter(Matching matching, Member member);
+
+    boolean existsByReportedMatching(Matching reportedMatching);
 }
