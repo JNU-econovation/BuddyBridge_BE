@@ -1,49 +1,39 @@
 package econo.buddybridge.post.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import econo.buddybridge.member.entity.DisabilityType;
-import econo.buddybridge.post.entity.AssistanceType;
-import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostStatus;
-import econo.buddybridge.post.entity.PostType;
-import econo.buddybridge.post.entity.ScheduleType;
 import lombok.Builder;
-
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Builder
 public record PostListItemDto(
-        Long id,
-        String title,
-        AssistanceType assistanceType,
-        LocalDateTime startDate,
-        LocalDateTime endDate,
-        ScheduleType scheduleType,
-        District district,
-        PostType postType,
-        PostStatus postStatus,
-        DisabilityType disabilityType,
-        @JsonFormat(pattern = "HH:mm") LocalTime assistanceStartTime,
-        @JsonFormat(pattern = "HH:mm") LocalTime assistanceEndTime,
+        PostListDto post,
         Boolean isLiked
 ) {
 
     public PostListItemDto(Post post, Boolean isLiked, PostStatus postStatus) {
         this(
-                post.getId(),
-                post.getTitle(),
-                post.getAssistanceType(),
-                post.getSchedule().getStartDate(),
-                post.getSchedule().getEndDate(),
-                post.getSchedule().getScheduleType(),
-                post.getDistrict(),
-                post.getPostType(),
-                postStatus,
-                post.getDisabilityType(),
-                post.getAssistanceTime().getAssistanceStartTime(),
-                post.getAssistanceTime().getAssistanceEndTime(),
+                PostListDto.builder()
+                        .id(post.getId())
+                        .title(post.getTitle())
+                        .district(post.getDistrict())
+                        .postType(post.getPostType())
+                        .postStatus(postStatus)
+                        .disabilityType(post.getDisabilityType())
+                        .assistance(
+                                AssistanceResDto.builder()
+                                        .assistanceType(post.getAssistanceType())
+                                        .assistanceStartTime(post.getAssistanceTime().getAssistanceStartTime())
+                                        .assistanceEndTime(post.getAssistanceTime().getAssistanceEndTime())
+                                        .build()
+                        )
+                        .schedule(
+                                ScheduleListResDto.builder()
+                                        .startDate(post.getSchedule().getStartDate())
+                                        .endDate(post.getSchedule().getEndDate())
+                                        .scheduleType(post.getSchedule().getScheduleType())
+                                        .build()
+                        )
+                        .build(),
                 isLiked
         );
     }
