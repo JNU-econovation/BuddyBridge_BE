@@ -59,7 +59,14 @@ logging:
     econo.buddybridge.auth.client.kakao: debug
 
   file: # 로그 파일 설정
-    name: /app/application.log
+    name: /app/log/application.log # name 또는 path 설정 필수
+
+  logback:
+    rollingpolicy:
+      max-history: 30 # default: 7
+      max-file-size: 10MB # default: 10MB
+      file-name-pattern: /app/log/application-%d{yyyy-MM-dd}-%i.gz # 압축해서 보관 -> 디스크 절약
+      total-size-cap: 5GB # default: 제한 없음
 
 # Register P6LogFactory to log JDBC events
 decorator:
