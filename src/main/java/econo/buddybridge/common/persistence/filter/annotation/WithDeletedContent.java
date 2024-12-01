@@ -9,5 +9,4 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface WithDeletedContent {
     boolean value() default true;   // 삭제된 컨텐츠 포함 여부: true - 포함, false - 미포함
-    String filterName() default "deletedFilter";   // 사용할 필터 이름
 }

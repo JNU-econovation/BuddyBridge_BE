@@ -6,7 +6,6 @@ import static econo.buddybridge.common.consts.BuddyBridgeStatic.CHAT_NOTIFICATIO
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageReqDto;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
-import econo.buddybridge.chat.chatmessage.exception.LastChatMessageNotFoundException;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.exception.MatchingUnauthorizedAccessException;
@@ -15,9 +14,7 @@ import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.entity.NotificationType;
 import econo.buddybridge.notification.service.EmitterService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,23 +71,5 @@ public class ChatMessageService {
         } else {
             throw MatchingUnauthorizedAccessException.EXCEPTION;
         }
-    }
-
-    @Transactional // 마지막 메시지 조회
-    public ChatMessageResDto getLastChatMessage(Long matchingId) {
-        List<ChatMessage> chatMessageList = chatMessageRepository.findLastMessageByMatchingId(matchingId, PageRequest.of(0, 1));
-        if (chatMessageList.isEmpty()) {
-            throw LastChatMessageNotFoundException.EXCEPTION;
-        }
-
-        ChatMessage chatMessage = chatMessageList.getFirst();
-
-        return ChatMessageResDto.builder()
-                .messageId(chatMessage.getId())
-                .senderId(chatMessage.getSender().getId()) // senderId 받아오기
-                .content(chatMessage.getContent())
-                .messageType(chatMessage.getMessageType())
-                .createdAt(chatMessage.getCreatedAt())
-                .build();
     }
 }
