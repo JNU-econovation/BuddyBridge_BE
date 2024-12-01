@@ -9,6 +9,7 @@ import econo.buddybridge.comment.exception.CommentDeleteNotAllowedException;
 import econo.buddybridge.comment.exception.CommentInvalidDirectionException;
 import econo.buddybridge.comment.exception.CommentNotFoundException;
 import econo.buddybridge.comment.exception.CommentSameGenderOnlyException;
+import econo.buddybridge.comment.exception.CommentSelfNotAllowedException;
 import econo.buddybridge.comment.exception.CommentUpdateNotAllowedException;
 import econo.buddybridge.comment.repository.CommentRepository;
 import econo.buddybridge.member.entity.Member;
@@ -60,22 +61,27 @@ public class CommentService {
 
     @Transactional  // 댓글 생성
     public Long createComment(CommentReqDto commentReqDto, Long postId, Long memberId) {
-        Member member = memberService.findMemberByIdOrThrow(memberId);
+        Member author = memberService.findMemberByIdOrThrow(memberId);
         Post post = postService.findPostByIdOrThrow(postId);
 
-        if (post.getGender() != member.getGender()) {
+        if (post.getGender() != author.getGender()) {
             throw CommentSameGenderOnlyException.EXCEPTION;
         }
 
+        // 본인의 게시글에 댓글 작성 불가
+        if (post.getAuthor().equals(author)) {
+            throw CommentSelfNotAllowedException.EXCEPTION;
+        }
+
         // 기존에 댓글을 작성한 적이 있는지 확인하고 있다면 댓글 작성 불가
-        if (commentRepository.existsByPostAndAuthor(post, member)) {
+        if (commentRepository.existsByPostAndAuthor(post, author)) {
             throw CommentAlreadyWrittenException.EXCEPTION;
         }
 
-        Comment comment = commentReqToComment(commentReqDto, post, member);
+        Comment comment = commentReqToComment(commentReqDto, post, author);
 
         // 게시글 작성자에게 댓글 알림 전송
-        sendNotificationToPostAuthor(member, comment, post);
+        sendNotificationToPostAuthor(author, comment, post);
 
         return commentRepository.save(comment).getId();
     }
