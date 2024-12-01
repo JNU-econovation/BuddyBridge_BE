@@ -5,12 +5,12 @@ import econo.buddybridge.post.entity.AssistanceTime;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.Post;
-import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.entity.Schedule;
 import econo.buddybridge.post.entity.ScheduleType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -19,6 +19,7 @@ import java.time.LocalTime;
 @Builder
 public record PostReqDto(
         @NotBlank(message = "제목을 입력해주세요.")
+        @Size(max = 30, message = "제목은 30자 이내로 작성해주세요.")
         String title,
 
         @NotNull(message = "도움 종류를 선택해주세요. 교육 or 생활")
@@ -40,20 +41,17 @@ public record PostReqDto(
         District district,
 
         @NotBlank(message = "상세 내용을 입력해주세요.")
+        @Size(max = 500, message = "상세 내용은 500자 이내로 작성해주세요.")
         String content,
 
         @NotNull(message = "게시글 종류를 선택해주세요. TAKER or GIVER")
         PostType postType,
-        
+
         @NotNull(message = "봉사 시작 시간을 입력해주세요.")
         LocalTime assistanceStartTime,
 
         @NotNull(message = "봉사 종료 시간을 입력해주세요.")
-        LocalTime assistanceEndTime,
-
-        // Todo : 모집 인원 제거
-        @NotNull(message = "모집 인원을 입력해주세요.")
-        Integer headcount
+        LocalTime assistanceEndTime
 ) {
 
     public Post toEntity(Member author) {
@@ -70,7 +68,6 @@ public record PostReqDto(
                 .district(district)
                 .content(content)
                 .postType(postType)
-                .postStatus(PostStatus.RECRUITING)
                 .disabilityType(author.getDisabilityType())
                 .gender(author.getGender())
                 .age(author.getAge())
@@ -78,7 +75,6 @@ public record PostReqDto(
                         .assistanceStartTime(assistanceStartTime)
                         .assistanceEndTime(assistanceEndTime)
                         .build())
-                .headcount(headcount)
                 .build();
     }
 }

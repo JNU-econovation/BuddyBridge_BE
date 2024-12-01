@@ -63,7 +63,7 @@ public class Matching extends BaseEntity {
         this.matchingStatus = matchingStatus;
     }
 
-    public void updateMatching(MatchingStatus matchingStatus) {
+    public void updateMatchingStatus(MatchingStatus matchingStatus) {
         this.matchingStatus = matchingStatus;
     }
 }

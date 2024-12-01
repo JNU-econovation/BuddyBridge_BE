@@ -1,15 +1,14 @@
 package econo.buddybridge.post.repository;
 
-import static econo.buddybridge.post.entity.QPost.post;
-import static econo.buddybridge.post.entity.QPostLike.postLike;
-
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import econo.buddybridge.matching.repository.MatchingRepository;
+import econo.buddybridge.matching.entity.Matching;
+import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.dto.PostCustomPage;
-import econo.buddybridge.post.dto.PostResDto;
+import econo.buddybridge.post.dto.PostDetailDto;
+import econo.buddybridge.post.dto.PostListItemDto;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostStatus;
@@ -17,19 +16,27 @@ import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.entity.QPost;
 import econo.buddybridge.post.exception.PostInvalidSortValueException;
 import econo.buddybridge.post.exception.PostNotFoundException;
+import lombok.RequiredArgsConstructor;
+
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import lombok.RequiredArgsConstructor;
+import java.util.stream.Collectors;
+
+import static econo.buddybridge.matching.entity.QMatching.matching;
+import static econo.buddybridge.post.entity.QPost.post;
+import static econo.buddybridge.post.entity.QPostLike.postLike;
 
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-    private final MatchingRepository matchingRepository;
 
     @Override // 단일 게시글 조회
-    public PostResDto findByMemberIdAndPostId(Long memberId, Long postId) {
+    public PostDetailDto findByMemberIdAndPostId(Long memberId, Long postId) {
         Post content = queryFactory
                 .selectFrom(post)
                 .where(post.id.eq(postId))
@@ -45,28 +52,48 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .where(postLike.member.id.eq(memberId), postLike.post.id.eq(postId))
                 .fetchOne() != null;
 
-        return new PostResDto(content, isLiked, getMatchingDoneCount(postId));
+        List<Matching> matchings = queryFactory.
+                selectFrom(matching)
+                .where(matching.post.id.eq(postId))
+                .fetch();
+
+        PostStatus postStatus = calculatePostStatus(matchings);
+
+        return new PostDetailDto(content, isLiked, postStatus);
     }
 
     @Override // 게시글 목록 조회
     public PostCustomPage findPosts(Long memberId, Integer page, Integer size, String sort, PostType postType,
-            PostStatus postStatus, List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
+                                    PostStatus postStatus, List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
+
+        List<Long> finishedPostIds = Collections.emptyList();
+
+        if (postStatus != null) {
+            finishedPostIds = queryFactory
+                    .select(matching.post.id)
+                    .from(matching)
+                    .where(
+                            matching.post.id.eq(post.id),
+                            matching.matchingStatus.eq(MatchingStatus.DONE)
+                    )
+                    .fetch();
+        }
 
         List<Post> posts = queryFactory
                 .selectFrom(post)
-                .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType, post),
+                .where(buildPostTypeExpression(postType, post), buildPostStatusExpression(finishedPostIds, postStatus),
                         buildPostDisabilityTypesExpression(disabilityType), buildPostAssistanceTypesExpression(assistanceType))
                 .offset((long) page * size)
                 .limit(size)
                 .orderBy(buildOrderSpecifier(sort, post))
                 .fetch();
 
-        List<PostResDto> content = getPostResDtos(memberId, posts);
+        List<PostListItemDto> content = getContent(memberId, posts, false);
 
         Long totalElements = queryFactory
                 .select(post.count())
                 .from(post)
-                .where(buildPostStatusExpression(postStatus), buildPostTypeExpression(postType, post),
+                .where(buildPostTypeExpression(postType, post), buildPostStatusExpression(finishedPostIds, postStatus),
                         buildPostDisabilityTypesExpression(disabilityType), buildPostAssistanceTypesExpression(assistanceType))
                 .fetchOne();
 
@@ -84,7 +111,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .orderBy(buildOrderSpecifier(sort, post))
                 .fetch();
 
-        List<PostResDto> content = getPostResDtos(memberId, posts);
+        List<PostListItemDto> content = getContent(memberId, posts, false);
 
         Long totalElements = queryFactory
                 .select(post.count())
@@ -98,16 +125,15 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     @Override // 내가 좋아요한 게시글 목록 조회
     public PostCustomPage findPostsByLikes(Long memberId, Integer page, Integer size, String sort, PostType postType) {
 
-        List<PostResDto> content = queryFactory
+        List<Post> posts = queryFactory
                 .select(postLike.post)
                 .from(postLike)
                 .where(postLike.member.id.eq(memberId), buildPostTypeExpression(postType, postLike.post))
                 .offset((long) page * size)
                 .orderBy(buildOrderSpecifier(sort, postLike.post))
-                .fetch()
-                .stream()
-                .map(post -> new PostResDto(post, true, getMatchingDoneCount(post.getId())))
-                .toList();
+                .fetch();
+
+        List<PostListItemDto> content = getContent(memberId, posts, true);
 
         Long totalElements = queryFactory
                 .select(postLike.count())
@@ -118,9 +144,27 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return new PostCustomPage(content, totalElements, content.size() < size);
     }
 
-    private List<PostResDto> getPostResDtos(Long memberId, List<Post> posts) {
+    private List<PostListItemDto> getContent(Long memberId, List<Post> posts, Boolean isLikedPage) {
+        List<Long> postIds = getPostIds(posts);
+        Map<Long, List<Matching>> matchings = getMatchings(postIds);
+        return getPostResDtos(memberId, posts, matchings, isLikedPage);
+    }
+
+    private List<PostListItemDto> getPostResDtos(Long memberId, List<Post> posts, Map<Long, List<Matching>> matchings, Boolean isLikedPage) {
+
+        if (memberId != null && isLikedPage) {
+            return posts.stream()
+                    .map(post -> {
+                        List<Matching> postMatchings = matchings.getOrDefault(post.getId(), Collections.emptyList());
+                        PostStatus status = calculatePostStatus(postMatchings);
+                        return new PostListItemDto(post, true, status);
+                    })
+                    .toList();
+        }
+
+        Map<Long, Boolean> tempPostLikeRepository = new HashMap<>();
         if (memberId != null) {
-            List<Long> postIds = posts.stream().map(Post::getId).toList();
+            List<Long> postIds = getPostIds(posts);
             Set<Long> postLikedIds = new HashSet<>(
                     queryFactory
                             .select(postLike.post.id)
@@ -128,19 +172,50 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                             .where(postLike.member.id.eq(memberId), postLike.post.id.in(postIds))
                             .fetch()
             );
-
-            return posts.stream()
-                    .map(post -> new PostResDto(post, postLikedIds.contains(post.getId()), getMatchingDoneCount(post.getId())))
-                    .toList();
+            posts.forEach(post -> tempPostLikeRepository.put(post.getId(), postLikedIds.contains(post.getId())));
         }
 
         return posts.stream()
-                .map(post -> new PostResDto(post, false, getMatchingDoneCount(post.getId())))
+                .map(post -> {
+                    List<Matching> postMatchings = matchings.getOrDefault(post.getId(), Collections.emptyList());
+                    PostStatus status = calculatePostStatus(postMatchings);
+                    boolean isLiked = tempPostLikeRepository.getOrDefault(post.getId(), false);
+                    return new PostListItemDto(post, isLiked, status);
+                })
                 .toList();
     }
 
-    private Integer getMatchingDoneCount(Long postId) {
-        return matchingRepository.countMatchingDoneByPostId(postId);
+    private PostStatus calculatePostStatus(List<Matching> matchings) {
+        return matchings
+                .stream()
+                .anyMatch(m -> m.getMatchingStatus() == MatchingStatus.DONE)
+                ? PostStatus.FINISHED
+                : PostStatus.RECRUITING;
+    }
+
+    private Map<Long, List<Matching>> getMatchings(List<Long> postIds) {
+        return queryFactory
+                .selectFrom(matching)
+                .where(matching.post.id.in(postIds))
+                .fetch()
+                .stream()
+                .collect(Collectors.groupingBy(m -> m.getPost().getId()));
+    }
+
+    private List<Long> getPostIds(List<Post> posts) {
+        return posts.stream().map(Post::getId).toList();
+    }
+
+    private BooleanExpression buildPostStatusExpression(List<Long> finishedPostIds, PostStatus postStatus) {
+
+        if (postStatus == null) {
+            return null;
+        }
+
+        return switch (postStatus) {
+            case RECRUITING -> post.id.notIn(finishedPostIds);
+            case FINISHED -> post.id.in(finishedPostIds);
+        };
     }
 
     private BooleanExpression buildMemberIdExpression(Long memberId) {
@@ -149,10 +224,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private BooleanExpression buildPostTypeExpression(PostType postType, QPost qPost) {
         return postType == null ? null : qPost.postType.eq(postType);
-    }
-
-    private BooleanExpression buildPostStatusExpression(PostStatus postStatus) {
-        return postStatus == null ? null : post.postStatus.eq(postStatus);
     }
 
     // 없음, 시각장애, 청각장애, 지적장애, 지체장애, 자폐성장애, 뇌병변장애, 정신장애

@@ -4,9 +4,9 @@ import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.dto.PostCustomPage;
+import econo.buddybridge.post.dto.PostDetailDto;
 import econo.buddybridge.post.dto.PostEnumResDto;
 import econo.buddybridge.post.dto.PostReqDto;
-import econo.buddybridge.post.dto.PostResDto;
 import econo.buddybridge.post.dto.PostUpdateReqDto;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.PostStatus;
@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -106,12 +107,12 @@ public class PostController {
     @Operation(summary = "게시글 조회", description = "게시글을 조회합니다.")
     @GetMapping("/{post-id}")
     @AllowAnonymous
-    public ApiResponse<ApiResponse.CustomBody<PostResDto>> getPost(
+    public ApiResponse<ApiResponse.CustomBody<PostDetailDto>> getPost(
             @PathVariable("post-id") Long postId,
             @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        PostResDto postResDto = postService.findPost(memberId, postId);
-        return ApiResponseGenerator.success(postResDto, HttpStatus.OK);
+        PostDetailDto postDetailDto = postService.findPost(memberId, postId);
+        return ApiResponseGenerator.success(postDetailDto, HttpStatus.OK);
     }
 
     // 게시글 업데이트

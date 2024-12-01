@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum AssistanceType {
     학습("학습"),
     식사("식사"),
-    이동("이동");
+    이동("이동"),
+    기타("기타");
 
     private final String assistanceType;
 

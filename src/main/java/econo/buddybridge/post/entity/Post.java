@@ -26,7 +26,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
@@ -71,10 +70,6 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PostType postType;
 
-    @Default
-    @Enumerated(EnumType.STRING)
-    private PostStatus postStatus = PostStatus.RECRUITING; // 모집 중, 모집 완료
-
     @Enumerated(EnumType.STRING)
     private DisabilityType disabilityType;
 
@@ -86,17 +81,11 @@ public class Post extends BaseEntity {
     @Embedded
     private AssistanceTime assistanceTime; // 게시글 - 봉사 시간(시작 & 종료)
 
-    private Integer headcount; // 모집 최대 인원
-
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<Matching> matchings = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<Comment> comments = new ArrayList<>();
-
-    public void changeStatus(PostStatus status) { // 상태 변경
-        this.postStatus = status;
-    }
 
     public void updatePost(PostUpdateReqDto postUpdateReqDto) {
         Schedule updateSchedule = null;
@@ -129,7 +118,6 @@ public class Post extends BaseEntity {
         this.gender = postUpdateReqDto.gender() != null ? postUpdateReqDto.gender() : this.gender;
         this.age = postUpdateReqDto.age() != null ? postUpdateReqDto.age() : this.age;
         this.assistanceTime = updateAssistanceTime != null ? updateAssistanceTime : this.assistanceTime;
-        this.headcount = postUpdateReqDto.headcount() != null ? postUpdateReqDto.headcount() : this.headcount;
     }
 
 }

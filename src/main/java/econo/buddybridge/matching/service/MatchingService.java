@@ -13,7 +13,6 @@ import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.entity.Post;
-import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.exception.PostUnauthorizedAccessException;
 import econo.buddybridge.post.service.PostService;
@@ -46,23 +45,31 @@ public class MatchingService {
     @Transactional
     public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId) {
         Post post = postService.findPostByIdOrThrow(matchingReqDto.postId());
-
-        Member loginMember = memberService.findMemberByIdOrThrow(memberId);
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+        validatePostAuthor(post, author);
 
         Member taker, giver;
 
         if (post.getPostType() == PostType.GIVER) {
-            giver = loginMember;
+            giver = author;
             taker = memberService.findMemberByIdOrThrow(matchingReqDto.takerId());
         } else {
             giver = memberService.findMemberByIdOrThrow(matchingReqDto.giverId());
-            taker = loginMember;
+            taker = author;
         }
 
-        validatePostAuthor(post, memberId);
+        if (existsMatchingDone(post)) {
+            throw MatchingCompletedException.EXCEPTION;
+        }
 
         Matching matching = matchingReqToMatching(post, taker, giver);
 
+        saveFirstChatMessage(matching, taker);
+
+        return matchingRepository.save(matching).getId();
+    }
+
+    private void saveFirstChatMessage(Matching matching, Member taker) {
         chatMessageRepository.save(
                 ChatMessage.builder()
                         .matching(matching)
@@ -71,30 +78,36 @@ public class MatchingService {
                         .sender(taker)
                         .build()
         );
-
-        return matchingRepository.save(matching).getId();
     }
 
     @Transactional // 매칭 업데이트
     public Long updateMatching(Long matchingId, MatchingUpdateDto matchingUpdateDto, Long memberId) {
-
         Matching matching = findMatchingByIdOrThrow(matchingId);
-        validatePostAuthor(matching.getPost(), memberId);
-    
-        // 모집이 완료되었으며, 상태가 DONE인 경우 예외 처리
-        if (isFullAndMatchingStatusIsDone(matching.getPost(), matchingUpdateDto.matchingStatus())) {
+        Post post = postService.findPostByIdOrThrow(matching.getPost().getId());
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+        validatePostAuthor(post, author);
+
+        MatchingStatus updateStatus = matchingUpdateDto.matchingStatus();
+
+        if (existsMatchingDone(post) && updateStatus == MatchingStatus.DONE) {
             throw MatchingCompletedException.EXCEPTION;
         }
 
-        matching.updateMatching(matchingUpdateDto.matchingStatus());
-        updatePostStatusByMatchingDoneCount(matching.getPost().getId());
+        matching.updateMatchingStatus(updateStatus);
         return matching.getId();
+    }
+
+    private boolean existsMatchingDone(Post post) {
+        return matchingRepository.findByPostId(post.getId())
+                .stream()
+                .anyMatch(m -> m.getMatchingStatus() == MatchingStatus.DONE);
     }
 
     @Transactional // 매칭 삭제
     public void deleteMatching(Long matchingId, Long memberId) {
         Matching matching = findMatchingByIdOrThrow(matchingId);
-        validatePostAuthor(matching.getPost(), memberId);
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+        validatePostAuthor(matching.getPost(), author);
 
         matchingRepository.delete(matching);
     }
@@ -109,25 +122,9 @@ public class MatchingService {
                 .build();
     }
 
-    private void updatePostStatusByMatchingDoneCount(Long postId) {
-        Post post = postService.findPostByIdOrThrow(postId);
-
-        Integer headcount = post.getHeadcount();
-        Integer matchingDoneCount = matchingRepository.countMatchingDoneByPostId(postId);
-
-        PostStatus status = headcount.equals(matchingDoneCount) ? PostStatus.FINISHED : PostStatus.RECRUITING;
-        post.changeStatus(status);
-    }
-
-    private boolean isFullAndMatchingStatusIsDone(Post post, MatchingStatus matchingStatus) {
-        Integer matchingDoneCount = matchingRepository.countMatchingDoneByPostId(post.getId());
-        return post.getHeadcount().equals(matchingDoneCount) && matchingStatus == MatchingStatus.DONE;
-    }
-
     // 게시글 작성 회원과 현재 로그인한 회원 일치 여부 판단
-    private void validatePostAuthor(Post post, Long memberId) {
-        if ((post.getPostType() == PostType.GIVER && !post.getAuthor().getId().equals(memberId)) ||
-                (post.getPostType() == PostType.TAKER && !post.getAuthor().getId().equals(memberId))) {
+    private void validatePostAuthor(Post post, Member author) {
+        if (!post.getAuthor().equals(author)) {
             throw PostUnauthorizedAccessException.EXCEPTION;
         }
     }
