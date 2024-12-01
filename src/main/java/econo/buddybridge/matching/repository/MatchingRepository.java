@@ -16,9 +16,10 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
     List<Matching> findByPostId(Long postId);
 
-    @Query("SELECT COUNT(m) FROM Matching m WHERE m.post.id = :post_id AND m.matchingStatus = 'DONE'")
-    Integer countMatchingDoneByPostId(Long post_id);
-
     @Query("SELECT m FROM Matching m JOIN FETCH m.giver JOIN FETCH m.taker WHERE m.id = :matchingId")
     Optional<Matching> findByIdWithMembers(@Param("matchingId") Long matchingId);
+
+    @Override
+    @Query("SELECT m FROM Matching m WHERE m.id = :matchingId")
+    Optional<Matching> findById(@Param("matchingId") Long matchingId);
 }
