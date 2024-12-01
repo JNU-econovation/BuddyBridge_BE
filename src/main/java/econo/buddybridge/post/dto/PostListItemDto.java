@@ -30,7 +30,7 @@ public record PostListItemDto(
         Boolean isLiked
 ) {
 
-    public PostListItemDto(Post post, Boolean isLiked) {
+    public PostListItemDto(Post post, Boolean isLiked, PostStatus postStatus) {
         this(
                 post.getId(),
                 post.getTitle(),
@@ -40,7 +40,7 @@ public record PostListItemDto(
                 post.getSchedule().getScheduleType(),
                 post.getDistrict(),
                 post.getPostType(),
-                post.getPostStatus(),
+                postStatus,
                 post.getDisabilityType(),
                 post.getAssistanceTime().getAssistanceStartTime(),
                 post.getAssistanceTime().getAssistanceEndTime(),

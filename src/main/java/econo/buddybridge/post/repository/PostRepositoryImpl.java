@@ -18,9 +18,13 @@ import econo.buddybridge.post.exception.PostInvalidSortValueException;
 import econo.buddybridge.post.exception.PostNotFoundException;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static econo.buddybridge.matching.entity.QMatching.matching;
 import static econo.buddybridge.post.entity.QPost.post;
@@ -53,9 +57,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .where(matching.post.id.eq(postId))
                 .fetch();
 
-        PostStatus postStatus = matchings
-                .stream()
-                .anyMatch(m -> m.getMatchingStatus() == MatchingStatus.DONE) ? PostStatus.FINISHED : PostStatus.RECRUITING;
+        PostStatus postStatus = calculatePostStatus(matchings);
 
         return new PostDetailDto(content, isLiked, postStatus);
     }
@@ -73,7 +75,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .orderBy(buildOrderSpecifier(sort, post))
                 .fetch();
 
-        List<PostListItemDto> content = getPostResDtos(memberId, posts);
+        List<PostListItemDto> content = getContent(memberId, posts, false);
 
         Long totalElements = queryFactory
                 .select(post.count())
@@ -84,6 +86,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
         return new PostCustomPage(content, totalElements, content.size() < size);
     }
+
 
     @Override // 내가 작성한 게시글 목록 조회 - 마이페이지
     public PostCustomPage findPostsMyPage(Long memberId, Integer page, Integer size, String sort, PostType postType) {
@@ -96,7 +99,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .orderBy(buildOrderSpecifier(sort, post))
                 .fetch();
 
-        List<PostListItemDto> content = getPostResDtos(memberId, posts);
+        List<PostListItemDto> content = getContent(memberId, posts, false);
 
         Long totalElements = queryFactory
                 .select(post.count())
@@ -110,16 +113,15 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     @Override // 내가 좋아요한 게시글 목록 조회
     public PostCustomPage findPostsByLikes(Long memberId, Integer page, Integer size, String sort, PostType postType) {
 
-        List<PostListItemDto> content = queryFactory
+        List<Post> posts = queryFactory
                 .select(postLike.post)
                 .from(postLike)
                 .where(postLike.member.id.eq(memberId), buildPostTypeExpression(postType, postLike.post))
                 .offset((long) page * size)
                 .orderBy(buildOrderSpecifier(sort, postLike.post))
-                .fetch()
-                .stream()
-                .map(post -> new PostListItemDto(post, true))
-                .toList();
+                .fetch();
+
+        List<PostListItemDto> content = getContent(memberId, posts, true);
 
         Long totalElements = queryFactory
                 .select(postLike.count())
@@ -130,9 +132,27 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return new PostCustomPage(content, totalElements, content.size() < size);
     }
 
-    private List<PostListItemDto> getPostResDtos(Long memberId, List<Post> posts) {
+    private List<PostListItemDto> getContent(Long memberId, List<Post> posts, Boolean isLikedPage) {
+        List<Long> postIds = getPostIds(posts);
+        Map<Long, List<Matching>> matchings = getMatchings(postIds);
+        return getPostResDtos(memberId, posts, matchings, isLikedPage);
+    }
+
+    private List<PostListItemDto> getPostResDtos(Long memberId, List<Post> posts, Map<Long, List<Matching>> matchings, Boolean isLikedPage) {
+
+        if (isLikedPage) {
+            return posts.stream()
+                    .map(post -> {
+                        List<Matching> postMatchings = matchings.getOrDefault(post.getId(), Collections.emptyList());
+                        PostStatus status = calculatePostStatus(postMatchings);
+                        return new PostListItemDto(post, true, status);
+                    })
+                    .toList();
+        }
+
+        Map<Long, Boolean> tempPostLikeRepository = new HashMap<>();
         if (memberId != null) {
-            List<Long> postIds = posts.stream().map(Post::getId).toList();
+            List<Long> postIds = getPostIds(posts);
             Set<Long> postLikedIds = new HashSet<>(
                     queryFactory
                             .select(postLike.post.id)
@@ -140,15 +160,38 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                             .where(postLike.member.id.eq(memberId), postLike.post.id.in(postIds))
                             .fetch()
             );
-
-            return posts.stream()
-                    .map(post -> new PostListItemDto(post, postLikedIds.contains(post.getId())))
-                    .toList();
+            posts.forEach(post -> tempPostLikeRepository.put(post.getId(), postLikedIds.contains(post.getId())));
         }
 
         return posts.stream()
-                .map(post -> new PostListItemDto(post, false))
+                .map(post -> {
+                    List<Matching> postMatchings = matchings.getOrDefault(post.getId(), Collections.emptyList());
+                    PostStatus status = calculatePostStatus(postMatchings);
+                    boolean isLiked = tempPostLikeRepository.getOrDefault(post.getId(), false);
+                    return new PostListItemDto(post, isLiked, status);
+                })
                 .toList();
+    }
+
+    private PostStatus calculatePostStatus(List<Matching> matchings) {
+        return matchings
+                .stream()
+                .anyMatch(m -> m.getMatchingStatus() == MatchingStatus.DONE)
+                ? PostStatus.FINISHED
+                : PostStatus.RECRUITING;
+    }
+
+    private Map<Long, List<Matching>> getMatchings(List<Long> postIds) {
+        return queryFactory
+                .selectFrom(matching)
+                .where(matching.post.id.in(postIds))
+                .fetch()
+                .stream()
+                .collect(Collectors.groupingBy(m -> m.getPost().getId()));
+    }
+
+    private List<Long> getPostIds(List<Post> posts) {
+        return posts.stream().map(Post::getId).toList();
     }
 
     private BooleanExpression buildMemberIdExpression(Long memberId) {
@@ -159,6 +202,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return postType == null ? null : qPost.postType.eq(postType);
     }
 
+    // Todo : postStatus 필드 제거에 따른 Matching을 조회해 PostStatus를 계산하는 로직으로 변경
     private BooleanExpression buildPostStatusExpression(PostStatus postStatus) {
         return postStatus == null ? null : post.postStatus.eq(postStatus);
     }
