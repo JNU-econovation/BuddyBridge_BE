@@ -38,6 +38,12 @@ public class PostService {
                 .orElseThrow(() -> PostNotFoundException.EXCEPTION);
     }
 
+    @Transactional(readOnly = true)
+    public Post findPostByIdWithAuthorOrThrow(Long postId) {
+        return postRepository.findByIdWithAuthor(postId)
+                .orElseThrow(() -> PostNotFoundException.EXCEPTION);
+    }
+
     @Transactional(readOnly = true) // 단일 게시글 조회
     public PostDetailDto findPost(Long memberId, Long postId) {
         return postRepository.findByMemberIdAndPostId(memberId, postId);

@@ -118,6 +118,12 @@ public class CommentService {
                 .orElseThrow(() -> CommentNotFoundException.EXCEPTION);
     }
 
+    @Transactional(readOnly = true) // 댓글 조회
+    public Comment findCommentByIdWithAuthorOrThrow(Long commentId) {
+        return commentRepository.findByIdWithAuthor(commentId)
+                .orElseThrow(() -> CommentNotFoundException.EXCEPTION);
+    }
+
     private Comment commentReqToComment(CommentReqDto commentReqDto, Post post, Member member) {
         return Comment.builder()
                 .post(post)

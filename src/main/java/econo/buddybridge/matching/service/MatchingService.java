@@ -37,6 +37,12 @@ public class MatchingService {
     }
 
     @Transactional(readOnly = true)
+    public Matching findMatchingByIdWithMembers(Long matchingId) {
+        return matchingRepository.findByIdWithMembers(matchingId)
+                .orElseThrow(() -> MatchingNotFoundException.EXCEPTION);
+    }
+
+    @Transactional(readOnly = true)
     public Matching findByIdWithMembersAndPost(Long matchingId) {
         return matchingRepository.findByIdWithMembersAndPost(matchingId)
                 .orElseThrow(() -> MatchingNotFoundException.EXCEPTION);
