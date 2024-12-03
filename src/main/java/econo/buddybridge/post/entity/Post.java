@@ -2,7 +2,7 @@ package econo.buddybridge.post.entity;
 
 
 import econo.buddybridge.comment.entity.Comment;
-import econo.buddybridge.common.persistence.BaseEntity;
+import econo.buddybridge.common.persistence.SoftDeletableEntity;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Gender;
@@ -12,7 +12,6 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -23,16 +22,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -41,8 +38,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @DynamicUpdate
-@EntityListeners(value = AuditingEntityListener.class)
-public class Post extends BaseEntity {
+public class Post extends SoftDeletableEntity {
 
     @Id
     @Column(name = "post_id")
@@ -104,7 +100,8 @@ public class Post extends BaseEntity {
         if (postUpdateReqDto.assistanceStartTime() != null || postUpdateReqDto.assistanceEndTime() != null) {
 
             updateAssistanceTime = new AssistanceTime(
-                    postUpdateReqDto.assistanceStartTime() != null ? postUpdateReqDto.assistanceStartTime() : this.assistanceTime.getAssistanceStartTime(),
+                    postUpdateReqDto.assistanceStartTime() != null ? postUpdateReqDto.assistanceStartTime()
+                            : this.assistanceTime.getAssistanceStartTime(),
                     postUpdateReqDto.assistanceEndTime() != null ? postUpdateReqDto.assistanceEndTime() : this.assistanceTime.getAssistanceEndTime()
             );
         }

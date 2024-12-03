@@ -4,11 +4,13 @@ import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentReqDto;
 import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
 import econo.buddybridge.comment.entity.Comment;
+import econo.buddybridge.comment.event.CommentDeleteEvent;
 import econo.buddybridge.comment.exception.CommentAlreadyWrittenException;
 import econo.buddybridge.comment.exception.CommentDeleteNotAllowedException;
 import econo.buddybridge.comment.exception.CommentInvalidDirectionException;
 import econo.buddybridge.comment.exception.CommentNotFoundException;
 import econo.buddybridge.comment.exception.CommentSameGenderOnlyException;
+import econo.buddybridge.comment.exception.CommentSelfNotAllowedException;
 import econo.buddybridge.comment.exception.CommentUpdateNotAllowedException;
 import econo.buddybridge.comment.repository.CommentRepository;
 import econo.buddybridge.member.entity.Member;
@@ -19,6 +21,7 @@ import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -36,6 +39,7 @@ public class CommentService {
     private final PostService postService;
     private final CommentRepository commentRepository;
     private final EmitterService emitterService;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional(readOnly = true) // MyPage 댓글 조회
     public MyPageCommentCustomPage getMyPageComments(Long memberId, Integer page, Integer size, String sort, PostType postType) {
@@ -60,22 +64,27 @@ public class CommentService {
 
     @Transactional  // 댓글 생성
     public Long createComment(CommentReqDto commentReqDto, Long postId, Long memberId) {
-        Member member = memberService.findMemberByIdOrThrow(memberId);
+        Member author = memberService.findMemberByIdOrThrow(memberId);
         Post post = postService.findPostByIdOrThrow(postId);
 
-        if (post.getGender() != member.getGender()) {
+        if (post.getGender() != author.getGender()) {
             throw CommentSameGenderOnlyException.EXCEPTION;
         }
 
+        // 본인의 게시글에 댓글 작성 불가
+        if (post.getAuthor().equals(author)) {
+            throw CommentSelfNotAllowedException.EXCEPTION;
+        }
+
         // 기존에 댓글을 작성한 적이 있는지 확인하고 있다면 댓글 작성 불가
-        if (commentRepository.existsByPostAndAuthor(post, member)) {
+        if (commentRepository.existsByPostAndAuthor(post, author)) {
             throw CommentAlreadyWrittenException.EXCEPTION;
         }
 
-        Comment comment = commentReqToComment(commentReqDto, post, member);
+        Comment comment = commentReqToComment(commentReqDto, post, author);
 
         // 게시글 작성자에게 댓글 알림 전송
-        sendNotificationToPostAuthor(member, comment, post);
+        sendNotificationToPostAuthor(author, comment, post);
 
         return commentRepository.save(comment).getId();
     }
@@ -110,11 +119,17 @@ public class CommentService {
             throw CommentDeleteNotAllowedException.EXCEPTION;
         }
 
-        commentRepository.delete(comment);
+        publisher.publishEvent(CommentDeleteEvent.from(comment));
     }
 
     private Comment findCommentByIdOrThrow(Long commentId) {
         return commentRepository.findById(commentId)
+                .orElseThrow(() -> CommentNotFoundException.EXCEPTION);
+    }
+
+    @Transactional(readOnly = true) // 댓글 조회
+    public Comment findCommentByIdWithAuthorOrThrow(Long commentId) {
+        return commentRepository.findByIdWithAuthor(commentId)
                 .orElseThrow(() -> CommentNotFoundException.EXCEPTION);
     }
 

@@ -13,15 +13,16 @@ import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
+import econo.buddybridge.post.event.PostDeleteEvent;
 import econo.buddybridge.post.exception.PostDeleteNotAllowedException;
 import econo.buddybridge.post.exception.PostNotFoundException;
 import econo.buddybridge.post.exception.PostUpdateNotAllowedException;
 import econo.buddybridge.post.repository.PostRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 
 @Service
@@ -30,11 +31,18 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final MemberService memberService;
+    private final ApplicationEventPublisher publisher;
 
     // 존재하는 포스트인지 확인
     @Transactional(readOnly = true)
     public Post findPostByIdOrThrow(Long postId) {
         return postRepository.findById(postId)
+                .orElseThrow(() -> PostNotFoundException.EXCEPTION);
+    }
+
+    @Transactional(readOnly = true)
+    public Post findPostByIdWithAuthorOrThrow(Long postId) {
+        return postRepository.findByIdWithAuthor(postId)
                 .orElseThrow(() -> PostNotFoundException.EXCEPTION);
     }
 
@@ -50,7 +58,7 @@ public class PostService {
 
     @Transactional(readOnly = true) // 전체 게시글 조회
     public PostCustomPage getPosts(Long memberId, Integer page, Integer size, String sort, PostType postType, PostStatus postStatus,
-                                   List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
+            List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
         return postRepository.findPosts(memberId, page - 1, size, sort, postType, postStatus, disabilityType, assistanceType);
     }
 
@@ -79,9 +87,10 @@ public class PostService {
 
     @Transactional // 게시글 수정
     public Long updatePost(Long postId, PostUpdateReqDto postUpdateReqDto, Long memberId) {
-        Post post = findPostByIdOrThrow(postId);
+        Post post = findPostByIdWithAuthorOrThrow(postId);
+        Member author = memberService.findMemberByIdOrThrow(memberId);
 
-        if (!post.getAuthor().getId().equals(memberId)) {
+        if (!post.getAuthor().equals(author)) {
             throw PostUpdateNotAllowedException.EXCEPTION;
         }
 
@@ -92,10 +101,13 @@ public class PostService {
 
     @Transactional // 게시글 삭제
     public void deletePost(Long postId, Long memberId) {
-        Post post = findPostByIdOrThrow(postId);
-        if (!post.getAuthor().getId().equals(memberId)) {
+        Post post = findPostByIdWithAuthorOrThrow(postId);
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+
+        if (!post.getAuthor().equals(author)) {
             throw PostDeleteNotAllowedException.EXCEPTION;
         }
-        postRepository.deleteById(postId);
+
+        publisher.publishEvent(PostDeleteEvent.from(post));
     }
 }
