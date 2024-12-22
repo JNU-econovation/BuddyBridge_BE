@@ -1,5 +1,6 @@
 package econo.buddybridge.config;
 
+import econo.buddybridge.auth.jwt.TokenType;
 import econo.buddybridge.auth.jwt.service.JwtTokenProvider;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +43,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 
         // reissue 엔드포인트로 요청이 들어오면 refresh token 검증
         if (request.getRequestURI().equals(REISSUE_URI)) {
-            return jwtTokenProvider.validateRefreshToken(token);
+            return jwtTokenProvider.validateToken(token, TokenType.REFRESH);
         }
 
         // Access Token에서 memberId 추출 후 Refresh Token이 tokenRepository에 존재하는지 확인

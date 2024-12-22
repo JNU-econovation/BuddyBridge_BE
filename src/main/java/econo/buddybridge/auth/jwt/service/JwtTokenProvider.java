@@ -94,8 +94,8 @@ public class JwtTokenProvider {
         return Optional.of(header.substring(BEARER_PREFIX.length()));
     }
 
-    public boolean validateRefreshToken(String token) {
-        parseClaims(token, TokenType.REFRESH);
+    public boolean validateToken(String token, TokenType tokenType) {
+        parseClaims(token, tokenType);
         return true;
     }
 
