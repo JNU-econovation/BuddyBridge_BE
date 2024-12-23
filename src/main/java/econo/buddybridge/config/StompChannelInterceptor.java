@@ -24,11 +24,9 @@ public class StompChannelInterceptor implements ChannelInterceptor {
     @Override // 커스텀 헤더의 JWT를 가져옴
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-
         if (accessor != null) {
             processAuthentication(accessor);
         }
-
         return message;
     }
 
@@ -47,7 +45,9 @@ public class StompChannelInterceptor implements ChannelInterceptor {
     private Long validateAndGetMemberId(StompHeaderAccessor accessor) {
         String token = jwtTokenProvider.extractToken(accessor.getFirstNativeHeader(AUTHORIZATION));
         jwtTokenProvider.validateToken(token, TokenType.ACCESS);
-        return jwtTokenProvider.getMemberIdFromAccessToken(token);
+        Long memberId = jwtTokenProvider.getMemberIdFromAccessToken(token);
+        jwtTokenProvider.existsByMemberIdOrThrow(memberId); // 요청이 들어온 AccessToken에 대한 RefreshToken이 존재하는지 확인
+        return memberId;
     }
 
     private void setPrincipal(StompHeaderAccessor accessor, Long memberId) {
