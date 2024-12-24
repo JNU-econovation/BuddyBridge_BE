@@ -6,11 +6,12 @@ import lombok.Getter;
 public enum MessageType {
     INFO("INFO"), // JOIN, LEAVE, ETC...
     CHAT("CHAT"),
-    DELETE("DELETE");
+    DELETE("DELETE"),
+    ERROR("ERROR");
 
     private final String messageType;
 
-    private MessageType(String messageType){
+    MessageType(String messageType) {
         this.messageType = messageType;
     }
 
