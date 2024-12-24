@@ -1,5 +1,6 @@
 package econo.buddybridge.websocket;
 
+import econo.buddybridge.chat.chatmessage.entity.MessageType;
 import econo.buddybridge.common.exception.BusinessException;
 import econo.buddybridge.common.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,7 @@ public class ChatErrorHandler extends StompSubProtocolErrorHandler {
         errorAccessor.setMessage(errorCode.getMessage());
         errorAccessor.setNativeHeader("code", errorCode.getCode());
         errorAccessor.setNativeHeader("status", String.valueOf(errorCode.getHttpStatus().value()));
+        errorAccessor.setNativeHeader("messageType", MessageType.ERROR.getMessageType());
 
         return MessageBuilder.createMessage(
                 errorCode.getMessage().getBytes(StandardCharsets.UTF_8),
