@@ -22,47 +22,37 @@ public class ChatErrorHandler extends StompSubProtocolErrorHandler {
 
     @Override
     public Message<byte[]> handleClientMessageProcessingError(Message<byte[]> clientMessage, Throwable ex) {
-
-        log.error("웹 소켓 에러 발생: {}", ex.getMessage());
-
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(clientMessage);
-        StompCommand command = accessor.getCommand();
-
-        if (ex instanceof BusinessException businessException) {
-            return handleBusinessException(command, businessException);
+        log.error("Exception type(예외 타입): {}", ex.getClass().getName());
+        if (ex.getCause() != null) {
+            log.error("Cause type(커스텀 예외 타입): {}", ex.getCause().getClass().getName());
         }
+        log.error("Original error message(원본 에러 메시지): {}", ex.getMessage());
 
-        return handleUnauthorizedException(command, ex);
-    }
+        ErrorCode errorCode = getErrorCode(ex);
 
-    private Message<byte[]> handleUnauthorizedException(StompCommand command, Throwable ex) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.ERROR);
-
-        // Todo : 하드코딩 제거
-
-        log.error("Unauthorized 에러 발생: {}", ex.getMessage());
-
-        accessor.setMessage("Unauthorized");
-        accessor.setNativeHeader("code", "401");
-
-        return MessageBuilder.createMessage(
-                "Unauthorized".getBytes(StandardCharsets.UTF_8),
-                accessor.getMessageHeaders()
-        );
-    }
-
-    private Message<byte[]> handleBusinessException(StompCommand command, BusinessException ex) {
-        ErrorCode errorCode = ex.getErrorCode();
-
-        log.error("비즈니스 에러 발생: {}", errorCode.getMessage());
-        StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.ERROR);
-        accessor.setMessage(errorCode.getMessage());
-        accessor.setNativeHeader("code", errorCode.getCode());
-        accessor.setNativeHeader("status", String.valueOf(errorCode.getHttpStatus().value()));
+        StompHeaderAccessor errorAccessor = StompHeaderAccessor.create(StompCommand.ERROR);
+        errorAccessor.setMessage(errorCode.getMessage());
+        errorAccessor.setNativeHeader("code", errorCode.getCode());
+        errorAccessor.setNativeHeader("status", String.valueOf(errorCode.getHttpStatus().value()));
 
         return MessageBuilder.createMessage(
                 errorCode.getMessage().getBytes(StandardCharsets.UTF_8),
-                accessor.getMessageHeaders()
+                errorAccessor.getMessageHeaders()
         );
+    }
+
+    private ErrorCode getErrorCode(Throwable ex) {
+        Throwable current = ex;
+
+        while (current != null) {
+            if (current instanceof BusinessException businessException) {
+                log.error("BusinessException Error(커스텀 비즈니스 예외): {}", businessException.getErrorCode().getMessage());
+                return businessException.getErrorCode();
+            }
+            current = current.getCause();
+        }
+
+        log.error("WebSocket Error : {}", WebSocketErrorCode.WS_INTERNAL_SERVER_ERROR.getMessage());
+        return WebSocketErrorCode.WS_INTERNAL_SERVER_ERROR;
     }
 }
