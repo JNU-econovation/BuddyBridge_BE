@@ -38,7 +38,6 @@ public class ChatErrorHandler extends StompSubProtocolErrorHandler {
 
             return buildErrorMessage(errorResponseDto);
         } catch (JsonProcessingException e) {
-            log.error("JsonProcessingException Error(예외): {}", e.getMessage());
             return super.handleClientMessageProcessingError(clientMessage, ex);
         }
     }
