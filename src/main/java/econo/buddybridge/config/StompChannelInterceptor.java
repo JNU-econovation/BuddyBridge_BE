@@ -1,7 +1,6 @@
 package econo.buddybridge.config;
 
 
-import econo.buddybridge.auth.jwt.TokenType;
 import econo.buddybridge.auth.jwt.service.JwtTokenProvider;
 import econo.buddybridge.websocket.WebSocketPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +43,6 @@ public class StompChannelInterceptor implements ChannelInterceptor {
 
     private Long validateAndGetMemberId(StompHeaderAccessor accessor) {
         String token = jwtTokenProvider.extractToken(accessor.getFirstNativeHeader(AUTHORIZATION));
-        jwtTokenProvider.validateToken(token, TokenType.ACCESS);
         Long memberId = jwtTokenProvider.getMemberIdFromAccessToken(token);
         jwtTokenProvider.existsByMemberIdOrThrow(memberId); // 요청이 들어온 AccessToken에 대한 RefreshToken이 존재하는지 확인
         return memberId;
