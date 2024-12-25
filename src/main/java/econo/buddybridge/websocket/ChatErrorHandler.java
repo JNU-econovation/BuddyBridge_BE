@@ -7,6 +7,7 @@ import econo.buddybridge.common.exception.BusinessException;
 import econo.buddybridge.common.exception.ErrorCode;
 import econo.buddybridge.websocket.dto.WebSocketErrorResponseDto;
 import econo.buddybridge.websocket.exception.WebSocketErrorCode;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -20,15 +21,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class ChatErrorHandler extends StompSubProtocolErrorHandler {
 
     private final ObjectMapper objectMapper;
-
-    public ChatErrorHandler(ObjectMapper objectMapper) {
-        super();
-        this.objectMapper = objectMapper;
-    }
 
     @Override
     public Message<byte[]> handleClientMessageProcessingError(Message<byte[]> clientMessage, Throwable ex) {
