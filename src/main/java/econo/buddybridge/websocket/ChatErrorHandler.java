@@ -6,7 +6,6 @@ import econo.buddybridge.chat.chatmessage.entity.MessageType;
 import econo.buddybridge.common.exception.BusinessException;
 import econo.buddybridge.common.exception.ErrorCode;
 import econo.buddybridge.websocket.dto.WebSocketErrorResponseDto;
-import econo.buddybridge.websocket.exception.WebSocketErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -29,28 +28,24 @@ public class ChatErrorHandler extends StompSubProtocolErrorHandler {
 
     @Override
     public Message<byte[]> handleClientMessageProcessingError(Message<byte[]> clientMessage, Throwable ex) {
-        try {
-            ErrorCode errorCode = getErrorCode(ex);
-            WebSocketErrorResponseDto errorResponseDto = toErrorResponse(errorCode);
 
-            return buildErrorMessage(errorResponseDto);
+        try {
+            Throwable current = ex;
+
+            while (current != null) {
+                if (current instanceof BusinessException businessException) {
+                    ErrorCode errorCode = businessException.getErrorCode();
+                    WebSocketErrorResponseDto errorResponseDto = toErrorResponse(errorCode);
+                    return buildErrorMessage(errorResponseDto);
+                }
+                current = current.getCause();
+            }
+
+            log.error("STOMP 예외 발생: {}", ex.getMessage());
+            return super.handleClientMessageProcessingError(clientMessage, ex);
         } catch (JsonProcessingException e) {
             return super.handleClientMessageProcessingError(clientMessage, ex);
         }
-    }
-
-    private ErrorCode getErrorCode(Throwable ex) {
-        Throwable current = ex;
-        log.error("STOMP 예외 발생: {}", ex.getMessage());
-
-        while (current != null) {
-            if (current instanceof BusinessException businessException) {
-                return businessException.getErrorCode();
-            }
-            current = current.getCause();
-        }
-
-        return WebSocketErrorCode.WS_INTERNAL_SERVER_ERROR;
     }
 
     private static WebSocketErrorResponseDto toErrorResponse(ErrorCode errorCode) {
