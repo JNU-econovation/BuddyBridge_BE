@@ -1,22 +1,27 @@
-package econo.buddybridge.websocket;
+package econo.buddybridge.config;
 
+import econo.buddybridge.websocket.ChatErrorHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.session.MapSession;
-import org.springframework.session.web.socket.config.annotation.AbstractSessionWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
 @EnableWebSocketMessageBroker
-public class StompConfig extends AbstractSessionWebSocketMessageBrokerConfigurer<MapSession> {
+@RequiredArgsConstructor
+public class StompConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final StompChannelInterceptor stompChannelInterceptor;
+    private final ChatErrorHandler chatErrorHandler;
 
     @Override
-    protected void configureStompEndpoints(StompEndpointRegistry registry) {
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/socket/connect") // ws://{BASE_URL}/socket/connect 로 연결 설정
-                .setAllowedOriginPatterns("*") // CORS 허용
-                .addInterceptors(new HttpSessionHandshakeInterceptor());
+                .setAllowedOriginPatterns("*"); // CORS 허용
+        registry.setErrorHandler(chatErrorHandler); // 에러 핸들러 설정(커스텀 에러 핸들러)
     }
 
     @Override
@@ -29,5 +34,11 @@ public class StompConfig extends AbstractSessionWebSocketMessageBrokerConfigurer
         // 발행 경로에 사용(클라이언트 -> 서버)
 
         registry.setPreservePublishOrder(true); // 발행 순서 보장
+    }
+
+    // Stomp 연결 시도 시 호출
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(stompChannelInterceptor);
     }
 }
