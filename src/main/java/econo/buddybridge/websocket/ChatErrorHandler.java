@@ -7,7 +7,6 @@ import econo.buddybridge.common.exception.BusinessException;
 import econo.buddybridge.common.exception.ErrorCode;
 import econo.buddybridge.websocket.dto.WebSocketErrorResponseDto;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -21,7 +20,6 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class ChatErrorHandler extends StompSubProtocolErrorHandler {
 
     private final ObjectMapper objectMapper;
@@ -41,7 +39,6 @@ public class ChatErrorHandler extends StompSubProtocolErrorHandler {
                 current = current.getCause();
             }
 
-            log.error("STOMP 예외 발생: {}", ex.getMessage());
             return super.handleClientMessageProcessingError(clientMessage, ex);
         } catch (JsonProcessingException e) {
             return super.handleClientMessageProcessingError(clientMessage, ex);
