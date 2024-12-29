@@ -16,7 +16,8 @@ public record MatchingResDto(
         LocalDateTime lastMessageTime,
         MessageType messageType,
         MatchingStatus matchingStatus,
-        ReceiverDto receiver
+        ReceiverDto receiver,
+        Long unreadCount
 ) {
 
     @QueryProjection
