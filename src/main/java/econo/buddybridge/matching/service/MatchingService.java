@@ -15,7 +15,6 @@ import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
-import econo.buddybridge.post.exception.PostUnauthorizedAccessException;
 import econo.buddybridge.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -56,6 +55,7 @@ public class MatchingService {
         Post post = postService.findPostByIdOrThrow(matchingReqDto.postId());
         Member author = memberService.findMemberByIdOrThrow(memberId);
         validatePostAuthor(post, author);
+        post.validateAuthor(author);
 
         Member taker, giver;
 
@@ -78,13 +78,13 @@ public class MatchingService {
         return matchingRepository.save(matching).getId();
     }
 
-    private void saveFirstChatMessage(Matching matching, Member taker) {
+    private void saveFirstChatMessage(Matching matching, Member author) {
         chatMessageRepository.save(
                 ChatMessage.builder()
                         .matching(matching)
                         .content("매칭이 생성되었습니다. 채팅을 통해 상대방과 연락해보세요!")
                         .messageType(MessageType.INFO)
-                        .sender(taker)
+                        .sender(author)
                         .build()
         );
     }
@@ -94,7 +94,8 @@ public class MatchingService {
         Matching matching = findMatchingByIdOrThrow(matchingId);
         Post post = postService.findPostByIdOrThrow(matching.getPost().getId());
         Member author = memberService.findMemberByIdOrThrow(memberId);
-        validatePostAuthor(post, author);
+
+        post.validateAuthor(author);
 
         MatchingStatus updateStatus = matchingUpdateDto.matchingStatus();
 
@@ -116,7 +117,8 @@ public class MatchingService {
     public void deleteMatching(Long matchingId, Long memberId) {
         Matching matching = findMatchingByIdOrThrow(matchingId);
         Member author = memberService.findMemberByIdOrThrow(memberId);
-        validatePostAuthor(matching.getPost(), author);
+
+        matching.getPost().validateAuthor(author);
 
         publisher.publishEvent(MatchingDeleteEvent.from(matching));
     }
@@ -129,12 +131,5 @@ public class MatchingService {
                 .giver(giver)
                 .matchingStatus(MatchingStatus.PENDING) // 매칭 생성시 PENDING
                 .build();
-    }
-
-    // 게시글 작성 회원과 현재 로그인한 회원 일치 여부 판단
-    private void validatePostAuthor(Post post, Member author) {
-        if (!post.getAuthor().equals(author)) {
-            throw PostUnauthorizedAccessException.EXCEPTION;
-        }
     }
 }

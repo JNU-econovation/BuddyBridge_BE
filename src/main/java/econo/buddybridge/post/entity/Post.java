@@ -8,6 +8,7 @@ import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.dto.PostUpdateReqDto;
+import econo.buddybridge.post.exception.PostUnauthorizedAccessException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -82,6 +83,12 @@ public class Post extends SoftDeletableEntity {
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<Comment> comments = new ArrayList<>();
+
+    public void validateAuthor(Member author) {
+        if (!this.author.equals(author)) {
+            throw PostUnauthorizedAccessException.EXCEPTION;
+        }
+    }
 
     public void updatePost(PostUpdateReqDto postUpdateReqDto) {
         Schedule updateSchedule = null;
