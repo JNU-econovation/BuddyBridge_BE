@@ -1,6 +1,9 @@
 package econo.buddybridge.matching.state.impl;
 
 import econo.buddybridge.matching.entity.MatchingStatus;
+import econo.buddybridge.matching.exception.state.InvalidTransition;
+import econo.buddybridge.matching.exception.state.InvalidTransitionToFailedException;
+import econo.buddybridge.matching.exception.state.InvalidTransitionToVolunteeringCompletedException;
 import econo.buddybridge.matching.state.MatchingState;
 import econo.buddybridge.matching.state.MatchingStatusChangeEvent;
 import econo.buddybridge.member.entity.MemberRole;
@@ -28,13 +31,14 @@ public class DoneState implements MatchingState {
                 if (role == MemberRole.TAKER) {
                     return FailedState.getInstance();
                 }
-                break;
+                throw InvalidTransitionToFailedException.EXCEPTION;
             case MARK_AS_HELP_RECEIVED:
                 if (role == MemberRole.TAKER) {
                     return VolunteeringCompletedState.getInstance();
                 }
-                break;
+                throw InvalidTransitionToVolunteeringCompletedException.EXCEPTION;
+            default:
+                throw InvalidTransition.EXCEPTION;
         }
-        throw new IllegalArgumentException("해당 상태로 전환할 수 없습니다.");
     }
 }

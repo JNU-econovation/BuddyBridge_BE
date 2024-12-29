@@ -1,6 +1,7 @@
 package econo.buddybridge.matching.state.impl;
 
 import econo.buddybridge.matching.entity.MatchingStatus;
+import econo.buddybridge.matching.exception.state.InvalidTransitionToVolunteeringVerifiedException;
 import econo.buddybridge.matching.state.MatchingState;
 import econo.buddybridge.matching.state.MatchingStatusChangeEvent;
 import econo.buddybridge.member.entity.MemberRole;
@@ -24,6 +25,6 @@ public class VolunteeringCompletedState implements MatchingState {
         if (event == MatchingStatusChangeEvent.SUBMIT_VOLUNTEERING_VERIFICATION && role == MemberRole.GIVER) {
             return VolunteeringVerifiedState.getInstance();
         }
-        throw new IllegalArgumentException("적절하지 않은 이벤트 혹은 봉사자(GIVER)가 아닙니다.");
+        throw InvalidTransitionToVolunteeringVerifiedException.EXCEPTION;
     }
 }

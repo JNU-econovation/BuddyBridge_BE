@@ -1,6 +1,7 @@
 package econo.buddybridge.matching.state.impl;
 
 import econo.buddybridge.matching.entity.MatchingStatus;
+import econo.buddybridge.matching.exception.state.InvalidTransitionForVolunteeringVerifiedException;
 import econo.buddybridge.matching.state.MatchingState;
 import econo.buddybridge.matching.state.MatchingStatusChangeEvent;
 import econo.buddybridge.member.entity.MemberRole;
@@ -21,6 +22,6 @@ public class VolunteeringVerifiedState implements MatchingState {
 
     @Override
     public MatchingState handleEvent(MatchingStatusChangeEvent event, MemberRole role) {
-        throw new IllegalStateException("봉사 활동이 정상적으로 완료되었습니다.");
+        throw InvalidTransitionForVolunteeringVerifiedException.EXCEPTION;
     }
 }
