@@ -1,7 +1,7 @@
 package econo.buddybridge.matching.state.impl;
 
 import econo.buddybridge.matching.entity.MatchingStatus;
-import econo.buddybridge.matching.exception.state.InvalidTransitionToDoneException;
+import econo.buddybridge.matching.exception.state.OnlyDoneStateTransitionAllowedException;
 import econo.buddybridge.matching.state.MatchingState;
 import econo.buddybridge.matching.state.MatchingStatusChangeEvent;
 import econo.buddybridge.member.entity.MemberRole;
@@ -25,6 +25,6 @@ public class PendingState implements MatchingState {
         if (event == MatchingStatusChangeEvent.TOGGLE_DONE) {
             return DoneState.getInstance();
         }
-        throw InvalidTransitionToDoneException.EXCEPTION;
+        throw OnlyDoneStateTransitionAllowedException.EXCEPTION;
     }
 }

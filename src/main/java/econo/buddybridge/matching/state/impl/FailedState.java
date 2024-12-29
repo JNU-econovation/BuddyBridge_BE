@@ -1,7 +1,7 @@
 package econo.buddybridge.matching.state.impl;
 
 import econo.buddybridge.matching.entity.MatchingStatus;
-import econo.buddybridge.matching.exception.state.InvalidTransitionForFailedException;
+import econo.buddybridge.matching.exception.state.FailedMatchingStateChangeForbiddenException;
 import econo.buddybridge.matching.state.MatchingState;
 import econo.buddybridge.matching.state.MatchingStatusChangeEvent;
 import econo.buddybridge.member.entity.MemberRole;
@@ -22,6 +22,6 @@ public class FailedState implements MatchingState {
 
     @Override
     public MatchingState handleEvent(MatchingStatusChangeEvent event, MemberRole role) {
-        throw InvalidTransitionForFailedException.EXCEPTION;
+        throw FailedMatchingStateChangeForbiddenException.EXCEPTION;
     }
 }

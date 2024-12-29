@@ -1,9 +1,9 @@
 package econo.buddybridge.matching.state.impl;
 
 import econo.buddybridge.matching.entity.MatchingStatus;
-import econo.buddybridge.matching.exception.state.InvalidTransition;
-import econo.buddybridge.matching.exception.state.InvalidTransitionToFailedException;
-import econo.buddybridge.matching.exception.state.InvalidTransitionToVolunteeringCompletedException;
+import econo.buddybridge.matching.exception.state.GiverCannotTransitionToFailedException;
+import econo.buddybridge.matching.exception.state.GiverCannotTransitionToVolunteeringCompletedException;
+import econo.buddybridge.matching.exception.state.OnlyPendingCompletedFailedTransitionAllowedException;
 import econo.buddybridge.matching.state.MatchingState;
 import econo.buddybridge.matching.state.MatchingStatusChangeEvent;
 import econo.buddybridge.member.entity.MemberRole;
@@ -31,14 +31,14 @@ public class DoneState implements MatchingState {
                 if (role == MemberRole.TAKER) {
                     return FailedState.getInstance();
                 }
-                throw InvalidTransitionToFailedException.EXCEPTION;
+                throw GiverCannotTransitionToFailedException.EXCEPTION;
             case MARK_AS_HELP_RECEIVED:
                 if (role == MemberRole.TAKER) {
                     return VolunteeringCompletedState.getInstance();
                 }
-                throw InvalidTransitionToVolunteeringCompletedException.EXCEPTION;
+                throw GiverCannotTransitionToVolunteeringCompletedException.EXCEPTION;
             default:
-                throw InvalidTransition.EXCEPTION;
+                throw OnlyPendingCompletedFailedTransitionAllowedException.EXCEPTION;
         }
     }
 }
