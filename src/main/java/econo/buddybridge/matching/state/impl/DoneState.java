@@ -23,22 +23,18 @@ public class DoneState implements MatchingState {
     public MatchingState handleEvent(MatchingStatusChangeEvent event, MemberRole role) {
         switch (event) {
             case TOGGLE_DONE:
-                System.out.println("DoneState -> PendingState");
                 return PendingState.getInstance();
             case MARK_AS_HELP_NOT_RECEIVED:
                 if (role == MemberRole.TAKER) {
-                    System.out.println("DoneState -> FailedState");
                     return FailedState.getInstance();
                 }
                 break;
             case MARK_AS_HELP_RECEIVED:
                 if (role == MemberRole.TAKER) {
-                    System.out.println("DoneState -> VolunteeringCompletedState");
                     return VolunteeringCompletedState.getInstance();
                 }
                 break;
         }
-        System.out.println("이도저도 아닌 요청 " + event);
         throw new IllegalArgumentException("해당 상태로 전환할 수 없습니다.");
     }
 }

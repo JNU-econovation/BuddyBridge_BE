@@ -21,7 +21,6 @@ public class VolunteeringVerifiedState implements MatchingState {
 
     @Override
     public MatchingState handleEvent(MatchingStatusChangeEvent event, MemberRole role) {
-        System.out.println("VolunteeringVerifiedState는 상태 변경이 불가능합니다.");
         throw new IllegalStateException("봉사 활동이 정상적으로 완료되었습니다.");
     }
 }

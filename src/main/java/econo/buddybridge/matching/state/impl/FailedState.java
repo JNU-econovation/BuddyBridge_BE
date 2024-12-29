@@ -13,7 +13,7 @@ public class FailedState implements MatchingState {
 
     private FailedState() {
     }
-    
+
     @Override
     public MatchingStatus getStatus() {
         return MatchingStatus.FAILED;
@@ -21,7 +21,6 @@ public class FailedState implements MatchingState {
 
     @Override
     public MatchingState handleEvent(MatchingStatusChangeEvent event, MemberRole role) {
-        System.out.println("FailedState는 상태 변경이 불가능합니다.");
         throw new IllegalArgumentException("한 번 취소된 상태는 다시 변경할 수 없습니다.");
     }
 }

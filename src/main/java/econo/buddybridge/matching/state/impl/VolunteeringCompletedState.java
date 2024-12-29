@@ -22,10 +22,8 @@ public class VolunteeringCompletedState implements MatchingState {
     @Override
     public MatchingState handleEvent(MatchingStatusChangeEvent event, MemberRole role) {
         if (event == MatchingStatusChangeEvent.SUBMIT_VOLUNTEERING_VERIFICATION && role == MemberRole.GIVER) {
-            System.out.println("VolunteeringCompletedState -> VolunteeringVerifiedState");
             return VolunteeringVerifiedState.getInstance();
         }
-        System.out.println("이도저도 아닌 요청 " + event);
         throw new IllegalArgumentException("적절하지 않은 이벤트 혹은 봉사자(GIVER)가 아닙니다.");
     }
 }

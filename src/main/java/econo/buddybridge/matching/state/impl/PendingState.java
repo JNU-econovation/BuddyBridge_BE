@@ -22,10 +22,8 @@ public class PendingState implements MatchingState {
     @Override
     public MatchingState handleEvent(MatchingStatusChangeEvent event, MemberRole memberRole) {
         if (event == MatchingStatusChangeEvent.TOGGLE_DONE) {
-            System.out.println("PendingState -> DoneState");
             return DoneState.getInstance();
         }
-        System.out.println("이도저도 아닌 요청 " + event);
         throw new IllegalArgumentException("해당 상태로 전환할 수 없습니다.");
     }
 }
