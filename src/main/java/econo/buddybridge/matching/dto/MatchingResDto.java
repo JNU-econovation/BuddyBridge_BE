@@ -17,7 +17,7 @@ public record MatchingResDto(
         MessageType messageType,
         MatchingStatus matchingStatus,
         ReceiverDto receiver,
-        Long unreadCount
+        Long unreadMessagesCount
 ) {
 
     @QueryProjection
