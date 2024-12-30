@@ -1,16 +1,18 @@
 package econo.buddybridge.websocket;
 
-import lombok.Getter;
-
 import java.security.Principal;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class WebSocketPrincipal implements Principal {
-    private final Long senderId;
 
-    private WebSocketPrincipal(Long senderId) {
-        this.senderId = senderId;
-    }
+    private final Long senderId;
+    private Long matchingId;
 
     public static WebSocketPrincipal of(Long senderId) {
         return new WebSocketPrincipal(senderId);
