@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "CHAT_MESSAGE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChatMessage extends BaseEntity {
 
     @Id
@@ -41,11 +44,12 @@ public class ChatMessage extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MessageType messageType;
 
-    @Builder
-    public ChatMessage(Matching matching, Member sender, String content, MessageType messageType) {
-        this.matching = matching;
-        this.sender = sender;
-        this.content = content;
-        this.messageType = messageType;
+    public static ChatMessage of(Matching matching, Member sender, String content, MessageType messageType) {
+        return ChatMessage.builder()
+                .matching(matching)
+                .sender(sender)
+                .content(content)
+                .messageType(messageType)
+                .build();
     }
 }

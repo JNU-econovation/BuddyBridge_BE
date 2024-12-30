@@ -17,4 +17,14 @@ public record ChatMessageResDto(
     @QueryProjection
     public ChatMessageResDto {
     }
+
+    public static ChatMessageResDto of(Long messageId, Long senderId, String content, MessageType messageType, LocalDateTime createdAt) {
+        return ChatMessageResDto.builder()
+                .messageId(messageId)
+                .senderId(senderId)
+                .content(content)
+                .messageType(messageType)
+                .createdAt(createdAt)
+                .build();
+    }
 }

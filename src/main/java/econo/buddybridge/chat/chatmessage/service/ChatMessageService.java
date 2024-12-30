@@ -30,35 +30,33 @@ public class ChatMessageService {
     @Transactional // 메시지 저장
     public ChatMessageResDto save(Long senderId, ChatMessageReqDto chatMessageReqDto, Long matchingId) {
         Member sender = memberService.findMemberByIdOrThrow(senderId);
-
         Matching matching = matchingService.findMatchingByIdOrThrow(matchingId);
-
-        ChatMessage chatMessage = ChatMessage.builder()
-                .matching(matching)
-                .sender(sender)
-                .content(chatMessageReqDto.content())
-                .messageType(chatMessageReqDto.messageType())
-                .build();
 
         Long receiverId = getReceiverId(sender.getId(), matching.getId());
         Member receiver = memberService.findMemberByIdOrThrow(receiverId);
 
+        ChatMessage chatMessage = ChatMessage.of(matching, sender, chatMessageReqDto.content(), chatMessageReqDto.messageType());
+
+        sendNotification(receiver, sender, chatMessage, matching);
+
+        chatMessageRepository.save(chatMessage);
+
+        return ChatMessageResDto.of(
+                chatMessage.getId(),
+                chatMessage.getSender().getId(),
+                chatMessageReqDto.content(),
+                chatMessageReqDto.messageType(),
+                chatMessage.getCreatedAt()
+        );
+    }
+
+    private void sendNotification(Member receiver, Member sender, ChatMessage chatMessage, Matching matching) {
         emitterService.send(    // 채팅을 받는 사용자에게 알림 전송
                 receiver,
                 String.format(CHAT_NOTIFICATION_MESSAGE, sender.getName(), chatMessage.getContent()),
                 String.format(CHAT_NOTIFICATION_URL, matching.getId()),
                 NotificationType.CHAT
         );
-
-        chatMessageRepository.save(chatMessage);
-
-        return ChatMessageResDto.builder()
-                .messageId(chatMessage.getId())
-                .senderId(chatMessage.getSender().getId())
-                .content(chatMessageReqDto.content())
-                .messageType(chatMessageReqDto.messageType())
-                .createdAt(chatMessage.getCreatedAt())
-                .build();
     }
 
     private Long getReceiverId(Long senderId, Long matchingId) {

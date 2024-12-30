@@ -104,12 +104,12 @@ public class MatchingService {
 
     private void saveFirstChatMessage(Matching matching, Member author) {
         chatMessageRepository.save(
-                ChatMessage.builder()
-                        .matching(matching)
-                        .content("매칭이 생성되었습니다. 채팅을 통해 상대방과 연락해보세요!")
-                        .messageType(MessageType.INFO)
-                        .sender(author)
-                        .build()
+                ChatMessage.of(
+                        matching,
+                        author,
+                        "매칭이 생성되었습니다. 채팅을 통해 상대방과 연락해보세요!",
+                        MessageType.INFO
+                )
         );
     }
 
