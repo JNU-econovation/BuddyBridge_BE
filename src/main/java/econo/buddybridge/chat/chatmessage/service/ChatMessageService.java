@@ -14,7 +14,10 @@ import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.entity.NotificationType;
 import econo.buddybridge.notification.service.EmitterService;
+import econo.buddybridge.websocket.WebSocketPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.user.SimpUser;
+import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +25,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ChatMessageService {
 
+    private static final String SUBSCRIBE_DESTINATION = "/api/queue/chat/";
+
     private final MemberService memberService;
     private final ChatMessageRepository chatMessageRepository;
     private final EmitterService emitterService;
     private final MatchingService matchingService;
+    private final SimpUserRegistry simpUserRegistry;
+    private final MessageReadStatusService messageReadStatusService;
 
     @Transactional // 메시지 저장
     public ChatMessageResDto save(Long senderId, ChatMessageReqDto chatMessageReqDto, Long matchingId) {
@@ -36,10 +43,10 @@ public class ChatMessageService {
         Member receiver = memberService.findMemberByIdOrThrow(receiverId);
 
         ChatMessage chatMessage = ChatMessage.of(matching, sender, chatMessageReqDto.content(), chatMessageReqDto.messageType());
+        chatMessageRepository.save(chatMessage);
 
         sendNotification(receiver, sender, chatMessage, matching);
-
-        chatMessageRepository.save(chatMessage);
+        updateParticipantsReadStatus(matchingId);   // 읽은 시간 갱신
 
         return ChatMessageResDto.of(
                 chatMessage.getId(),
@@ -48,6 +55,17 @@ public class ChatMessageService {
                 chatMessageReqDto.messageType(),
                 chatMessage.getCreatedAt()
         );
+    }
+
+    // 현재 채팅방(매칭)에 참여중인 사용자들의 읽은 시간을 갱신
+    private void updateParticipantsReadStatus(Long matchingId) {
+        String destination = SUBSCRIBE_DESTINATION + matchingId;
+        simpUserRegistry.findSubscriptions(sub -> sub.getDestination().equals(destination))
+                .forEach(sub -> {
+                    SimpUser user = sub.getSession().getUser();
+                    WebSocketPrincipal principal = (WebSocketPrincipal) user.getPrincipal();
+                    messageReadStatusService.updateLastReadTime(matchingId, principal.getSenderId());
+                });
     }
 
     private void sendNotification(Member receiver, Member sender, ChatMessage chatMessage, Matching matching) {
