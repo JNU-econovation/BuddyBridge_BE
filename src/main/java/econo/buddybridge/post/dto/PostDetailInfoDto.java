@@ -1,7 +1,6 @@
 package econo.buddybridge.post.dto;
 
 import econo.buddybridge.post.entity.District;
-import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import lombok.Builder;
 

@@ -2,8 +2,8 @@ package econo.buddybridge.comment.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
 import econo.buddybridge.member.entity.DisabilityType;
+import econo.buddybridge.post.dto.PostStatus;
 import econo.buddybridge.post.entity.AssistanceType;
-import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import lombok.Builder;
 

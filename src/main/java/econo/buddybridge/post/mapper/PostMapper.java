@@ -7,11 +7,11 @@ import econo.buddybridge.post.dto.PostDetailDto;
 import econo.buddybridge.post.dto.PostDetailInfoDto;
 import econo.buddybridge.post.dto.PostListItemDto;
 import econo.buddybridge.post.dto.PostReqDto;
+import econo.buddybridge.post.dto.PostStatus;
 import econo.buddybridge.post.dto.ScheduleDetailResDto;
 import econo.buddybridge.post.dto.ScheduleListResDto;
 import econo.buddybridge.post.entity.AssistanceTime;
 import econo.buddybridge.post.entity.Post;
-import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.Schedule;
 
 public final class PostMapper {
