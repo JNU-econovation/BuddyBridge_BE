@@ -7,7 +7,9 @@ import lombok.Getter;
 public enum MatchingStatus {
     DONE("DONE"),
     FAILED("FAILED"),
-    PENDING("PENDING");
+    PENDING("PENDING"),
+    VOLUNTEERING_COMPLETED("VOLUNTEERING_COMPLETED"),
+    VOLUNTEERING_VERIFIED("VOLUNTEERING_VERIFIED");
 
     private final String matchingStatus;
 
