@@ -25,6 +25,7 @@ public class WithDeletedContentAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
+        // @WithDeletedContent 어노테이션이 붙어있는 경우 필터를 적용하지 않음 (삭제된 데이터도 조회)
         if (method.isAnnotationPresent(WithDeletedContent.class)) {
             return joinPoint.proceed();
         }
@@ -34,6 +35,7 @@ public class WithDeletedContentAspect {
             return joinPoint.proceed();
         }
 
+        // 필터를 활성화하고 비활성화하는 부분을 try-finally로 감싸서 예외 발생 시에도 필터를 비활성화할 수 있도록 함
         try {
             sessionFilterManager.enableFilter(DELETED_FILTER, DELETED_PARAM, false);
             return joinPoint.proceed();

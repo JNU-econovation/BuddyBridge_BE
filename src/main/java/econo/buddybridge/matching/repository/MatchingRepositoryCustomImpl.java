@@ -1,6 +1,7 @@
 package econo.buddybridge.matching.repository;
 
 import static econo.buddybridge.chat.chatmessage.entity.QChatMessage.chatMessage;
+import static econo.buddybridge.chat.chatmessage.entity.QMessageReadStatus.messageReadStatus;
 import static econo.buddybridge.matching.entity.QMatching.matching;
 import static econo.buddybridge.member.entity.QMember.member;
 
@@ -45,15 +46,30 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
                                 member.id,
                                 member.name,
                                 member.profileImageUrl
-                        )
+                        ),
+                        JPAExpressions
+                                .select(subChatMessage.id.count())          // 읽지 않은 메시지 수
+                                .from(subChatMessage)
+                                .where(subChatMessage.matching.eq(matching)         // 해당 매칭방의 메시지 중
+                                        .and(subChatMessage.sender.id.ne(memberId)) // 내가 보낸 메시지는 제외하고
+                                        .and(subChatMessage.createdAt.gt(           // 마지막 읽은 시간 이후 메시지
+                                                JPAExpressions
+                                                        .select(messageReadStatus.lastReadTime)
+                                                        .from(messageReadStatus)
+                                                        .where(messageReadStatus.reader.id.eq(memberId)
+                                                                .and(messageReadStatus.matching.eq(matching)))
+                                        ))
+                                )
                 ))
                 .from(matching)
-                .leftJoin(chatMessage).on(chatMessage.matching.eq(matching)
-                        .and(chatMessage.id.eq(JPAExpressions
-                                .select(subChatMessage.id.max())
-                                .from(subChatMessage)
-                                .where(subChatMessage.matching.eq(matching)))))
-                .leftJoin(member).on(
+                .leftJoin(chatMessage).on(chatMessage.matching.eq(matching) // 마지막 메시지 정보
+                        .and(chatMessage.id.eq(
+                                JPAExpressions
+                                        .select(subChatMessage.id.max())
+                                        .from(subChatMessage)
+                                        .where(subChatMessage.matching.eq(matching)))
+                        ))
+                .leftJoin(member).on(   // 상대방 정보
                         member.id.eq(
                                 new CaseBuilder()
                                         .when(matching.taker.id.eq(memberId)).then(matching.giver.id)
@@ -61,12 +77,12 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
                         )
                 )
                 .where(
-                        matching.taker.id.eq(memberId).or(matching.giver.id.eq(memberId)),
+                        matching.taker.id.eq(memberId).or(matching.giver.id.eq(memberId)),  // 내가 참여한 매칭
                         buildCursorExpression(cursor),
                         buildMatchingStatusExpression(matchingStatus)
                 )
-                .orderBy(chatMessage.createdAt.desc())
-                .limit(size + 1)
+                .orderBy(chatMessage.createdAt.desc())  // 최신 메시지 순
+                .limit(size + 1L)
                 .fetch();
 
         boolean nextPage = false;

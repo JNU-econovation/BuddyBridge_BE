@@ -4,6 +4,7 @@ package econo.buddybridge.config;
 import econo.buddybridge.auth.jwt.service.JwtTokenProvider;
 import econo.buddybridge.websocket.WebSocketPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -17,8 +18,6 @@ import org.springframework.stereotype.Component;
 public class StompChannelInterceptor implements ChannelInterceptor {
 
     private final JwtTokenProvider jwtTokenProvider;
-
-    private final static String AUTHORIZATION = "Authorization";
 
     @Override // 커스텀 헤더의 JWT를 가져옴
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -42,14 +41,13 @@ public class StompChannelInterceptor implements ChannelInterceptor {
     }
 
     private Long validateAndGetMemberId(StompHeaderAccessor accessor) {
-        String token = jwtTokenProvider.extractToken(accessor.getFirstNativeHeader(AUTHORIZATION));
+        String token = jwtTokenProvider.extractToken(accessor.getFirstNativeHeader(HttpHeaders.AUTHORIZATION));
         Long memberId = jwtTokenProvider.getMemberIdFromAccessToken(token);
         jwtTokenProvider.existsByMemberIdOrThrow(memberId); // 요청이 들어온 AccessToken에 대한 RefreshToken이 존재하는지 확인
         return memberId;
     }
 
     private void setPrincipal(StompHeaderAccessor accessor, Long memberId) {
-
         if (accessor.getUser() == null) {
             accessor.setUser(WebSocketPrincipal.of(memberId));
         }

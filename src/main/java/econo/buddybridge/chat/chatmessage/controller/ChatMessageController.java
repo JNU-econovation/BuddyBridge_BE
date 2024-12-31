@@ -4,14 +4,13 @@ import econo.buddybridge.chat.chatmessage.dto.ChatMessageReqDto;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
 import econo.buddybridge.chat.chatmessage.service.ChatMessageService;
 import econo.buddybridge.websocket.WebSocketPrincipal;
+import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,6 +26,7 @@ public class ChatMessageController {
             Principal principal
     ) {
         WebSocketPrincipal webSocketPrincipal = (WebSocketPrincipal) principal;
-        return chatMessageService.save(webSocketPrincipal.getSenderId(), chatMessageReqDto, matchingId);
+        Long senderId = webSocketPrincipal.getSenderId();
+        return chatMessageService.save(senderId, chatMessageReqDto, matchingId);
     }
 }

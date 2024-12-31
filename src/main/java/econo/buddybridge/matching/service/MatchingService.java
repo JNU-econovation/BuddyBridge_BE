@@ -1,8 +1,11 @@
 package econo.buddybridge.matching.service;
 
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
+import econo.buddybridge.chat.chatmessage.entity.MessageReadStatus;
 import econo.buddybridge.chat.chatmessage.entity.MessageType;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
+import econo.buddybridge.chat.chatmessage.repository.MessageReadStatusRepository;
+import econo.buddybridge.matching.dto.MatchingParticipants;
 import econo.buddybridge.matching.dto.MatchingReqDto;
 import econo.buddybridge.matching.dto.MatchingUpdateDto;
 import econo.buddybridge.matching.entity.Matching;
@@ -15,8 +18,9 @@ import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
-import econo.buddybridge.post.exception.PostUnauthorizedAccessException;
 import econo.buddybridge.post.service.PostService;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -27,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MatchingService {
 
     private final ChatMessageRepository chatMessageRepository;
+    private final MessageReadStatusRepository messageReadStatusRepository;
     private final MatchingRepository matchingRepository;
     private final MemberService memberService;
     private final PostService postService;
@@ -54,10 +59,29 @@ public class MatchingService {
     @Transactional
     public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId) {
         Post post = postService.findPostByIdOrThrow(matchingReqDto.postId());
-        Member author = memberService.findMemberByIdOrThrow(memberId);
-        validatePostAuthor(post, author);
+        if (existsMatchingDone(post)) {
+            throw MatchingCompletedException.EXCEPTION;
+        }
 
-        Member taker, giver;
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+        post.validateAuthor(author);
+
+        MatchingParticipants participants = resolveParticipants(post, author, matchingReqDto);
+        Member taker = participants.taker();
+        Member giver = participants.giver();
+
+        Matching matching = matchingReqToMatching(post, taker, giver);
+        Matching savedMatching = matchingRepository.save(matching);
+
+        initMessageReadStatus(savedMatching, taker, giver); // 마지막으로 읽은 시간 초기화
+        saveFirstChatMessage(matching, author);             // 채팅방 생성 메시지 저장
+
+        return savedMatching.getId();
+    }
+
+    private MatchingParticipants resolveParticipants(Post post, Member author, MatchingReqDto matchingReqDto) {
+        Member taker;
+        Member giver;
 
         if (post.getPostType() == PostType.GIVER) {
             giver = author;
@@ -67,25 +91,25 @@ public class MatchingService {
             taker = author;
         }
 
-        if (existsMatchingDone(post)) {
-            throw MatchingCompletedException.EXCEPTION;
-        }
-
-        Matching matching = matchingReqToMatching(post, taker, giver);
-
-        saveFirstChatMessage(matching, taker);
-
-        return matchingRepository.save(matching).getId();
+        return new MatchingParticipants(taker, giver);
     }
 
-    private void saveFirstChatMessage(Matching matching, Member taker) {
+    private void initMessageReadStatus(Matching savedMatching, Member taker, Member giver) {
+        LocalDateTime now = LocalDateTime.now();
+        messageReadStatusRepository.saveAll(List.of(
+                MessageReadStatus.of(savedMatching, taker, now),
+                MessageReadStatus.of(savedMatching, giver, now)
+        ));
+    }
+
+    private void saveFirstChatMessage(Matching matching, Member author) {
         chatMessageRepository.save(
-                ChatMessage.builder()
-                        .matching(matching)
-                        .content("매칭이 생성되었습니다. 채팅을 통해 상대방과 연락해보세요!")
-                        .messageType(MessageType.INFO)
-                        .sender(taker)
-                        .build()
+                ChatMessage.of(
+                        matching,
+                        author,
+                        "매칭이 생성되었습니다. 채팅을 통해 상대방과 연락해보세요!",
+                        MessageType.INFO
+                )
         );
     }
 
@@ -94,7 +118,8 @@ public class MatchingService {
         Matching matching = findMatchingByIdOrThrow(matchingId);
         Post post = postService.findPostByIdOrThrow(matching.getPost().getId());
         Member author = memberService.findMemberByIdOrThrow(memberId);
-        validatePostAuthor(post, author);
+
+        post.validateAuthor(author);
 
         MatchingStatus updateStatus = matchingUpdateDto.matchingStatus();
 
@@ -116,7 +141,8 @@ public class MatchingService {
     public void deleteMatching(Long matchingId, Long memberId) {
         Matching matching = findMatchingByIdOrThrow(matchingId);
         Member author = memberService.findMemberByIdOrThrow(memberId);
-        validatePostAuthor(matching.getPost(), author);
+
+        matching.getPost().validateAuthor(author);
 
         publisher.publishEvent(MatchingDeleteEvent.from(matching));
     }
@@ -129,12 +155,5 @@ public class MatchingService {
                 .giver(giver)
                 .matchingStatus(MatchingStatus.PENDING) // 매칭 생성시 PENDING
                 .build();
-    }
-
-    // 게시글 작성 회원과 현재 로그인한 회원 일치 여부 판단
-    private void validatePostAuthor(Post post, Member author) {
-        if (!post.getAuthor().equals(author)) {
-            throw PostUnauthorizedAccessException.EXCEPTION;
-        }
     }
 }

@@ -2,6 +2,7 @@ package econo.buddybridge.matching.entity;
 
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
 import econo.buddybridge.common.persistence.SoftDeletableEntity;
+import econo.buddybridge.matching.exception.MatchingNotParticipantException;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.entity.Post;
 import jakarta.persistence.CascadeType;
@@ -64,5 +65,11 @@ public class Matching extends SoftDeletableEntity {
 
     public void updateMatchingStatus(MatchingStatus matchingStatus) {
         this.matchingStatus = matchingStatus;
+    }
+
+    public void validateParticipants(Member member) {
+        if (!taker.equals(member) && !giver.equals(member)) {
+            throw MatchingNotParticipantException.EXCEPTION;
+        }
     }
 }

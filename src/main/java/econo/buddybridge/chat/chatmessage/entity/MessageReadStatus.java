@@ -4,8 +4,6 @@ import econo.buddybridge.common.persistence.BaseEntity;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.member.entity.Member;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,19 +11,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "CHAT_MESSAGE")
+@Table(name = "MESSAGE_READ_STATUS")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ChatMessage extends BaseEntity {
+public class MessageReadStatus extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,20 +31,22 @@ public class ChatMessage extends BaseEntity {
     private Matching matching;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id")
-    private Member sender;
+    @JoinColumn(name = "member_id")
+    private Member reader;
 
-    private String content;
+    private LocalDateTime lastReadTime;
 
-    @Enumerated(EnumType.STRING)
-    private MessageType messageType;
+    public void updateLastReadTime() {
+        this.lastReadTime = LocalDateTime.now();
+    }
 
-    public static ChatMessage of(Matching matching, Member sender, String content, MessageType messageType) {
-        return ChatMessage.builder()
-                .matching(matching)
-                .sender(sender)
-                .content(content)
-                .messageType(messageType)
-                .build();
+    private MessageReadStatus(Matching matching, Member reader, LocalDateTime lastReadTime) {
+        this.matching = matching;
+        this.reader = reader;
+        this.lastReadTime = lastReadTime;
+    }
+
+    public static MessageReadStatus of(Matching matching, Member reader, LocalDateTime lastReadTime) {
+        return new MessageReadStatus(matching, reader, lastReadTime);
     }
 }
