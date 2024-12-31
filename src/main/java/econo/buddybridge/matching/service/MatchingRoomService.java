@@ -60,7 +60,7 @@ public class MatchingRoomService {
         boolean nextPage = chatMessagesWithCursor.nextPage();
 
         Post post = matching.getPost();
-        return new ChatMessageCustomPage(post.getPostType(), post.getId(), receiverDto, chatMessageResDtos, nextCursor, nextPage);
+        return new ChatMessageCustomPage(post.getPostType(), post.getId(), post.getAuthor().getId(), receiverDto, chatMessageResDtos, nextCursor, nextPage);
     }
 
     private Member getReceiver(Matching matching, Long memberId) {

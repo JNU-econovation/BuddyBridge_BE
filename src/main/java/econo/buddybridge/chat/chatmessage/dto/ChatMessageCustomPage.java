@@ -9,6 +9,7 @@ import lombok.Builder;
 public record ChatMessageCustomPage(
         PostType postType,
         Long postId,
+        Long postAuthorId,
         ReceiverDto receiver,
         List<ChatMessageResDto> chatMessages,
         Long cursor,
