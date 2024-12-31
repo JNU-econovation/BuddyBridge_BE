@@ -1,10 +1,12 @@
 package econo.buddybridge.post.service;
 
+import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.entity.MemberRole;
 import econo.buddybridge.member.service.MemberService;
+import econo.buddybridge.post.dto.CompletedVolunteerPostDto;
 import econo.buddybridge.post.dto.CompletedVolunteerPostPage;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostDetailDto;
@@ -20,6 +22,7 @@ import econo.buddybridge.post.event.PostDeleteEvent;
 import econo.buddybridge.post.exception.PostDeleteNotAllowedException;
 import econo.buddybridge.post.exception.PostNotFoundException;
 import econo.buddybridge.post.exception.PostUpdateNotAllowedException;
+import econo.buddybridge.post.mapper.PostMapper;
 import econo.buddybridge.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -77,7 +80,12 @@ public class PostService {
     @Transactional(readOnly = true) // 매칭 상태가 DONE 이후인 봉사 게시글 조회
     public CompletedVolunteerPostPage getCompletedVolunteerPosts(Long memberId, Integer page, Integer size, String sort, MemberRole memberRole, Boolean isCompleted) {
         Member author = memberService.findMemberByIdOrThrow(memberId);
-        return matchingRepository.findCompletedVolunteerPosts(author, page - 1, size, sort, memberRole, isCompleted);
+
+        List<Matching> matchings = matchingRepository.getMatchingsByMemberRoleAndStatus(author, page - 1, size, sort, memberRole, isCompleted);
+        List<CompletedVolunteerPostDto> content = PostMapper.getCompletedVolunteerPostDtos(matchings);
+        Long totalElements = matchingRepository.getCompletedVolunteerPostsTotalElements(author, memberRole, isCompleted);
+
+        return new CompletedVolunteerPostPage(content, totalElements, content.size() < size);
     }
 
     // 검증 과정 필요성 고려
