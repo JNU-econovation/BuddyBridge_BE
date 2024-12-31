@@ -12,6 +12,7 @@ import econo.buddybridge.matching.dto.MatchingUpdateDto;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.matching.event.MatchingDeleteEvent;
+import econo.buddybridge.matching.exception.DuplicateMatchingException;
 import econo.buddybridge.matching.exception.MatchingCompletedException;
 import econo.buddybridge.matching.exception.MatchingNotFoundException;
 import econo.buddybridge.matching.exception.MatchingNotParticipantException;
@@ -61,7 +62,7 @@ public class MatchingService {
         return matchingRepository.findByIdWithMembersAndPost(matchingId)
                 .orElseThrow(() -> MatchingNotFoundException.EXCEPTION);
     }
-    
+
     @Transactional
     public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId) {
         Post post = postService.findPostByIdOrThrow(matchingReqDto.postId());
@@ -76,6 +77,8 @@ public class MatchingService {
         Member taker = participants.taker();
         Member giver = participants.giver();
 
+        validateDuplicateMatching(post, taker, giver);
+
         Matching matching = matchingReqToMatching(post, taker, giver);
         Matching savedMatching = matchingRepository.save(matching);
 
@@ -83,6 +86,18 @@ public class MatchingService {
         saveFirstChatMessage(matching, author);             // 채팅방 생성 메시지 저장
 
         return savedMatching.getId();
+    }
+
+    private void validateDuplicateMatching(Post post, Member taker, Member giver) {
+        boolean exists = matchingRepository.existsByPostAndParticipants(
+                post.getId(),
+                taker.getId(),
+                giver.getId()
+        );
+
+        if (exists) {
+            throw DuplicateMatchingException.EXCEPTION;
+        }
     }
 
     private MatchingParticipants resolveParticipants(Post post, Member author, MatchingReqDto matchingReqDto) {

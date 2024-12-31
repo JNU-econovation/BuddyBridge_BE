@@ -21,4 +21,15 @@ public interface MatchingRepository extends JpaRepository<Matching, Long>, Match
     @Override
     @Query("SELECT m FROM Matching m WHERE m.id = :matchingId")
     Optional<Matching> findById(@Param("matchingId") Long matchingId);
+
+    @Query("SELECT EXISTS (" +
+            "SELECT 1 FROM Matching m " +
+            "WHERE m.post.id =:postId " +
+            "AND ((m.giver.id =:firstMemberId AND m.taker.id=:secondMemberId) " +
+            "OR (m.giver.id=:secondMemberId AND m.taker.id =:firstMemberId)))")
+    boolean existsByPostAndParticipants(
+            @Param("postId") Long postId,
+            @Param("firstMemberId") Long firstMemberId,
+            @Param("secondMemberId") Long secondMemberId
+    );
 }
