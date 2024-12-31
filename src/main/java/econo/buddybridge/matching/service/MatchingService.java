@@ -13,18 +13,22 @@ import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.matching.event.MatchingDeleteEvent;
 import econo.buddybridge.matching.exception.MatchingCompletedException;
 import econo.buddybridge.matching.exception.MatchingNotFoundException;
+import econo.buddybridge.matching.exception.MatchingNotParticipantException;
 import econo.buddybridge.matching.repository.MatchingRepository;
+import econo.buddybridge.matching.state.MatchingStatusChangeEvent;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.entity.MemberRole;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.service.PostService;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -117,24 +121,14 @@ public class MatchingService {
     public Long updateMatching(Long matchingId, MatchingUpdateDto matchingUpdateDto, Long memberId) {
         Matching matching = findMatchingByIdOrThrow(matchingId);
         Post post = postService.findPostByIdOrThrow(matching.getPost().getId());
-        Member author = memberService.findMemberByIdOrThrow(memberId);
+        Member member = memberService.findMemberByIdOrThrow(memberId);
+        MemberRole role = getMemberRole(matching, member);
 
-        post.validateAuthor(author);
+        validateUpdateCondition(matchingUpdateDto, post, member, matching);
 
-        MatchingStatus updateStatus = matchingUpdateDto.matchingStatus();
+        matching.handleEvent(matchingUpdateDto.matchingStatusEvent(), role);
 
-        if (existsMatchingDone(post) && updateStatus == MatchingStatus.DONE) {
-            throw MatchingCompletedException.EXCEPTION;
-        }
-
-        matching.updateMatchingStatus(updateStatus);
         return matching.getId();
-    }
-
-    private boolean existsMatchingDone(Post post) {
-        return matchingRepository.findByPostId(post.getId())
-                .stream()
-                .anyMatch(m -> m.getMatchingStatus() == MatchingStatus.DONE);
     }
 
     @Transactional // 매칭 삭제
@@ -145,6 +139,41 @@ public class MatchingService {
         matching.getPost().validateAuthor(author);
 
         publisher.publishEvent(MatchingDeleteEvent.from(matching));
+    }
+
+    private static MemberRole getMemberRole(Matching matching, Member member) {
+        MemberRole role;
+        if (matching.getTaker().equals(member)) {
+            role = MemberRole.TAKER;
+        } else if (matching.getGiver().equals(member)) {
+            role = MemberRole.GIVER;
+        } else {
+            throw MatchingNotParticipantException.EXCEPTION;
+        }
+        return role;
+    }
+
+    // 받아온 이벤트를 통해 (매칭 중, 매칭 완료) 변경 시 게시글 작성자 검증
+    // 매칭 완료로 변경 시 이미 완료된 매칭이 있는지 검증
+    private void validateUpdateCondition(MatchingUpdateDto matchingUpdateDto, Post post, Member member, Matching matching) {
+        if (matchingUpdateDto.matchingStatusEvent() == MatchingStatusChangeEvent.TOGGLE_DONE) {
+            post.validateAuthor(member);
+            if (existsMatchingDone(post) && matching.getMatchingStatus() == MatchingStatus.PENDING) {
+                throw MatchingCompletedException.EXCEPTION;
+            }
+        }
+    }
+
+    private boolean existsMatchingDone(Post post) {
+        List<MatchingStatus> completedStatus = List.of(
+                MatchingStatus.DONE,
+                MatchingStatus.VOLUNTEERING_COMPLETED,
+                MatchingStatus.VOLUNTEERING_VERIFIED
+        );
+
+        return matchingRepository.findByPostId(post.getId())
+                .stream()
+                .anyMatch(m -> completedStatus.contains(m.getMatchingStatus()));
     }
 
     // MatchingReqDto -> Matching
