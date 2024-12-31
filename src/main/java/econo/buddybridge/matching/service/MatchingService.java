@@ -5,6 +5,7 @@ import econo.buddybridge.chat.chatmessage.entity.MessageReadStatus;
 import econo.buddybridge.chat.chatmessage.entity.MessageType;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
 import econo.buddybridge.chat.chatmessage.repository.MessageReadStatusRepository;
+import econo.buddybridge.comment.entity.Comment;
 import econo.buddybridge.comment.service.CommentService;
 import econo.buddybridge.matching.dto.MatchingParticipants;
 import econo.buddybridge.matching.dto.MatchingReqDto;
@@ -12,6 +13,7 @@ import econo.buddybridge.matching.dto.MatchingUpdateDto;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.matching.event.MatchingDeleteEvent;
+import econo.buddybridge.matching.exception.CommentNotBelongToMatchingException;
 import econo.buddybridge.matching.exception.DuplicateMatchingException;
 import econo.buddybridge.matching.exception.MatchingCompletedException;
 import econo.buddybridge.matching.exception.MatchingNotFoundException;
@@ -104,10 +106,13 @@ public class MatchingService {
         Member taker;
         Member giver;
 
-        Member commentAuthor = commentService
-                // join fetch로 author를 가져와서 오히려 효율적이라 생각
-                .findCommentByIdWithAuthorOrThrow(matchingReqDto.commentId())
-                .getAuthor();
+        Comment comment = commentService.findCommentByIdWithAuthorOrThrow(matchingReqDto.commentId());
+
+        if (!comment.getPost().getId().equals(post.getId())) {
+            throw CommentNotBelongToMatchingException.EXCEPTION;
+        }
+
+        Member commentAuthor = comment.getAuthor();
 
         if (post.getPostType() == PostType.GIVER) {
             giver = author;
