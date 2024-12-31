@@ -1,12 +1,8 @@
 package econo.buddybridge.post.dto;
 
-import econo.buddybridge.member.entity.Member;
-import econo.buddybridge.post.entity.AssistanceTime;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.District;
-import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
-import econo.buddybridge.post.entity.Schedule;
 import econo.buddybridge.post.entity.ScheduleType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -54,27 +50,4 @@ public record PostReqDto(
         LocalTime assistanceEndTime
 ) {
 
-    public Post toEntity(Member author) {
-        return Post.builder()
-                .author(author)
-                .title(title)
-                .assistanceType(assistanceType)
-                .schedule(Schedule.builder()
-                        .startDate(startDate)
-                        .endDate(endDate)
-                        .scheduleType(scheduleType)
-                        .scheduleDetails(scheduleDetails)
-                        .build())
-                .district(district)
-                .content(content)
-                .postType(postType)
-                .disabilityType(author.getDisabilityType())
-                .gender(author.getGender())
-                .age(author.getAge())
-                .assistanceTime(AssistanceTime.builder()
-                        .assistanceStartTime(assistanceStartTime)
-                        .assistanceEndTime(assistanceEndTime)
-                        .build())
-                .build();
-    }
 }
