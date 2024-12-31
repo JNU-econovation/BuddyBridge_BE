@@ -86,7 +86,7 @@ public class PostController {
         return ApiResponseGenerator.success(posts, HttpStatus.OK);
     }
 
-    @Operation(summary = "매칭된(DONE, VOLUNTEERING_COMPLETED 상태) 게시글 목록 조회", description = "매칭 완료 이후의 상태(DONE, VOLUNTEERING_COMPLETED, VOLUNTEERING_VERIFIED)를 가진 게시글 목록을 조회합니다.")
+    @Operation(summary = "매칭된(DONE, VOLUNTEERING_COMPLETED, VOLUNTEERING_VERIFIED 상태) 게시글 목록 조회", description = "매칭 완료 이후의 상태(DONE, VOLUNTEERING_COMPLETED, VOLUNTEERING_VERIFIED)를 가진 게시글 목록을 조회합니다.")
     @GetMapping("/volunteering/my-page")
     public ApiResponse<ApiResponse.CustomBody<CompletedVolunteerPostPage>> getCompletedVolunteerPosts(
             @RequestParam("page") Integer page,
