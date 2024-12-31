@@ -1,13 +1,14 @@
 package econo.buddybridge.matching.repository;
 
 import econo.buddybridge.matching.entity.Matching;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface MatchingRepository extends JpaRepository<Matching, Long> {
+import java.util.List;
+import java.util.Optional;
+
+public interface MatchingRepository extends JpaRepository<Matching, Long>, MatchingRepositoryCustom {
 
     @Query("SELECT m FROM Matching m JOIN FETCH m.post JOIN FETCH m.giver JOIN FETCH m.taker WHERE m.id = :matchingId")
     Optional<Matching> findByIdWithMembersAndPost(Long matchingId);
