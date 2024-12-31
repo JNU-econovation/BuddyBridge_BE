@@ -20,4 +20,5 @@ public record PostDetailInfoDto(
         PostStatus postStatus,
         Boolean isLiked
 ) {
+
 }

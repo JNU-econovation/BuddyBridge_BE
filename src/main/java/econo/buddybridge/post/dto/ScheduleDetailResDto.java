@@ -12,4 +12,5 @@ public record ScheduleDetailResDto(
         ScheduleType scheduleType,
         String scheduleDetails
 ) {
+    
 }

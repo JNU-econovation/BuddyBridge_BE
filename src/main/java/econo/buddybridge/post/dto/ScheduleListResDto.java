@@ -11,4 +11,5 @@ public record ScheduleListResDto(
         LocalDateTime endDate,
         ScheduleType scheduleType
 ) {
+    
 }
