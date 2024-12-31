@@ -28,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static econo.buddybridge.post.mapper.PostMapper.toEntity;
+
 
 @Service
 @RequiredArgsConstructor
@@ -83,7 +85,7 @@ public class PostService {
     public Long createPost(PostReqDto postReqDto, Long memberId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
 
-        Post post = postReqDto.toEntity(member);
+        Post post = toEntity(postReqDto, member);
         return postRepository.save(post).getId();
     }
 
