@@ -3,7 +3,15 @@ package econo.buddybridge.matching.entity;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
 import econo.buddybridge.common.persistence.SoftDeletableEntity;
 import econo.buddybridge.matching.exception.MatchingNotParticipantException;
+import econo.buddybridge.matching.state.MatchingState;
+import econo.buddybridge.matching.state.MatchingStatusChangeEvent;
+import econo.buddybridge.matching.state.impl.DoneState;
+import econo.buddybridge.matching.state.impl.FailedState;
+import econo.buddybridge.matching.state.impl.PendingState;
+import econo.buddybridge.matching.state.impl.VolunteeringCompletedState;
+import econo.buddybridge.matching.state.impl.VolunteeringVerifiedState;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.entity.MemberRole;
 import econo.buddybridge.post.entity.Post;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -17,13 +25,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -52,6 +63,9 @@ public class Matching extends SoftDeletableEntity {
     @Enumerated(EnumType.STRING)
     private MatchingStatus matchingStatus;
 
+    @Transient
+    private MatchingState matchingState;
+
     @OneToMany(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<ChatMessage> chatMessages = new ArrayList<>();
 
@@ -61,15 +75,34 @@ public class Matching extends SoftDeletableEntity {
         this.taker = taker;
         this.giver = giver;
         this.matchingStatus = matchingStatus;
+        initializeMatchingState();
     }
 
-    public void updateMatchingStatus(MatchingStatus matchingStatus) {
-        this.matchingStatus = matchingStatus;
+    public void handleEvent(MatchingStatusChangeEvent event, MemberRole role) {
+        MatchingState newState = matchingState.handleEvent(event, role);
+        this.matchingState = newState;
+        this.matchingStatus = newState.getStatus();
+    }
+
+    public void initializeMatchingState() {
+        switch (matchingStatus) {
+            case PENDING -> this.matchingState = PendingState.getInstance();
+            case DONE -> this.matchingState = DoneState.getInstance();
+            case FAILED -> this.matchingState = FailedState.getInstance();
+            case VOLUNTEERING_COMPLETED -> this.matchingState = VolunteeringCompletedState.getInstance();
+            case VOLUNTEERING_VERIFIED -> this.matchingState = VolunteeringVerifiedState.getInstance();
+        }
+        ;
     }
 
     public void validateParticipants(Member member) {
         if (!taker.equals(member) && !giver.equals(member)) {
             throw MatchingNotParticipantException.EXCEPTION;
         }
+    }
+
+    @PostLoad
+    private void postLoad() {
+        initializeMatchingState();
     }
 }
