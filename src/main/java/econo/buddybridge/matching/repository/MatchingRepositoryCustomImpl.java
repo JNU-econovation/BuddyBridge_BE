@@ -14,10 +14,6 @@ import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.entity.MemberRole;
-import econo.buddybridge.post.dto.CompletedVolunteerPostDto;
-import econo.buddybridge.post.dto.CompletedVolunteerPostPage;
-import econo.buddybridge.post.dto.PostStatus;
-import econo.buddybridge.post.dto.ScheduleDetailResDto;
 import econo.buddybridge.post.entity.QPost;
 import econo.buddybridge.post.exception.PostInvalidSortValueException;
 import lombok.RequiredArgsConstructor;
@@ -106,35 +102,6 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
         LocalDateTime nextCursor = nextPage ? matchingResDtos.getLast().lastMessageTime() : LocalDateTime.MIN;
 
         return new MatchingCustomPage(matchingResDtos, nextCursor, nextPage);
-    }
-
-    @Override
-    public CompletedVolunteerPostPage findCompletedVolunteerPosts(Member author, Integer page, Integer size, String sort, MemberRole memberRole, Boolean isCompleted) {
-        List<Matching> matchings = getMatchingsByMemberRoleAndStatus(author, page, size, sort, memberRole, isCompleted);
-        List<CompletedVolunteerPostDto> content = getCompletedVolunteerPostDtos(matchings);
-        Long totalElements = getCompletedVolunteerPostsTotalElements(author, memberRole, isCompleted);
-
-        return new CompletedVolunteerPostPage(content, totalElements, content.size() < size);
-    }
-
-    private static List<CompletedVolunteerPostDto> getCompletedVolunteerPostDtos(List<Matching> matchings) {
-        return matchings.stream()
-                .map(matching -> new CompletedVolunteerPostDto(
-                        matching.getPost().getId(),
-                        matching.getPost().getTitle(),
-                        matching.getPost().getPostType(),
-                        PostStatus.FINISHED,
-                        matching.getPost().getDistrict(),
-                        matching.getPost().getDisabilityType(),
-                        matching.getPost().getAssistanceType(),
-                        new ScheduleDetailResDto(
-                                matching.getPost().getSchedule().getStartDate(),
-                                matching.getPost().getSchedule().getEndDate(),
-                                matching.getPost().getSchedule().getScheduleType(),
-                                matching.getPost().getSchedule().getScheduleDetails()),
-                        matching.getMatchingStatus()
-                ))
-                .toList();
     }
 
     @Override
