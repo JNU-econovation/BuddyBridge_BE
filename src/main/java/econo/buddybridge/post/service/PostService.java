@@ -1,8 +1,11 @@
 package econo.buddybridge.post.service;
 
+import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.entity.MemberRole;
 import econo.buddybridge.member.service.MemberService;
+import econo.buddybridge.post.dto.CompletedVolunteerPostPage;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostDetailDto;
 import econo.buddybridge.post.dto.PostEnumResDto;
@@ -18,11 +21,12 @@ import econo.buddybridge.post.exception.PostDeleteNotAllowedException;
 import econo.buddybridge.post.exception.PostNotFoundException;
 import econo.buddybridge.post.exception.PostUpdateNotAllowedException;
 import econo.buddybridge.post.repository.PostRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 @Service
@@ -31,6 +35,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final MemberService memberService;
+    private final MatchingRepository matchingRepository;
     private final ApplicationEventPublisher publisher;
 
     // 존재하는 포스트인지 확인
@@ -58,13 +63,19 @@ public class PostService {
 
     @Transactional(readOnly = true) // 전체 게시글 조회
     public PostCustomPage getPosts(Long memberId, Integer page, Integer size, String sort, PostType postType, PostStatus postStatus,
-            List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
+                                   List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
         return postRepository.findPosts(memberId, page - 1, size, sort, postType, postStatus, disabilityType, assistanceType);
     }
 
     @Transactional(readOnly = true) // 찜한 게시글 조회
     public PostCustomPage getPostsLikes(Long memberId, Integer page, Integer size, String sort, PostType postType) {
         return postRepository.findPostsByLikes(memberId, page - 1, size, sort, postType);
+    }
+
+    @Transactional(readOnly = true) // 매칭 상태가 DONE 이후인 봉사 게시글 조회
+    public CompletedVolunteerPostPage getCompletedVolunteerPosts(Long memberId, Integer page, Integer size, String sort, MemberRole memberRole, Boolean isCompleted) {
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+        return matchingRepository.findCompletedVolunteerPosts(author, page - 1, size, sort, memberRole, isCompleted);
     }
 
     // 검증 과정 필요성 고려
