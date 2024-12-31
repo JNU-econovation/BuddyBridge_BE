@@ -5,6 +5,7 @@ import econo.buddybridge.chat.chatmessage.entity.MessageReadStatus;
 import econo.buddybridge.chat.chatmessage.entity.MessageType;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
 import econo.buddybridge.chat.chatmessage.repository.MessageReadStatusRepository;
+import econo.buddybridge.comment.service.CommentService;
 import econo.buddybridge.matching.dto.MatchingParticipants;
 import econo.buddybridge.matching.dto.MatchingReqDto;
 import econo.buddybridge.matching.dto.MatchingUpdateDto;
@@ -37,6 +38,7 @@ public class MatchingService {
     private final ChatMessageRepository chatMessageRepository;
     private final MessageReadStatusRepository messageReadStatusRepository;
     private final MatchingRepository matchingRepository;
+    private final CommentService commentService;
     private final MemberService memberService;
     private final PostService postService;
     private final ApplicationEventPublisher publisher;
@@ -59,7 +61,7 @@ public class MatchingService {
         return matchingRepository.findByIdWithMembersAndPost(matchingId)
                 .orElseThrow(() -> MatchingNotFoundException.EXCEPTION);
     }
-
+    
     @Transactional
     public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId) {
         Post post = postService.findPostByIdOrThrow(matchingReqDto.postId());
@@ -87,11 +89,16 @@ public class MatchingService {
         Member taker;
         Member giver;
 
+        Member commentAuthor = commentService
+                // join fetch로 author를 가져와서 오히려 효율적이라 생각
+                .findCommentByIdWithAuthorOrThrow(matchingReqDto.commentId())
+                .getAuthor();
+
         if (post.getPostType() == PostType.GIVER) {
             giver = author;
-            taker = memberService.findMemberByIdOrThrow(matchingReqDto.takerId());
+            taker = commentAuthor;
         } else {
-            giver = memberService.findMemberByIdOrThrow(matchingReqDto.giverId());
+            giver = commentAuthor;
             taker = author;
         }
 
