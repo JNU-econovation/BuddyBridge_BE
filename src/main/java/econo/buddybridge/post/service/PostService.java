@@ -14,9 +14,7 @@ import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.event.PostDeleteEvent;
-import econo.buddybridge.post.exception.PostDeleteNotAllowedException;
 import econo.buddybridge.post.exception.PostNotFoundException;
-import econo.buddybridge.post.exception.PostUpdateNotAllowedException;
 import econo.buddybridge.post.repository.PostRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -67,11 +65,9 @@ public class PostService {
         return postRepository.findPostsByLikes(memberId, page - 1, size, sort, postType);
     }
 
-    // 검증 과정 필요성 고려
     @Transactional // 게시글 생성
     public Long createPost(PostReqDto postReqDto, Long memberId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
-
         Post post = postReqDto.toEntity(member);
         return postRepository.save(post).getId();
     }
@@ -90,10 +86,7 @@ public class PostService {
         Post post = findPostByIdWithAuthorOrThrow(postId);
         Member author = memberService.findMemberByIdOrThrow(memberId);
 
-        if (!post.getAuthor().equals(author)) {
-            throw PostUpdateNotAllowedException.EXCEPTION;
-        }
-
+        post.validateUpdateBy(author);
         post.updatePost(postUpdateReqDto);
 
         return post.getId();
@@ -104,9 +97,7 @@ public class PostService {
         Post post = findPostByIdWithAuthorOrThrow(postId);
         Member author = memberService.findMemberByIdOrThrow(memberId);
 
-        if (!post.getAuthor().equals(author)) {
-            throw PostDeleteNotAllowedException.EXCEPTION;
-        }
+        post.validateDeletionBy(author);
 
         publisher.publishEvent(PostDeleteEvent.from(post));
     }
