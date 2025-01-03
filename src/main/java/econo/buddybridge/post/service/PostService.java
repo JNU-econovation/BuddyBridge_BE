@@ -99,6 +99,20 @@ public class PostService {
 
         post.validateDeletionBy(author);
 
-        publisher.publishEvent(PostDeleteEvent.from(post));
+        publisher.publishEvent(PostDeleteEvent.from(List.of(post)));
+    }
+
+    @Transactional  // 게시글 다중 삭제
+    public void deletePosts(List<Long> postIds, Long memberId) {
+        List<Post> posts = postRepository.findByIdIn(postIds);
+
+        if (posts.size() != postIds.size()) {
+            throw PostNotFoundException.EXCEPTION;
+        }
+
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+        posts.forEach(post -> post.validateDeletionBy(author));
+
+        publisher.publishEvent(PostDeleteEvent.from(posts));
     }
 }
