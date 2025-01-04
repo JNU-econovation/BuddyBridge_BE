@@ -104,7 +104,7 @@ public class MatchingService {
 
         Comment comment = commentService.findCommentByIdWithAuthorOrThrow(matchingReqDto.commentId());
 
-        if (!comment.getPost().getId().equals(post.getId())) {
+        if (!comment.getPost().equals(post)) {
             throw CommentNotBelongToMatchingException.EXCEPTION;
         }
 
