@@ -9,17 +9,18 @@ import econo.buddybridge.matching.dto.ReceiverDto;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.matching.exception.MatchingUnauthorizedAccessException;
-import econo.buddybridge.matching.repository.MatchingRepositoryCustom;
+import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.service.NotificationService;
 import econo.buddybridge.post.entity.Post;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,14 +28,14 @@ public class MatchingRoomService {
 
     private final MemberService memberService;
     private final ChatMessageRepository chatMessageRepository;
-    private final MatchingRepositoryCustom matchingRepositoryCustom;
+    private final MatchingRepository matchingRepository;
     private final MatchingService matchingService;
     private final NotificationService notificationService;
 
     @Transactional(readOnly = true) // 매칭방 조회
     public MatchingCustomPage getMatchings(Long memberId, Integer size, LocalDateTime cursor, MatchingStatus matchingStatus) {
         PageRequest page = PageRequest.of(0, size);
-        return matchingRepositoryCustom.findMatchings(memberId, size, cursor, matchingStatus, page);
+        return matchingRepository.findMatchings(memberId, size, cursor, matchingStatus, page);
     }
 
     @Transactional // 메시지 조회

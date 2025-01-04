@@ -3,8 +3,8 @@ package econo.buddybridge.post.repository;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostDetailDto;
+import econo.buddybridge.post.dto.PostStatus;
 import econo.buddybridge.post.entity.AssistanceType;
-import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 
 import java.util.List;

@@ -1,28 +1,27 @@
-package econo.buddybridge.comment.dto;
+package econo.buddybridge.post.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
+import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.member.entity.DisabilityType;
-import econo.buddybridge.post.dto.PostStatus;
 import econo.buddybridge.post.entity.AssistanceType;
+import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.PostType;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
-
 @Builder
-public record MyPageCommentResDto(
-        String content,
-        Long commentId,
+public record CompletedVolunteerPostDto(
         Long postId,
-        String postTitle,
-        PostStatus postStatus,
+        String title,
         PostType postType,
+        PostStatus postStatus,
+        District district,
         DisabilityType disabilityType,
         AssistanceType assistanceType,
-        LocalDateTime postCreatedAt
+        ScheduleDetailResDto schedule,
+        MatchingStatus matchingStatus
 ) {
 
     @QueryProjection
-    public MyPageCommentResDto {
+    public CompletedVolunteerPostDto {
     }
 }

@@ -9,9 +9,9 @@ import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostDetailDto;
 import econo.buddybridge.post.dto.PostListItemDto;
+import econo.buddybridge.post.dto.PostStatus;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.Post;
-import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.entity.QPost;
 import econo.buddybridge.post.exception.PostInvalidSortValueException;
@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 import static econo.buddybridge.matching.entity.QMatching.matching;
 import static econo.buddybridge.post.entity.QPost.post;
 import static econo.buddybridge.post.entity.QPostLike.postLike;
+import static econo.buddybridge.post.mapper.PostMapper.toPostDetailDto;
+import static econo.buddybridge.post.mapper.PostMapper.toPostListItemDto;
 
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom {
@@ -59,7 +61,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
         PostStatus postStatus = calculatePostStatus(matchings);
 
-        return new PostDetailDto(content, isLiked, postStatus);
+        return toPostDetailDto(content, isLiked, postStatus);
     }
 
     @Override // 게시글 목록 조회
@@ -157,7 +159,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                     .map(post -> {
                         List<Matching> postMatchings = matchings.getOrDefault(post.getId(), Collections.emptyList());
                         PostStatus status = calculatePostStatus(postMatchings);
-                        return new PostListItemDto(post, true, status);
+                        return toPostListItemDto(post, true, status);
                     })
                     .toList();
         }
@@ -180,7 +182,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                     List<Matching> postMatchings = matchings.getOrDefault(post.getId(), Collections.emptyList());
                     PostStatus status = calculatePostStatus(postMatchings);
                     boolean isLiked = tempPostLikeRepository.getOrDefault(post.getId(), false);
-                    return new PostListItemDto(post, isLiked, status);
+                    return toPostListItemDto(post, isLiked, status);
                 })
                 .toList();
     }

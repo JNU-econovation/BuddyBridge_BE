@@ -4,9 +4,12 @@ import static econo.buddybridge.chat.chatmessage.entity.QChatMessage.chatMessage
 import static econo.buddybridge.chat.chatmessage.entity.QMessageReadStatus.messageReadStatus;
 import static econo.buddybridge.matching.entity.QMatching.matching;
 import static econo.buddybridge.member.entity.QMember.member;
+import static econo.buddybridge.post.entity.QPost.post;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import econo.buddybridge.chat.chatmessage.entity.QChatMessage;
@@ -15,6 +18,16 @@ import econo.buddybridge.matching.dto.MatchingResDto;
 import econo.buddybridge.matching.dto.QMatchingResDto;
 import econo.buddybridge.matching.dto.QReceiverDto;
 import econo.buddybridge.matching.entity.MatchingStatus;
+import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.entity.MemberRole;
+import econo.buddybridge.post.dto.CompletedVolunteerPostDto;
+import econo.buddybridge.post.dto.CompletedVolunteerPostPage;
+import econo.buddybridge.post.dto.PostStatus;
+import econo.buddybridge.post.dto.QCompletedVolunteerPostDto;
+import econo.buddybridge.post.dto.QScheduleDetailResDto;
+import econo.buddybridge.post.entity.Post;
+import econo.buddybridge.post.entity.QPost;
+import econo.buddybridge.post.exception.PostInvalidSortValueException;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -96,11 +109,95 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
         return new MatchingCustomPage(matchingResDtos, nextCursor, nextPage);
     }
 
+    @Override
+    public boolean existsCompletedMatchingByPost(Post post) {
+        return queryFactory
+                .selectOne()
+                .from(matching)
+                .where(
+                        matching.post.eq(post),
+                        matching.matchingStatus.in(MatchingStatus.getCompletedStatuses())
+                )
+                .fetchFirst() != null;
+    }
+
+    @Override
+    public CompletedVolunteerPostPage getCompletedVolunteerPosts(Member author, Integer page, Integer size, String sort, MemberRole memberRole, Boolean isCompleted) {
+
+        List<CompletedVolunteerPostDto> content = queryFactory
+                .select(new QCompletedVolunteerPostDto(
+                        matching.post.id,
+                        matching.post.title,
+                        matching.post.postType,
+                        Expressions.constant(PostStatus.FINISHED),
+                        matching.post.district,
+                        matching.post.disabilityType,
+                        matching.post.assistanceType,
+                        new QScheduleDetailResDto(
+                                matching.post.schedule.startDate,
+                                matching.post.schedule.endDate,
+                                matching.post.schedule.scheduleType,
+                                matching.post.schedule.scheduleDetails
+                        ),
+                        matching.matchingStatus
+                ))
+                .from(matching)
+                .leftJoin(matching.post, post)
+                .where(
+                        memberRoleExpression(memberRole, author),
+                        completedMatchingStatusExpression(memberRole, isCompleted)
+                )
+                .offset((long) page * size)
+                .limit(size)
+                .orderBy(buildOrderSpecifier(sort, post))
+                .fetch();
+
+        Long totalElements = queryFactory
+                .select(matching.count())
+                .from(matching)
+                .where(
+                        memberRoleExpression(memberRole, author),
+                        completedMatchingStatusExpression(memberRole, isCompleted)
+                )
+                .fetchOne();
+
+        return new CompletedVolunteerPostPage(content, totalElements, content.size() < size);
+    }
+
+    private BooleanExpression completedMatchingStatusExpression(MemberRole memberRole, Boolean isCompleted) {
+
+        if (isCompleted == null || !isCompleted) {
+            return switch (memberRole) {
+                case TAKER, GIVER -> matching.matchingStatus.in(MatchingStatus.DONE, MatchingStatus.VOLUNTEERING_COMPLETED, MatchingStatus.VOLUNTEERING_VERIFIED);
+            };
+        }
+
+        return switch (memberRole) {
+            case TAKER -> matching.matchingStatus.in(MatchingStatus.VOLUNTEERING_COMPLETED, MatchingStatus.VOLUNTEERING_VERIFIED);
+            case GIVER -> matching.matchingStatus.eq(MatchingStatus.VOLUNTEERING_VERIFIED);
+        };
+    }
+
+    private BooleanExpression memberRoleExpression(MemberRole memberRole, Member author) {
+        return switch (memberRole) {
+            case TAKER -> matching.taker.eq(author);
+            case GIVER -> matching.giver.eq(author);
+        };
+    }
+
     private BooleanExpression buildCursorExpression(LocalDateTime cursor) {
         return cursor == null ? null : chatMessage.createdAt.lt(cursor);
     }
 
     private BooleanExpression buildMatchingStatusExpression(MatchingStatus matchingStatus) {
         return matchingStatus == null ? null : matching.matchingStatus.eq(matchingStatus);
+    }
+
+    private OrderSpecifier<?> buildOrderSpecifier(String sort, QPost post) {
+        return switch (sort.toLowerCase()) {
+            case "desc" -> post.createdAt.desc();
+            case "asc" -> post.createdAt.asc();
+            default -> throw PostInvalidSortValueException.EXCEPTION;
+        };
     }
 }

@@ -1,17 +1,22 @@
 package econo.buddybridge.post.service;
 
+import static econo.buddybridge.post.mapper.PostMapper.toEntity;
+
+import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.entity.MemberRole;
 import econo.buddybridge.member.service.MemberService;
+import econo.buddybridge.post.dto.CompletedVolunteerPostPage;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostDetailDto;
 import econo.buddybridge.post.dto.PostEnumResDto;
 import econo.buddybridge.post.dto.PostReqDto;
+import econo.buddybridge.post.dto.PostStatus;
 import econo.buddybridge.post.dto.PostUpdateReqDto;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.Post;
-import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.event.PostDeleteEvent;
 import econo.buddybridge.post.exception.PostNotFoundException;
@@ -29,6 +34,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final MemberService memberService;
+    private final MatchingRepository matchingRepository;
     private final ApplicationEventPublisher publisher;
 
     // 존재하는 포스트인지 확인
@@ -65,10 +71,19 @@ public class PostService {
         return postRepository.findPostsByLikes(memberId, page - 1, size, sort, postType);
     }
 
+    @Transactional(readOnly = true) // 매칭 상태가 DONE 이후인 봉사 게시글 조회
+    public CompletedVolunteerPostPage getCompletedVolunteerPosts(Long memberId, Integer page, Integer size, String sort, MemberRole memberRole,
+            Boolean isCompleted) {
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+
+        return matchingRepository.getCompletedVolunteerPosts(author, page - 1, size, sort, memberRole, isCompleted);
+    }
+
+    // 검증 과정 필요성 고려
     @Transactional // 게시글 생성
     public Long createPost(PostReqDto postReqDto, Long memberId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
-        Post post = postReqDto.toEntity(member);
+        Post post = toEntity(postReqDto, member);
         return postRepository.save(post).getId();
     }
 

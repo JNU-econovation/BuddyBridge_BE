@@ -1,4 +1,4 @@
-package econo.buddybridge.post.entity;
+package econo.buddybridge.post.dto;
 
 import lombok.Getter;
 

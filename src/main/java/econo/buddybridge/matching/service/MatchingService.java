@@ -5,16 +5,23 @@ import econo.buddybridge.chat.chatmessage.entity.MessageReadStatus;
 import econo.buddybridge.chat.chatmessage.entity.MessageType;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
 import econo.buddybridge.chat.chatmessage.repository.MessageReadStatusRepository;
+import econo.buddybridge.comment.entity.Comment;
+import econo.buddybridge.comment.service.CommentService;
 import econo.buddybridge.matching.dto.MatchingParticipants;
 import econo.buddybridge.matching.dto.MatchingReqDto;
 import econo.buddybridge.matching.dto.MatchingUpdateDto;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.matching.event.MatchingDeleteEvent;
+import econo.buddybridge.matching.exception.CommentNotBelongToMatchingException;
+import econo.buddybridge.matching.exception.MatchingAlreadyExistsException;
 import econo.buddybridge.matching.exception.MatchingCompletedException;
 import econo.buddybridge.matching.exception.MatchingNotFoundException;
+import econo.buddybridge.matching.exception.MatchingNotParticipantException;
 import econo.buddybridge.matching.repository.MatchingRepository;
+import econo.buddybridge.matching.state.MatchingStatusChangeEvent;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.entity.MemberRole;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
@@ -33,6 +40,7 @@ public class MatchingService {
     private final ChatMessageRepository chatMessageRepository;
     private final MessageReadStatusRepository messageReadStatusRepository;
     private final MatchingRepository matchingRepository;
+    private final CommentService commentService;
     private final MemberService memberService;
     private final PostService postService;
     private final ApplicationEventPublisher publisher;
@@ -59,7 +67,7 @@ public class MatchingService {
     @Transactional
     public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId) {
         Post post = postService.findPostByIdOrThrow(matchingReqDto.postId());
-        if (existsMatchingDone(post)) {
+        if (matchingRepository.existsCompletedMatchingByPost(post)) {
             throw MatchingCompletedException.EXCEPTION;
         }
 
@@ -70,6 +78,8 @@ public class MatchingService {
         Member taker = participants.taker();
         Member giver = participants.giver();
 
+        validateDuplicateMatching(post, taker, giver);
+
         Matching matching = matchingReqToMatching(post, taker, giver);
         Matching savedMatching = matchingRepository.save(matching);
 
@@ -79,15 +89,32 @@ public class MatchingService {
         return savedMatching.getId();
     }
 
-    private MatchingParticipants resolveParticipants(Post post, Member author, MatchingReqDto matchingReqDto) {
+    private void validateDuplicateMatching(Post post, Member taker, Member giver) {
+        boolean exists = matchingRepository.existsByPostAndParticipants(post, taker, giver);
+
+        if (exists) {
+            throw MatchingAlreadyExistsException.EXCEPTION;
+        }
+    }
+
+    private MatchingParticipants resolveParticipants(Post post, Member author,
+            MatchingReqDto matchingReqDto) {
         Member taker;
         Member giver;
 
+        Comment comment = commentService.findCommentByIdWithAuthorOrThrow(matchingReqDto.commentId());
+
+        if (!comment.getPost().equals(post)) {
+            throw CommentNotBelongToMatchingException.EXCEPTION;
+        }
+
+        Member commentAuthor = comment.getAuthor();
+
         if (post.getPostType() == PostType.GIVER) {
             giver = author;
-            taker = memberService.findMemberByIdOrThrow(matchingReqDto.takerId());
+            taker = commentAuthor;
         } else {
-            giver = memberService.findMemberByIdOrThrow(matchingReqDto.giverId());
+            giver = commentAuthor;
             taker = author;
         }
 
@@ -117,24 +144,16 @@ public class MatchingService {
     public Long updateMatching(Long matchingId, MatchingUpdateDto matchingUpdateDto, Long memberId) {
         Matching matching = findMatchingByIdOrThrow(matchingId);
         Post post = postService.findPostByIdOrThrow(matching.getPost().getId());
-        Member author = memberService.findMemberByIdOrThrow(memberId);
+        Member member = memberService.findMemberByIdOrThrow(memberId);
+        MemberRole role = getMemberRole(matching, member);
 
-        post.validateAuthor(author);
+        MatchingStatusChangeEvent matchingStatusChangeEvent = MatchingStatusChangeEvent.fromValue(matchingUpdateDto.matchingStatusEvent());
 
-        MatchingStatus updateStatus = matchingUpdateDto.matchingStatus();
+        validateUpdateCondition(matchingStatusChangeEvent, post, member, matching);
 
-        if (existsMatchingDone(post) && updateStatus == MatchingStatus.DONE) {
-            throw MatchingCompletedException.EXCEPTION;
-        }
+        matching.handleEvent(matchingStatusChangeEvent, role);
 
-        matching.updateMatchingStatus(updateStatus);
         return matching.getId();
-    }
-
-    private boolean existsMatchingDone(Post post) {
-        return matchingRepository.findByPostId(post.getId())
-                .stream()
-                .anyMatch(m -> m.getMatchingStatus() == MatchingStatus.DONE);
     }
 
     @Transactional // 매칭 삭제
@@ -145,6 +164,31 @@ public class MatchingService {
         matching.getPost().validateAuthor(author);
 
         publisher.publishEvent(MatchingDeleteEvent.from(matching));
+    }
+
+    private static MemberRole getMemberRole(Matching matching, Member member) {
+        MemberRole role;
+        if (matching.getTaker().equals(member)) {
+            role = MemberRole.TAKER;
+        } else if (matching.getGiver().equals(member)) {
+            role = MemberRole.GIVER;
+        } else {
+            throw MatchingNotParticipantException.EXCEPTION;
+        }
+        return role;
+    }
+
+    // 받아온 이벤트를 통해 (매칭 중, 매칭 완료) 변경 시 게시글 작성자 검증
+    // 매칭 완료로 변경 시 이미 완료된 매칭이 있는지 검증
+    private void validateUpdateCondition(MatchingStatusChangeEvent matchingStatusChangeEvent, Post post,
+            Member member, Matching matching) {
+        if (matchingStatusChangeEvent == MatchingStatusChangeEvent.TOGGLE_DONE) {
+            post.validateAuthor(member);
+            if (matchingRepository.existsCompletedMatchingByPost(post)
+                    && matching.getMatchingStatus() == MatchingStatus.PENDING) {
+                throw MatchingCompletedException.EXCEPTION;
+            }
+        }
     }
 
     // MatchingReqDto -> Matching

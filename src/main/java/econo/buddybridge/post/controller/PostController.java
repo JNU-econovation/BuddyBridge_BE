@@ -3,14 +3,16 @@ package econo.buddybridge.post.controller;
 import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.member.entity.DisabilityType;
+import econo.buddybridge.member.entity.MemberRole;
+import econo.buddybridge.post.dto.CompletedVolunteerPostPage;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostDetailDto;
 import econo.buddybridge.post.dto.PostEnumResDto;
 import econo.buddybridge.post.dto.PostReqDto;
+import econo.buddybridge.post.dto.PostStatus;
 import econo.buddybridge.post.dto.PostUpdateReqDto;
 import econo.buddybridge.post.dto.PostsDeleteRequest;
 import econo.buddybridge.post.entity.AssistanceType;
-import econo.buddybridge.post.entity.PostStatus;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.service.PostService;
 import econo.buddybridge.utils.api.ApiResponse;
@@ -82,6 +84,20 @@ public class PostController {
             @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
         PostCustomPage posts = postService.getPosts(memberId, page, size, sort, postType, postStatus, disabilityType, assistanceType);
+        return ApiResponseGenerator.success(posts, HttpStatus.OK);
+    }
+
+    @Operation(summary = "매칭된(DONE, VOLUNTEERING_COMPLETED, VOLUNTEERING_VERIFIED 상태) 게시글 목록 조회", description = "매칭 완료 이후의 상태(DONE, VOLUNTEERING_COMPLETED, VOLUNTEERING_VERIFIED)를 가진 게시글 목록을 조회합니다.")
+    @GetMapping("/volunteering/my-page")
+    public ApiResponse<ApiResponse.CustomBody<CompletedVolunteerPostPage>> getCompletedVolunteerPosts(
+            @RequestParam("page") Integer page,
+            @RequestParam("size") Integer size,
+            @RequestParam(defaultValue = "desc", required = false) String sort,
+            @RequestParam(defaultValue = "TAKER") MemberRole memberRole,
+            @RequestParam(defaultValue = "false", required = false) Boolean isCompleted,
+            @Parameter(hidden = true) @MemberTokenId Long memberId
+    ) {
+        CompletedVolunteerPostPage posts = postService.getCompletedVolunteerPosts(memberId, page, size, sort, memberRole, isCompleted);
         return ApiResponseGenerator.success(posts, HttpStatus.OK);
     }
 

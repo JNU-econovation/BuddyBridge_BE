@@ -13,4 +13,5 @@ public record PostAuthorDto(
         Gender gender,
         DisabilityType disabilityType
 ) {
+
 }
