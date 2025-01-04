@@ -1,7 +1,6 @@
 package econo.buddybridge.report.service;
 
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageCustomPage;
-import econo.buddybridge.common.persistence.filter.annotation.WithDeletedContent;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.service.MatchingRoomService;
 import econo.buddybridge.matching.service.MatchingService;
@@ -43,7 +42,6 @@ public class MatchingReportService {
     }
 
     @Transactional(readOnly = true)
-    @WithDeletedContent
     public ChatMessageCustomPage getMatchingRoomMessages(Long reportId, Integer size, Long cursor) {
         MatchingReport matchingReport = findReportByIdOrThrow(reportId);
         Member reporter = matchingReport.getReporter();

@@ -2,9 +2,14 @@ package econo.buddybridge.report.controller;
 
 import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageCustomPage;
+import econo.buddybridge.comment.dto.CommentResDto;
 import econo.buddybridge.member.entity.Role;
+import econo.buddybridge.post.dto.PostDetailDto;
 import econo.buddybridge.report.dto.ReportCustomPage;
 import econo.buddybridge.report.dto.ReportDetailResponse;
+import econo.buddybridge.report.service.CommentReportService;
+import econo.buddybridge.report.service.MatchingReportService;
+import econo.buddybridge.report.service.PostReportService;
 import econo.buddybridge.report.service.ReportService;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponse.CustomBody;
@@ -28,6 +33,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminReportController {
 
     private final ReportService reportService;
+    private final PostReportService postReportService;
+    private final CommentReportService commentReportService;
+    private final MatchingReportService matchingReportService;
 
     @Operation(summary = "신고 내역 상세 조회", description = "신고 내역을 상세 조회합니다.")
     @GetMapping("/{report-id}")
@@ -63,6 +71,16 @@ public class AdminReportController {
         return ApiResponseGenerator.success(reports, HttpStatus.OK);
     }
 
+    @Operation(summary = "게시글 내용 조회", description = "신고된 게시글 내용을 조회합니다.")
+    @GetMapping("/{report-id}/post")
+    public ApiResponse<CustomBody<PostDetailDto>> getPost(
+            @PathVariable("report-id") Long reportId,
+            @Parameter(hidden = true) @MemberTokenId(allowedRoles = {Role.ADMIN}) Long memberId
+    ) {
+        PostDetailDto report = postReportService.getPost(reportId);
+        return ApiResponseGenerator.success(report, HttpStatus.OK);
+    }
+
     @Operation(summary = "댓글 신고 내역 조회", description = "댓글 신고 내역을 조회합니다.")
     @GetMapping("/comments")
     public ApiResponse<CustomBody<ReportCustomPage>> getCommentReports(
@@ -73,6 +91,16 @@ public class AdminReportController {
     ) {
         ReportCustomPage reports = reportService.getCommentReports(page, size, sort);
         return ApiResponseGenerator.success(reports, HttpStatus.OK);
+    }
+
+    @Operation(summary = "댓글 내용 조회", description = "신고된 댓글 내용을 조회합니다.")
+    @GetMapping("/{report-id}/comment")
+    public ApiResponse<CustomBody<CommentResDto>> getComment(
+            @PathVariable("report-id") Long reportId,
+            @Parameter(hidden = true) @MemberTokenId(allowedRoles = {Role.ADMIN}) Long memberId
+    ) {
+        CommentResDto report = commentReportService.getReportedComment(reportId);
+        return ApiResponseGenerator.success(report, HttpStatus.OK);
     }
 
     @Operation(summary = "매칭 신고 내역 조회", description = "매칭 신고 내역을 조회합니다.")
@@ -95,7 +123,7 @@ public class AdminReportController {
             @RequestParam(value = "cursor", required = false) Long cursor,
             @Parameter(hidden = true) @MemberTokenId(allowedRoles = {Role.ADMIN}) Long memberId
     ) {
-        ChatMessageCustomPage chatMessages = reportService.getMatchingRoomMessages(reportId, size, cursor);
+        ChatMessageCustomPage chatMessages = matchingReportService.getMatchingRoomMessages(reportId, size, cursor);
         return ApiResponseGenerator.success(chatMessages, HttpStatus.OK);
     }
 

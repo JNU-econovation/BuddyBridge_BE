@@ -1,6 +1,5 @@
 package econo.buddybridge.report.service;
 
-import econo.buddybridge.common.persistence.filter.annotation.WithDeletedContent;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.post.dto.PostDetailDto;
@@ -41,7 +40,6 @@ public class PostReportService {
     }
 
     @Transactional(readOnly = true)
-    @WithDeletedContent
     public PostDetailDto getPost(Long reportId) {
         PostReport postReport = findReportByIdOrThrow(reportId);
         return postService.findReportedPost(postReport.getReportedPost().getId());
