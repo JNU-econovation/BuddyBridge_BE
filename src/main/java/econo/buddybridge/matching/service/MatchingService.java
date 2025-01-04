@@ -91,11 +91,7 @@ public class MatchingService {
     }
 
     private void validateDuplicateMatching(Post post, Member taker, Member giver) {
-        boolean exists = matchingRepository.existsByPostAndParticipants(
-                post.getId(),
-                taker.getId(),
-                giver.getId()
-        );
+        boolean exists = matchingRepository.existsByPostAndParticipants(post, taker, giver);
 
         if (exists) {
             throw MatchingAlreadyExistsException.EXCEPTION;

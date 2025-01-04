@@ -1,6 +1,8 @@
 package econo.buddybridge.matching.repository;
 
 import econo.buddybridge.matching.entity.Matching;
+import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.post.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,12 +26,12 @@ public interface MatchingRepository extends JpaRepository<Matching, Long>, Match
 
     @Query("SELECT EXISTS (" +
             "SELECT 1 FROM Matching m " +
-            "WHERE m.post.id =:postId " +
-            "AND ((m.giver.id =:firstMemberId AND m.taker.id=:secondMemberId) " +
-            "OR (m.giver.id=:secondMemberId AND m.taker.id =:firstMemberId)))")
+            "WHERE m.post =:post " +
+            "AND ((m.giver =:firstMember AND m.taker=:secondMember) " +
+            "OR (m.giver=:secondMember AND m.taker =:firstMember)))")
     boolean existsByPostAndParticipants(
-            @Param("postId") Long postId,
-            @Param("firstMemberId") Long firstMemberId,
-            @Param("secondMemberId") Long secondMemberId
+            @Param("post") Post post,
+            @Param("firstMember") Member firstMember,
+            @Param("secondMember") Member secondMember
     );
 }
