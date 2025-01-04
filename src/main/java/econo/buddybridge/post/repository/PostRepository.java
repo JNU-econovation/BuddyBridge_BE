@@ -1,6 +1,7 @@
 package econo.buddybridge.post.repository;
 
 import econo.buddybridge.post.entity.Post;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     @Override
     @Query("SELECT p FROM Post p WHERE p.id = :postId")
     Optional<Post> findById(@Param("postId") Long postId);
+
+    List<Post> findByIdIn(List<Long> postIds);
 }

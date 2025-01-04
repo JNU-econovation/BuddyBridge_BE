@@ -1,13 +1,14 @@
 package econo.buddybridge.member.repository;
 
 import econo.buddybridge.member.entity.Member;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
     boolean existsByNickname(String nickname);
+
+    boolean existsByNicknameAndIdNot(String nickname, Long id);
 
     boolean existsByEmail(String email);
 

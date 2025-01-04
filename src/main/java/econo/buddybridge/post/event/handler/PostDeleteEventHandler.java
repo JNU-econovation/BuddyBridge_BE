@@ -4,6 +4,7 @@ import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.event.PostDeleteEvent;
 import econo.buddybridge.post.repository.PostRepository;
 import econo.buddybridge.report.repository.PostReportRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -18,14 +19,17 @@ public class PostDeleteEventHandler {
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handlePostDeleteEvent(PostDeleteEvent event) {
-        Post post = event.getPost();
+        List<Post> posts = event.getPosts();
 
+        List<Post> reportedPosts = postReportRepository.findByReportedPostIn(posts);
         // 신고된 게시글은 soft delete
+        reportedPosts.forEach(Post::delete);
+
         // 신고된 게시글이 아닌 경우 완전 삭제
-        if (postReportRepository.existsByReportedPost(post)) {
-            post.delete();
-        } else {
-            postRepository.delete(post);
-        }
+        posts = posts.stream()
+                .filter(post -> !reportedPosts.contains(post))
+                .toList();
+
+        postRepository.deleteAllInBatch(posts);
     }
 }

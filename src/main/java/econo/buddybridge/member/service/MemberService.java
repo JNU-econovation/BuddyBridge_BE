@@ -64,6 +64,10 @@ public class MemberService {
     public void updateMemberById(Long memberId, MemberReqDto memberReqDto) {
         Member member = findMemberByIdOrThrow(memberId);
 
+        if (memberRepository.existsByNicknameAndIdNot(memberReqDto.nickname(), memberId)) {
+            throw MemberNicknameAlreadyExistsException.EXCEPTION;
+        }
+
         member.updateMemberInfo(memberReqDto.nickname(), memberReqDto.disabilityType());
     }
 

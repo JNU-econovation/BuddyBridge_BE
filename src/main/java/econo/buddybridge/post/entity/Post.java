@@ -2,13 +2,17 @@ package econo.buddybridge.post.entity;
 
 
 import econo.buddybridge.comment.entity.Comment;
+import econo.buddybridge.comment.exception.CommentSameGenderOnlyException;
+import econo.buddybridge.comment.exception.CommentSelfNotAllowedException;
 import econo.buddybridge.common.persistence.SoftDeletableEntity;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.dto.PostUpdateReqDto;
+import econo.buddybridge.post.exception.PostDeleteNotAllowedException;
 import econo.buddybridge.post.exception.PostUnauthorizedAccessException;
+import econo.buddybridge.post.exception.PostUpdateNotAllowedException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -87,6 +91,28 @@ public class Post extends SoftDeletableEntity {
     public void validateAuthor(Member author) {
         if (!this.author.equals(author)) {
             throw PostUnauthorizedAccessException.EXCEPTION;
+        }
+    }
+
+    public void validateUpdateBy(Member author) {
+        if (!this.author.equals(author)) {
+            throw PostUpdateNotAllowedException.EXCEPTION;
+        }
+    }
+
+    public void validateDeletionBy(Member author) {
+        if (!this.author.equals(author)) {
+            throw PostDeleteNotAllowedException.EXCEPTION;
+        }
+    }
+
+    public void validateCommentBy(Member author) {
+        if (this.author.equals(author)) {
+            throw CommentSelfNotAllowedException.EXCEPTION;
+        }
+
+        if (this.gender != author.getGender()) {
+            throw CommentSameGenderOnlyException.EXCEPTION;
         }
     }
 

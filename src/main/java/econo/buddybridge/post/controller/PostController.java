@@ -11,6 +11,7 @@ import econo.buddybridge.post.dto.PostEnumResDto;
 import econo.buddybridge.post.dto.PostReqDto;
 import econo.buddybridge.post.dto.PostStatus;
 import econo.buddybridge.post.dto.PostUpdateReqDto;
+import econo.buddybridge.post.dto.PostsDeleteRequest;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.service.PostService;
@@ -151,6 +152,16 @@ public class PostController {
             @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
         postService.deletePost(postId, memberId);
+        return ApiResponseGenerator.success(HttpStatus.NO_CONTENT);
+    }
+
+    @Operation(summary = "게시글 다중 삭제", description = "게시글을 다중 삭제합니다.")
+    @DeleteMapping
+    public ApiResponse<ApiResponse.CustomBody<Void>> deletePosts(
+            @RequestBody @Valid PostsDeleteRequest postsDeleteRequest,
+            @Parameter(hidden = true) @MemberTokenId Long memberId
+    ) {
+        postService.deletePosts(postsDeleteRequest.postIds(), memberId);
         return ApiResponseGenerator.success(HttpStatus.NO_CONTENT);
     }
 }
