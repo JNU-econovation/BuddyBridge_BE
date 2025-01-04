@@ -10,6 +10,7 @@ import econo.buddybridge.utils.api.ApiResponseGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +36,7 @@ public class MemberController {
     @Operation(summary = "회원 정보 수정", description = "회원 정보를 수정합니다.")
     @PutMapping("/info")
     public ApiResponse<CustomBody<Void>> updateMember(
-            @RequestBody MemberReqDto memberReqDto,
+            @Valid @RequestBody MemberReqDto memberReqDto,
             @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
         memberService.updateMemberById(memberId, memberReqDto);

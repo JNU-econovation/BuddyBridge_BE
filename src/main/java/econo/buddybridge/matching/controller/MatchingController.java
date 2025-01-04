@@ -9,6 +9,7 @@ import econo.buddybridge.utils.api.ApiResponseGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -42,7 +43,7 @@ public class MatchingController {
     @PutMapping("/{matching-id}")
     public ApiResponse<ApiResponse.CustomBody<Long>> updateMatching(
             @PathVariable("matching-id") Long matchingId,
-            @RequestBody MatchingUpdateDto matchingUpdateDto,
+            @Valid @RequestBody MatchingUpdateDto matchingUpdateDto,
             @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
         Long updatedMatchingId = matchingService.updateMatching(matchingId, matchingUpdateDto, memberId);
