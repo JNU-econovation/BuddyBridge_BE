@@ -4,6 +4,7 @@ import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.member.entity.Role;
 import econo.buddybridge.report.dto.ReportCustomPage;
+import econo.buddybridge.report.dto.ReportDetailResponse;
 import econo.buddybridge.report.dto.ReportRequest;
 import econo.buddybridge.report.entity.ReportType;
 import econo.buddybridge.report.service.CommentReportService;
@@ -49,6 +50,16 @@ public class ReportController {
                 .map(ReportType::getValue)
                 .toList();
         return ApiResponseGenerator.success(types, HttpStatus.OK);
+    }
+
+    @Operation(summary = "신고 내역 상세 조회", description = "신고 내역을 상세 조회합니다.")
+    @GetMapping("/{report-id}")
+    public ApiResponse<CustomBody<ReportDetailResponse>> getReport(
+            @PathVariable("report-id") Long reportId,
+            @Parameter(hidden = true) @MemberTokenId(allowedRoles = {Role.ADMIN}) Long memberId
+    ) {
+        ReportDetailResponse report = reportService.getReport(reportId);
+        return ApiResponseGenerator.success(report, HttpStatus.OK);
     }
 
     @Operation(summary = "신고 내역 전체 조회", description = "신고 내역 전체를 조회합니다.")
