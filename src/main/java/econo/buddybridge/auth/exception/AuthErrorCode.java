@@ -8,6 +8,7 @@ public enum AuthErrorCode implements ErrorCode {
     FEIGN_REDIRECT("A002", HttpStatus.OK, "Feign Client Logout Redirect"),
     FEIGN_KAKAO_EXCEPTION("A003", HttpStatus.BAD_REQUEST, "카카오 API 호출 오류가 발생했습니다."),
     ALREADY_LOGOUT("A004", HttpStatus.BAD_REQUEST, "이미 로그아웃 상태입니다."),
+    ACCESS_DENIED("A005", HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     ;
 
     private final String code;
