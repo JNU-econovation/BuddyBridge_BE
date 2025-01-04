@@ -68,7 +68,7 @@ public class MatchingService {
     @Transactional
     public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId) {
         Post post = postService.findPostByIdOrThrow(matchingReqDto.postId());
-        if (existsMatchingDone(post)) {
+        if (matchingRepository.existsCompletedMatchingByPost(post)) {
             throw MatchingCompletedException.EXCEPTION;
         }
 
@@ -185,22 +185,10 @@ public class MatchingService {
     private void validateUpdateCondition(MatchingUpdateDto matchingUpdateDto, Post post, Member member, Matching matching) {
         if (matchingUpdateDto.matchingStatusEvent() == MatchingStatusChangeEvent.TOGGLE_DONE) {
             post.validateAuthor(member);
-            if (existsMatchingDone(post) && matching.getMatchingStatus() == MatchingStatus.PENDING) {
+            if (matchingRepository.existsCompletedMatchingByPost(post) && matching.getMatchingStatus() == MatchingStatus.PENDING) {
                 throw MatchingCompletedException.EXCEPTION;
             }
         }
-    }
-
-    private boolean existsMatchingDone(Post post) {
-        List<MatchingStatus> completedStatus = List.of(
-                MatchingStatus.DONE,
-                MatchingStatus.VOLUNTEERING_COMPLETED,
-                MatchingStatus.VOLUNTEERING_VERIFIED
-        );
-
-        return matchingRepository.findByPostId(post.getId())
-                .stream()
-                .anyMatch(m -> completedStatus.contains(m.getMatchingStatus()));
     }
 
     // MatchingReqDto -> Matching
