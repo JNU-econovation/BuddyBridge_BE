@@ -15,6 +15,5 @@ public interface MatchingRepositoryCustom {
 
     boolean existsCompletedMatchingByPost(Post post);
 
-    CompletedVolunteerPostPage getCompletedVolunteerPosts(Member author, Integer page, Integer size, String sort, MemberRole memberRole,
-            Boolean isCompleted);
+    CompletedVolunteerPostPage getCompletedVolunteerPosts(Member author, Integer page, Integer size, String sort, MemberRole memberRole, Boolean isCompleted);
 }

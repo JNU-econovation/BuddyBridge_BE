@@ -122,8 +122,7 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
     }
 
     @Override
-    public CompletedVolunteerPostPage getCompletedVolunteerPosts(Member author, Integer page, Integer size, String sort, MemberRole memberRole,
-            Boolean isCompleted) {
+    public CompletedVolunteerPostPage getCompletedVolunteerPosts(Member author, Integer page, Integer size, String sort, MemberRole memberRole, Boolean isCompleted) {
 
         List<CompletedVolunteerPostDto> content = queryFactory
                 .select(new QCompletedVolunteerPostDto(
@@ -169,8 +168,7 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
 
         if (isCompleted == null || !isCompleted) {
             return switch (memberRole) {
-                case TAKER, GIVER ->
-                        matching.matchingStatus.in(MatchingStatus.DONE, MatchingStatus.VOLUNTEERING_COMPLETED, MatchingStatus.VOLUNTEERING_VERIFIED);
+                case TAKER, GIVER -> matching.matchingStatus.in(MatchingStatus.DONE, MatchingStatus.VOLUNTEERING_COMPLETED, MatchingStatus.VOLUNTEERING_VERIFIED);
             };
         }
 
