@@ -1,8 +1,10 @@
 package econo.buddybridge.report.service;
 
 import static econo.buddybridge.report.mapper.ReportMapper.toReportCustomPage;
+import static econo.buddybridge.report.mapper.ReportMapper.toReportDetailResponse;
 
 import econo.buddybridge.report.dto.ReportCustomPage;
+import econo.buddybridge.report.dto.ReportDetailResponse;
 import econo.buddybridge.report.entity.CommentReport;
 import econo.buddybridge.report.entity.MatchingReport;
 import econo.buddybridge.report.entity.PostReport;
@@ -19,6 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReportService {
 
     private final ReportRepository reportRepository;
+
+    @Transactional(readOnly = true)
+    public ReportDetailResponse getReport(Long reportId) {
+        Report report = findReportByIdOrThrow(reportId);
+        return toReportDetailResponse(report);
+    }
 
     @Transactional(readOnly = true)
     public ReportCustomPage getReports(Integer page, Integer size, String sort) {
