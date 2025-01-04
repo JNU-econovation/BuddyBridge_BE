@@ -37,167 +37,167 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MatchingService {
 
-  private final ChatMessageRepository chatMessageRepository;
-  private final MessageReadStatusRepository messageReadStatusRepository;
-  private final MatchingRepository matchingRepository;
-  private final CommentService commentService;
-  private final MemberService memberService;
-  private final PostService postService;
-  private final ApplicationEventPublisher publisher;
+    private final ChatMessageRepository chatMessageRepository;
+    private final MessageReadStatusRepository messageReadStatusRepository;
+    private final MatchingRepository matchingRepository;
+    private final CommentService commentService;
+    private final MemberService memberService;
+    private final PostService postService;
+    private final ApplicationEventPublisher publisher;
 
-  // 존재하는 매칭인지 확인
-  @Transactional(readOnly = true)
-  public Matching findMatchingByIdOrThrow(Long matchingId) {
-    return matchingRepository.findById(matchingId)
-        .orElseThrow(() -> MatchingNotFoundException.EXCEPTION);
-  }
-
-  @Transactional(readOnly = true)
-  public Matching findMatchingByIdWithMembers(Long matchingId) {
-    return matchingRepository.findByIdWithMembers(matchingId)
-        .orElseThrow(() -> MatchingNotFoundException.EXCEPTION);
-  }
-
-  @Transactional(readOnly = true)
-  public Matching findByIdWithMembersAndPost(Long matchingId) {
-    return matchingRepository.findByIdWithMembersAndPost(matchingId)
-        .orElseThrow(() -> MatchingNotFoundException.EXCEPTION);
-  }
-
-  @Transactional
-  public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId) {
-    Post post = postService.findPostByIdOrThrow(matchingReqDto.postId());
-    if (matchingRepository.existsCompletedMatchingByPost(post)) {
-      throw MatchingCompletedException.EXCEPTION;
+    // 존재하는 매칭인지 확인
+    @Transactional(readOnly = true)
+    public Matching findMatchingByIdOrThrow(Long matchingId) {
+        return matchingRepository.findById(matchingId)
+                .orElseThrow(() -> MatchingNotFoundException.EXCEPTION);
     }
 
-    Member author = memberService.findMemberByIdOrThrow(memberId);
-    post.validateAuthor(author);
-
-    MatchingParticipants participants = resolveParticipants(post, author, matchingReqDto);
-    Member taker = participants.taker();
-    Member giver = participants.giver();
-
-    validateDuplicateMatching(post, taker, giver);
-
-    Matching matching = matchingReqToMatching(post, taker, giver);
-    Matching savedMatching = matchingRepository.save(matching);
-
-    initMessageReadStatus(savedMatching, taker, giver); // 마지막으로 읽은 시간 초기화
-    saveFirstChatMessage(matching, author);             // 채팅방 생성 메시지 저장
-
-    return savedMatching.getId();
-  }
-
-  private void validateDuplicateMatching(Post post, Member taker, Member giver) {
-    boolean exists = matchingRepository.existsByPostAndParticipants(post, taker, giver);
-
-    if (exists) {
-      throw MatchingAlreadyExistsException.EXCEPTION;
-    }
-  }
-
-  private MatchingParticipants resolveParticipants(Post post, Member author,
-      MatchingReqDto matchingReqDto) {
-    Member taker;
-    Member giver;
-
-    Comment comment = commentService.findCommentByIdWithAuthorOrThrow(matchingReqDto.commentId());
-
-    if (!comment.getPost().equals(post)) {
-      throw CommentNotBelongToMatchingException.EXCEPTION;
+    @Transactional(readOnly = true)
+    public Matching findMatchingByIdWithMembers(Long matchingId) {
+        return matchingRepository.findByIdWithMembers(matchingId)
+                .orElseThrow(() -> MatchingNotFoundException.EXCEPTION);
     }
 
-    Member commentAuthor = comment.getAuthor();
-
-    if (post.getPostType() == PostType.GIVER) {
-      giver = author;
-      taker = commentAuthor;
-    } else {
-      giver = commentAuthor;
-      taker = author;
+    @Transactional(readOnly = true)
+    public Matching findByIdWithMembersAndPost(Long matchingId) {
+        return matchingRepository.findByIdWithMembersAndPost(matchingId)
+                .orElseThrow(() -> MatchingNotFoundException.EXCEPTION);
     }
 
-    return new MatchingParticipants(taker, giver);
-  }
+    @Transactional
+    public Long createMatchingById(MatchingReqDto matchingReqDto, Long memberId) {
+        Post post = postService.findPostByIdOrThrow(matchingReqDto.postId());
+        if (matchingRepository.existsCompletedMatchingByPost(post)) {
+            throw MatchingCompletedException.EXCEPTION;
+        }
 
-  private void initMessageReadStatus(Matching savedMatching, Member taker, Member giver) {
-    LocalDateTime now = LocalDateTime.now();
-    messageReadStatusRepository.saveAll(List.of(
-        MessageReadStatus.of(savedMatching, taker, now),
-        MessageReadStatus.of(savedMatching, giver, now)
-    ));
-  }
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+        post.validateAuthor(author);
 
-  private void saveFirstChatMessage(Matching matching, Member author) {
-    chatMessageRepository.save(
-        ChatMessage.of(
-            matching,
-            author,
-            "매칭이 생성되었습니다. 채팅을 통해 상대방과 연락해보세요!",
-            MessageType.INFO
-        )
-    );
-  }
+        MatchingParticipants participants = resolveParticipants(post, author, matchingReqDto);
+        Member taker = participants.taker();
+        Member giver = participants.giver();
 
-  @Transactional // 매칭 업데이트
-  public Long updateMatching(Long matchingId, MatchingUpdateDto matchingUpdateDto, Long memberId) {
-    Matching matching = findMatchingByIdOrThrow(matchingId);
-    Post post = postService.findPostByIdOrThrow(matching.getPost().getId());
-    Member member = memberService.findMemberByIdOrThrow(memberId);
-    MemberRole role = getMemberRole(matching, member);
+        validateDuplicateMatching(post, taker, giver);
 
-    MatchingStatusChangeEvent matchingStatusEvent = matchingUpdateDto.matchingStatusEvent();
+        Matching matching = matchingReqToMatching(post, taker, giver);
+        Matching savedMatching = matchingRepository.save(matching);
 
-    validateUpdateCondition(matchingStatusEvent, post, member, matching);
+        initMessageReadStatus(savedMatching, taker, giver); // 마지막으로 읽은 시간 초기화
+        saveFirstChatMessage(matching, author);             // 채팅방 생성 메시지 저장
 
-    matching.handleEvent(matchingStatusEvent, role);
-
-    return matching.getId();
-  }
-
-  @Transactional // 매칭 삭제
-  public void deleteMatching(Long matchingId, Long memberId) {
-    Matching matching = findMatchingByIdOrThrow(matchingId);
-    Member author = memberService.findMemberByIdOrThrow(memberId);
-
-    matching.getPost().validateAuthor(author);
-
-    publisher.publishEvent(MatchingDeleteEvent.from(matching));
-  }
-
-  private static MemberRole getMemberRole(Matching matching, Member member) {
-    MemberRole role;
-    if (matching.getTaker().equals(member)) {
-      role = MemberRole.TAKER;
-    } else if (matching.getGiver().equals(member)) {
-      role = MemberRole.GIVER;
-    } else {
-      throw MatchingNotParticipantException.EXCEPTION;
+        return savedMatching.getId();
     }
-    return role;
-  }
 
-  // 받아온 이벤트를 통해 (매칭 중, 매칭 완료) 변경 시 게시글 작성자 검증
-  // 매칭 완료로 변경 시 이미 완료된 매칭이 있는지 검증
-  private void validateUpdateCondition(MatchingStatusChangeEvent matchingStatusEvent, Post post,
-      Member member, Matching matching) {
-    if (matchingStatusEvent == MatchingStatusChangeEvent.TOGGLE_DONE) {
-      post.validateAuthor(member);
-      if (matchingRepository.existsCompletedMatchingByPost(post)
-          && matching.getMatchingStatus() == MatchingStatus.PENDING) {
-        throw MatchingCompletedException.EXCEPTION;
-      }
+    private void validateDuplicateMatching(Post post, Member taker, Member giver) {
+        boolean exists = matchingRepository.existsByPostAndParticipants(post, taker, giver);
+
+        if (exists) {
+            throw MatchingAlreadyExistsException.EXCEPTION;
+        }
     }
-  }
 
-  // MatchingReqDto -> Matching
-  private Matching matchingReqToMatching(Post post, Member taker, Member giver) {
-    return Matching.builder()
-        .post(post)
-        .taker(taker)
-        .giver(giver)
-        .matchingStatus(MatchingStatus.PENDING) // 매칭 생성시 PENDING
-        .build();
-  }
+    private MatchingParticipants resolveParticipants(Post post, Member author,
+            MatchingReqDto matchingReqDto) {
+        Member taker;
+        Member giver;
+
+        Comment comment = commentService.findCommentByIdWithAuthorOrThrow(matchingReqDto.commentId());
+
+        if (!comment.getPost().equals(post)) {
+            throw CommentNotBelongToMatchingException.EXCEPTION;
+        }
+
+        Member commentAuthor = comment.getAuthor();
+
+        if (post.getPostType() == PostType.GIVER) {
+            giver = author;
+            taker = commentAuthor;
+        } else {
+            giver = commentAuthor;
+            taker = author;
+        }
+
+        return new MatchingParticipants(taker, giver);
+    }
+
+    private void initMessageReadStatus(Matching savedMatching, Member taker, Member giver) {
+        LocalDateTime now = LocalDateTime.now();
+        messageReadStatusRepository.saveAll(List.of(
+                MessageReadStatus.of(savedMatching, taker, now),
+                MessageReadStatus.of(savedMatching, giver, now)
+        ));
+    }
+
+    private void saveFirstChatMessage(Matching matching, Member author) {
+        chatMessageRepository.save(
+                ChatMessage.of(
+                        matching,
+                        author,
+                        "매칭이 생성되었습니다. 채팅을 통해 상대방과 연락해보세요!",
+                        MessageType.INFO
+                )
+        );
+    }
+
+    @Transactional // 매칭 업데이트
+    public Long updateMatching(Long matchingId, MatchingUpdateDto matchingUpdateDto, Long memberId) {
+        Matching matching = findMatchingByIdOrThrow(matchingId);
+        Post post = postService.findPostByIdOrThrow(matching.getPost().getId());
+        Member member = memberService.findMemberByIdOrThrow(memberId);
+        MemberRole role = getMemberRole(matching, member);
+
+        MatchingStatusChangeEvent matchingStatusChangeEvent = MatchingStatusChangeEvent.fromValue(matchingUpdateDto.matchingStatusEvent());
+
+        validateUpdateCondition(matchingStatusChangeEvent, post, member, matching);
+
+        matching.handleEvent(matchingStatusChangeEvent, role);
+
+        return matching.getId();
+    }
+
+    @Transactional // 매칭 삭제
+    public void deleteMatching(Long matchingId, Long memberId) {
+        Matching matching = findMatchingByIdOrThrow(matchingId);
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+
+        matching.getPost().validateAuthor(author);
+
+        publisher.publishEvent(MatchingDeleteEvent.from(matching));
+    }
+
+    private static MemberRole getMemberRole(Matching matching, Member member) {
+        MemberRole role;
+        if (matching.getTaker().equals(member)) {
+            role = MemberRole.TAKER;
+        } else if (matching.getGiver().equals(member)) {
+            role = MemberRole.GIVER;
+        } else {
+            throw MatchingNotParticipantException.EXCEPTION;
+        }
+        return role;
+    }
+
+    // 받아온 이벤트를 통해 (매칭 중, 매칭 완료) 변경 시 게시글 작성자 검증
+    // 매칭 완료로 변경 시 이미 완료된 매칭이 있는지 검증
+    private void validateUpdateCondition(MatchingStatusChangeEvent matchingStatusChangeEvent, Post post,
+            Member member, Matching matching) {
+        if (matchingStatusChangeEvent == MatchingStatusChangeEvent.TOGGLE_DONE) {
+            post.validateAuthor(member);
+            if (matchingRepository.existsCompletedMatchingByPost(post)
+                    && matching.getMatchingStatus() == MatchingStatus.PENDING) {
+                throw MatchingCompletedException.EXCEPTION;
+            }
+        }
+    }
+
+    // MatchingReqDto -> Matching
+    private Matching matchingReqToMatching(Post post, Member taker, Member giver) {
+        return Matching.builder()
+                .post(post)
+                .taker(taker)
+                .giver(giver)
+                .matchingStatus(MatchingStatus.PENDING) // 매칭 생성시 PENDING
+                .build();
+    }
 }
