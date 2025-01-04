@@ -11,6 +11,7 @@ public enum MatchingStateErrorCode implements ErrorCode {
     ONLY_GIVER_CAN_TRANSITION_TO_VOLUNTEERING_VERIFIED("MS005", HttpStatus.BAD_REQUEST, "봉사자(GIVER)만 봉사 인증 폼 작성이 가능하며, 다른 상태 변경 요청은 불가능합니다."),
     FAILED_MATCHING_STATE_CHANGE_FORBIDDEN("MS006", HttpStatus.BAD_REQUEST, "한 번 취소된 매칭은 상태 변경이 불가능합니다."),
     VERIFIED_MATCHING_STATE_CHANGE_FORBIDDEN("MS007", HttpStatus.BAD_REQUEST, "봉사 인증 완료된 매칭은 상태 변경이 불가능합니다."),
+    MATCHING_STATUS_CHANGE_EVENT_INVALID_TYPE("MS008", HttpStatus.BAD_REQUEST, "유효하지 않은 매칭 상태 변경 유형입니다."),
     ;
 
     private final String code;
