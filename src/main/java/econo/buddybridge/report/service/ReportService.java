@@ -3,6 +3,10 @@ package econo.buddybridge.report.service;
 import static econo.buddybridge.report.mapper.ReportMapper.toReportCustomPage;
 import static econo.buddybridge.report.mapper.ReportMapper.toReportDetailResponse;
 
+import econo.buddybridge.chat.chatmessage.dto.ChatMessageCustomPage;
+import econo.buddybridge.common.persistence.filter.annotation.WithDeletedContent;
+import econo.buddybridge.matching.service.MatchingRoomService;
+import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.report.dto.ReportCustomPage;
 import econo.buddybridge.report.dto.ReportDetailResponse;
 import econo.buddybridge.report.entity.CommentReport;
@@ -21,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReportService {
 
     private final ReportRepository reportRepository;
+    private final MatchingRoomService matchingRoomService;
 
     @Transactional(readOnly = true)
     public ReportDetailResponse getReport(Long reportId) {
@@ -64,6 +69,15 @@ public class ReportService {
     public void deleteReport(Long reportId) {
         Report report = findReportByIdOrThrow(reportId);
         reportRepository.delete(report);
+    }
+
+    @Transactional(readOnly = true)
+    @WithDeletedContent
+    public ChatMessageCustomPage getMatchingRoomMessages(Long reportId, Integer size, Long cursor) {
+        MatchingReport matchingReport = (MatchingReport) findReportByIdOrThrow(reportId);
+        Member reporter = matchingReport.getReporter();
+        Long matchingId = matchingReport.getReportedMatching().getId();
+        return matchingRoomService.getReportedMatchingRoomMessages(reporter.getId(), matchingId, size, cursor);
     }
 
     private Report findReportByIdOrThrow(Long reportId) {

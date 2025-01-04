@@ -4,6 +4,7 @@ import econo.buddybridge.chat.chatmessage.dto.ChatMessageCustomPage;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessagesWithCursor;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
+import econo.buddybridge.common.persistence.filter.annotation.WithDeletedContent;
 import econo.buddybridge.matching.dto.MatchingCustomPage;
 import econo.buddybridge.matching.dto.ReceiverDto;
 import econo.buddybridge.matching.entity.Matching;
@@ -47,6 +48,21 @@ public class MatchingRoomService {
             notificationService.markAsReadByMatchingRoom(memberId, matchingId); // 해당 매칭방의 알림을 읽음 처리
         }
 
+        return getChatMessageCustomPage(size, cursor, matching, receiver);
+    }
+
+    @Transactional // 신고된 매칭(채팅방) 메시지 조회
+    @WithDeletedContent
+    public ChatMessageCustomPage getReportedMatchingRoomMessages(Long memberId, Long matchingId, Integer size, Long cursor) {
+        Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
+        Member receiver = getReceiver(matching, memberId);
+
+        matching.validateParticipants(receiver);
+
+        return getChatMessageCustomPage(size, cursor, matching, receiver);
+    }
+
+    private ChatMessageCustomPage getChatMessageCustomPage(Integer size, Long cursor, Matching matching, Member receiver) {
         ChatMessagesWithCursor chatMessagesWithCursor = chatMessageRepository.findByMatching(matching, cursor, PageRequest.of(0, size));
 
         List<ChatMessageResDto> chatMessageResDtos = chatMessagesWithCursor.chatMessages();
