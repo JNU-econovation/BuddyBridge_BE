@@ -81,7 +81,7 @@ public class PostController {
             @RequestParam(value = "post-status", required = false) PostStatus postStatus,
             @RequestParam(value = "disability-type", required = false) List<DisabilityType> disabilityType,
             @RequestParam(value = "assistance-type", required = false) List<AssistanceType> assistanceType,
-            @Parameter(hidden = true) @MemberTokenId Long memberId
+            @Parameter(hidden = true) @MemberTokenId(required = false) Long memberId
     ) {
         PostCustomPage posts = postService.getPosts(memberId, page, size, sort, postType, postStatus, disabilityType, assistanceType);
         return ApiResponseGenerator.success(posts, HttpStatus.OK);
