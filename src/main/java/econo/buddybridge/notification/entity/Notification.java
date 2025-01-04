@@ -2,6 +2,7 @@ package econo.buddybridge.notification.entity;
 
 import econo.buddybridge.common.persistence.BaseEntity;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.notification.exception.NotificationAccessDeniedException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -51,7 +52,14 @@ public class Notification extends BaseEntity {
         return notification;
     }
 
-    public void markAsRead() {
+    public void markAsRead(Member receiver) {
+        validateReceiver(receiver);
         this.isRead = true;
+    }
+
+    private void validateReceiver(Member receiver) {
+        if (!this.receiver.equals(receiver)) {
+            throw NotificationAccessDeniedException.EXCEPTION;
+        }
     }
 }
