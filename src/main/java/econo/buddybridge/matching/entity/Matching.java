@@ -92,7 +92,6 @@ public class Matching extends SoftDeletableEntity {
             case VOLUNTEERING_COMPLETED -> this.matchingState = VolunteeringCompletedState.getInstance();
             case VOLUNTEERING_VERIFIED -> this.matchingState = VolunteeringVerifiedState.getInstance();
         }
-        ;
     }
 
     public void validateParticipants(Member member) {
