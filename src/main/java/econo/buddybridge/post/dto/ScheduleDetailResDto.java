@@ -1,9 +1,9 @@
 package econo.buddybridge.post.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import econo.buddybridge.post.entity.ScheduleType;
-import lombok.Builder;
-
 import java.time.LocalDateTime;
+import lombok.Builder;
 
 @Builder
 public record ScheduleDetailResDto(
@@ -12,5 +12,8 @@ public record ScheduleDetailResDto(
         ScheduleType scheduleType,
         String scheduleDetails
 ) {
-    
+
+    @QueryProjection
+    public ScheduleDetailResDto {
+    }
 }

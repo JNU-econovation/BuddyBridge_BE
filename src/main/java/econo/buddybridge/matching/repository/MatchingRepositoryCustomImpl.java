@@ -1,8 +1,15 @@
 package econo.buddybridge.matching.repository;
 
+import static econo.buddybridge.chat.chatmessage.entity.QChatMessage.chatMessage;
+import static econo.buddybridge.chat.chatmessage.entity.QMessageReadStatus.messageReadStatus;
+import static econo.buddybridge.matching.entity.QMatching.matching;
+import static econo.buddybridge.member.entity.QMember.member;
+import static econo.buddybridge.post.entity.QPost.post;
+
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import econo.buddybridge.chat.chatmessage.entity.QChatMessage;
@@ -14,21 +21,19 @@ import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.entity.MemberRole;
+import econo.buddybridge.post.dto.CompletedVolunteerPostDto;
+import econo.buddybridge.post.dto.CompletedVolunteerPostPage;
+import econo.buddybridge.post.dto.PostStatus;
+import econo.buddybridge.post.dto.QCompletedVolunteerPostDto;
+import econo.buddybridge.post.dto.QScheduleDetailResDto;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.QPost;
 import econo.buddybridge.post.exception.PostInvalidSortValueException;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static econo.buddybridge.chat.chatmessage.entity.QChatMessage.chatMessage;
-import static econo.buddybridge.chat.chatmessage.entity.QMessageReadStatus.messageReadStatus;
-import static econo.buddybridge.matching.entity.QMatching.matching;
-import static econo.buddybridge.member.entity.QMember.member;
-import static econo.buddybridge.post.entity.QPost.post;
 
 @Repository
 @RequiredArgsConstructor
@@ -106,7 +111,8 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
     }
 
     @Override
-    public List<Matching> getMatchingsByMemberRoleAndStatus(Member author, Integer page, Integer size, String sort, MemberRole memberRole, Boolean isCompleted) {
+    public List<Matching> getMatchingsByMemberRoleAndStatus(Member author, Integer page, Integer size, String sort, MemberRole memberRole,
+            Boolean isCompleted) {
         return queryFactory
                 .selectFrom(matching)
                 .leftJoin(matching.post, post).fetchJoin()
@@ -144,6 +150,50 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
                 .fetchFirst() != null;
     }
 
+    @Override
+    public CompletedVolunteerPostPage getCompletedVolunteerPosts(Member author, Integer page, Integer size, String sort, MemberRole memberRole,
+            Boolean isCompleted) {
+
+        List<CompletedVolunteerPostDto> content = queryFactory
+                .select(new QCompletedVolunteerPostDto(
+                        matching.post.id,
+                        matching.post.title,
+                        matching.post.postType,
+                        Expressions.constant(PostStatus.FINISHED),
+                        matching.post.district,
+                        matching.post.disabilityType,
+                        matching.post.assistanceType,
+                        new QScheduleDetailResDto(
+                                matching.post.schedule.startDate,
+                                matching.post.schedule.endDate,
+                                matching.post.schedule.scheduleType,
+                                matching.post.schedule.scheduleDetails
+                        ),
+                        matching.matchingStatus
+                ))
+                .from(matching)
+                .leftJoin(matching.post, post)
+                .where(
+                        memberRoleExpression(memberRole, author),
+                        completedMatchingStatusExpression(memberRole, isCompleted)
+                )
+                .offset((long) page * size)
+                .limit(size)
+                .orderBy(buildOrderSpecifier(sort, post))
+                .fetch();
+
+        Long totalElements = queryFactory
+                .select(matching.count())
+                .from(matching)
+                .where(
+                        memberRoleExpression(memberRole, author),
+                        completedMatchingStatusExpression(memberRole, isCompleted)
+                )
+                .fetchOne();
+
+        return new CompletedVolunteerPostPage(content, totalElements, content.size() < size);
+    }
+
     private BooleanExpression completedMatchingStatusExpression(MemberRole memberRole, Boolean isCompleted) {
 
         if (isCompleted == null || !isCompleted) {
@@ -154,8 +204,7 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
         }
 
         return switch (memberRole) {
-            case TAKER ->
-                    matching.matchingStatus.in(MatchingStatus.VOLUNTEERING_COMPLETED, MatchingStatus.VOLUNTEERING_VERIFIED);
+            case TAKER -> matching.matchingStatus.in(MatchingStatus.VOLUNTEERING_COMPLETED, MatchingStatus.VOLUNTEERING_VERIFIED);
             case GIVER -> matching.matchingStatus.eq(MatchingStatus.VOLUNTEERING_VERIFIED);
         };
     }
