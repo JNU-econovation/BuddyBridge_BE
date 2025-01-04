@@ -1,12 +1,12 @@
 package econo.buddybridge.post.service;
 
-import econo.buddybridge.matching.entity.Matching;
+import static econo.buddybridge.post.mapper.PostMapper.toEntity;
+
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.entity.MemberRole;
 import econo.buddybridge.member.service.MemberService;
-import econo.buddybridge.post.dto.CompletedVolunteerPostDto;
 import econo.buddybridge.post.dto.CompletedVolunteerPostPage;
 import econo.buddybridge.post.dto.PostCustomPage;
 import econo.buddybridge.post.dto.PostDetailDto;
@@ -22,16 +22,12 @@ import econo.buddybridge.post.event.PostDeleteEvent;
 import econo.buddybridge.post.exception.PostDeleteNotAllowedException;
 import econo.buddybridge.post.exception.PostNotFoundException;
 import econo.buddybridge.post.exception.PostUpdateNotAllowedException;
-import econo.buddybridge.post.mapper.PostMapper;
 import econo.buddybridge.post.repository.PostRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
-import static econo.buddybridge.post.mapper.PostMapper.toEntity;
 
 
 @Service
@@ -68,7 +64,7 @@ public class PostService {
 
     @Transactional(readOnly = true) // 전체 게시글 조회
     public PostCustomPage getPosts(Long memberId, Integer page, Integer size, String sort, PostType postType, PostStatus postStatus,
-                                   List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
+            List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
         return postRepository.findPosts(memberId, page - 1, size, sort, postType, postStatus, disabilityType, assistanceType);
     }
 
@@ -78,14 +74,11 @@ public class PostService {
     }
 
     @Transactional(readOnly = true) // 매칭 상태가 DONE 이후인 봉사 게시글 조회
-    public CompletedVolunteerPostPage getCompletedVolunteerPosts(Long memberId, Integer page, Integer size, String sort, MemberRole memberRole, Boolean isCompleted) {
+    public CompletedVolunteerPostPage getCompletedVolunteerPosts(Long memberId, Integer page, Integer size, String sort, MemberRole memberRole,
+            Boolean isCompleted) {
         Member author = memberService.findMemberByIdOrThrow(memberId);
-
-        List<Matching> matchings = matchingRepository.getMatchingsByMemberRoleAndStatus(author, page - 1, size, sort, memberRole, isCompleted);
-        List<CompletedVolunteerPostDto> content = PostMapper.getCompletedVolunteerPostDtos(matchings);
-        Long totalElements = matchingRepository.getCompletedVolunteerPostsTotalElements(author, memberRole, isCompleted);
-
-        return new CompletedVolunteerPostPage(content, totalElements, content.size() < size);
+        
+        return matchingRepository.getCompletedVolunteerPosts(author, page - 1, size, sort, memberRole, isCompleted);
     }
 
     // 검증 과정 필요성 고려
