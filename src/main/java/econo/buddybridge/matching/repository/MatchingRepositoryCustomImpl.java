@@ -17,7 +17,6 @@ import econo.buddybridge.matching.dto.MatchingCustomPage;
 import econo.buddybridge.matching.dto.MatchingResDto;
 import econo.buddybridge.matching.dto.QMatchingResDto;
 import econo.buddybridge.matching.dto.QReceiverDto;
-import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.entity.MemberRole;
@@ -108,34 +107,6 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
         LocalDateTime nextCursor = nextPage ? matchingResDtos.getLast().lastMessageTime() : LocalDateTime.MIN;
 
         return new MatchingCustomPage(matchingResDtos, nextCursor, nextPage);
-    }
-
-    @Override
-    public List<Matching> getMatchingsByMemberRoleAndStatus(Member author, Integer page, Integer size, String sort, MemberRole memberRole,
-            Boolean isCompleted) {
-        return queryFactory
-                .selectFrom(matching)
-                .leftJoin(matching.post, post).fetchJoin()
-                .where(
-                        memberRoleExpression(memberRole, author),
-                        completedMatchingStatusExpression(memberRole, isCompleted)
-                )
-                .offset((long) page * size)
-                .limit(size)
-                .orderBy(buildOrderSpecifier(sort, post))
-                .fetch();
-    }
-
-    @Override
-    public Long getCompletedVolunteerPostsTotalElements(Member author, MemberRole memberRole, Boolean isCompleted) {
-        return queryFactory
-                .select(matching.count())
-                .from(matching)
-                .where(
-                        memberRoleExpression(memberRole, author),
-                        completedMatchingStatusExpression(memberRole, isCompleted)
-                )
-                .fetchOne();
     }
 
     @Override

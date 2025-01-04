@@ -1,9 +1,7 @@
 package econo.buddybridge.post.mapper;
 
-import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.dto.AssistanceResDto;
-import econo.buddybridge.post.dto.CompletedVolunteerPostDto;
 import econo.buddybridge.post.dto.PostAuthorDto;
 import econo.buddybridge.post.dto.PostDetailDto;
 import econo.buddybridge.post.dto.PostDetailInfoDto;
@@ -15,8 +13,6 @@ import econo.buddybridge.post.dto.ScheduleListResDto;
 import econo.buddybridge.post.entity.AssistanceTime;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.Schedule;
-
-import java.util.List;
 
 public final class PostMapper {
 
@@ -47,28 +43,6 @@ public final class PostMapper {
                         .assistanceEndTime(request.assistanceEndTime())
                         .build())
                 .build();
-    }
-
-
-    // Response : MatchingStatus Done, VOLUNTEERING_COMPLETED, VOLUNTEERING_VERIFIED 게시글 리스트
-    public static List<CompletedVolunteerPostDto> getCompletedVolunteerPostDtos(List<Matching> matchings) {
-        return matchings.stream()
-                .map(matching -> new CompletedVolunteerPostDto(
-                        matching.getPost().getId(),
-                        matching.getPost().getTitle(),
-                        matching.getPost().getPostType(),
-                        PostStatus.FINISHED,
-                        matching.getPost().getDistrict(),
-                        matching.getPost().getDisabilityType(),
-                        matching.getPost().getAssistanceType(),
-                        new ScheduleDetailResDto(
-                                matching.getPost().getSchedule().getStartDate(),
-                                matching.getPost().getSchedule().getEndDate(),
-                                matching.getPost().getSchedule().getScheduleType(),
-                                matching.getPost().getSchedule().getScheduleDetails()),
-                        matching.getMatchingStatus()
-                ))
-                .toList();
     }
 
     // Response : 단일 게시글(게시글 상세)
