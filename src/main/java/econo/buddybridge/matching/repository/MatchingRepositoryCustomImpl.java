@@ -134,18 +134,12 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
 
     @Override
     public boolean existsCompletedMatchingByPost(Post post) {
-        List<MatchingStatus> completedStatuses = List.of(
-                MatchingStatus.DONE,
-                MatchingStatus.VOLUNTEERING_COMPLETED,
-                MatchingStatus.VOLUNTEERING_VERIFIED
-        );
-
         return queryFactory
                 .selectOne()
                 .from(matching)
                 .where(
                         matching.post.eq(post),
-                        matching.matchingStatus.in(completedStatuses)
+                        matching.matchingStatus.in(MatchingStatus.getCompletedStatuses())
                 )
                 .fetchFirst() != null;
     }
