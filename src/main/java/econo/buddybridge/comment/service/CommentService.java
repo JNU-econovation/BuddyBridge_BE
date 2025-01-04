@@ -3,8 +3,10 @@ package econo.buddybridge.comment.service;
 import static econo.buddybridge.common.consts.BuddyBridgeStatic.COMMENT_NOTIFICATION_MESSAGE;
 import static econo.buddybridge.common.consts.BuddyBridgeStatic.getCommentNotificationUrl;
 
+import econo.buddybridge.comment.dto.AuthorDto;
 import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentReqDto;
+import econo.buddybridge.comment.dto.CommentResDto;
 import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
 import econo.buddybridge.comment.entity.Comment;
 import econo.buddybridge.comment.event.CommentDeleteEvent;
@@ -14,6 +16,7 @@ import econo.buddybridge.comment.exception.CommentInvalidDirectionException;
 import econo.buddybridge.comment.exception.CommentNotFoundException;
 import econo.buddybridge.comment.exception.CommentUpdateNotAllowedException;
 import econo.buddybridge.comment.repository.CommentRepository;
+import econo.buddybridge.common.persistence.filter.annotation.WithDeletedContent;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.entity.NotificationType;
@@ -58,6 +61,30 @@ public class CommentService {
         PageRequest page = PageRequest.of(0, size, Sort.by(direction, "id"));
 
         return commentRepository.findByPost(post, cursor, page);
+    }
+
+    @Transactional(readOnly = true) // 신고된 댓글 조회
+    @WithDeletedContent
+    public CommentResDto findReportedComment(Long commentId) {
+        Comment comment = commentRepository.findByIdWithAuthor(commentId)
+                .orElseThrow(() -> CommentNotFoundException.EXCEPTION);
+        return toCommentResDto(comment);
+    }
+
+    private CommentResDto toCommentResDto(Comment comment) {
+        return CommentResDto.builder()
+                .commentId(comment.getId())
+                .postId(comment.getPost().getId())
+                .author(AuthorDto.builder()
+                        .memberId(comment.getAuthor().getId())
+                        .nickname(comment.getAuthor().getNickname())
+                        .profileImg(comment.getAuthor().getProfileImageUrl())
+                        .gender(comment.getAuthor().getGender())
+                        .age(comment.getAuthor().getAge())
+                        .build())
+                .content(comment.getContent())
+                .createdAt(comment.getCreatedAt())
+                .build();
     }
 
     @Transactional  // 댓글 생성
