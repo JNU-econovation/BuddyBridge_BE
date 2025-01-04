@@ -43,6 +43,10 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault("'USER'")
+    private Role role;
+
     private String kakaoToken;
 
     private String password; // 암호화된 비밀번호
@@ -51,7 +55,8 @@ public class Member extends BaseEntity {
 
     @Builder
     public Member(String name, String nickname, String profileImageUrl, String email,
-                  Integer age, DisabilityType disabilityType, Gender gender, String kakaoToken, String password, String salt) {
+            Integer age, DisabilityType disabilityType, Gender gender,
+            Role role, String kakaoToken, String password, String salt) {
         this.name = name;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
@@ -59,6 +64,7 @@ public class Member extends BaseEntity {
         this.age = age;
         this.disabilityType = disabilityType;
         this.gender = gender;
+        this.role = role;
         this.kakaoToken = kakaoToken;
         this.password = password;
         this.salt = salt;
