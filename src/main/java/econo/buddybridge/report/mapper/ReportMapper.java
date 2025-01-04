@@ -1,11 +1,13 @@
 package econo.buddybridge.report.mapper;
 
+import econo.buddybridge.report.dto.ReportCustomPage;
 import econo.buddybridge.report.dto.ReportListItem;
 import econo.buddybridge.report.entity.CommentReport;
 import econo.buddybridge.report.entity.MatchingReport;
 import econo.buddybridge.report.entity.PostReport;
 import econo.buddybridge.report.entity.Report;
 import econo.buddybridge.report.exception.ReportUnexpectedConvertException;
+import java.util.List;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -42,5 +44,16 @@ public final class ReportMapper {
                 report.getReportType().getValue(),
                 report.getCreatedAt().toLocalDate()
         );
+    }
+
+    public static <T extends Report> ReportCustomPage toReportCustomPage(List<T> reports, Long totalElements, Integer page, Integer size) {
+        long totalPage = (totalElements + size - 1) / size;
+        boolean last = page >= totalPage - 1;
+
+        List<ReportListItem> content = reports.stream()
+                .map(ReportMapper::toReportListItem)
+                .toList();
+
+        return new ReportCustomPage(content, totalElements, last);
     }
 }
