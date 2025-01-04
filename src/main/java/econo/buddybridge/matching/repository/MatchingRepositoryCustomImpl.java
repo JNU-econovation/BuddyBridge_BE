@@ -14,6 +14,7 @@ import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.entity.MemberRole;
+import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.QPost;
 import econo.buddybridge.post.exception.PostInvalidSortValueException;
 import lombok.RequiredArgsConstructor;
@@ -129,6 +130,24 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
                         completedMatchingStatusExpression(memberRole, isCompleted)
                 )
                 .fetchOne();
+    }
+
+    @Override
+    public boolean existsCompletedMatchingByPost(Post post) {
+        List<MatchingStatus> completedStatuses = List.of(
+                MatchingStatus.DONE,
+                MatchingStatus.VOLUNTEERING_COMPLETED,
+                MatchingStatus.VOLUNTEERING_VERIFIED
+        );
+
+        return queryFactory
+                .selectOne()
+                .from(matching)
+                .where(
+                        matching.post.eq(post),
+                        matching.matchingStatus.in(completedStatuses)
+                )
+                .fetchFirst() != null;
     }
 
     private BooleanExpression completedMatchingStatusExpression(MemberRole memberRole, Boolean isCompleted) {

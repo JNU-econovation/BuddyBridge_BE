@@ -5,6 +5,7 @@ import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.entity.MemberRole;
+import econo.buddybridge.post.entity.Post;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
@@ -17,4 +18,6 @@ public interface MatchingRepositoryCustom {
     List<Matching> getMatchingsByMemberRoleAndStatus(Member author, Integer page, Integer size, String sort, MemberRole memberRole, Boolean isCompleted);
 
     Long getCompletedVolunteerPostsTotalElements(Member author, MemberRole memberRole, Boolean isCompleted);
+
+    boolean existsCompletedMatchingByPost(Post post);
 }
