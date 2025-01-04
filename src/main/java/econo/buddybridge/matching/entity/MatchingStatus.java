@@ -2,6 +2,8 @@ package econo.buddybridge.matching.entity;
 
 import lombok.Getter;
 
+import java.util.List;
+
 
 @Getter
 public enum MatchingStatus {
@@ -15,5 +17,9 @@ public enum MatchingStatus {
 
     MatchingStatus(String matchingStatus) {
         this.matchingStatus = matchingStatus;
+    }
+
+    public static List<MatchingStatus> getCompletedStatuses() {
+        return List.of(DONE, VOLUNTEERING_COMPLETED, VOLUNTEERING_VERIFIED);
     }
 }
