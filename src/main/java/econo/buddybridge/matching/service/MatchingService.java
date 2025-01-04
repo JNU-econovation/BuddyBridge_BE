@@ -14,7 +14,7 @@ import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.matching.event.MatchingDeleteEvent;
 import econo.buddybridge.matching.exception.CommentNotBelongToMatchingException;
-import econo.buddybridge.matching.exception.DuplicateMatchingException;
+import econo.buddybridge.matching.exception.MatchingAlreadyExistsException;
 import econo.buddybridge.matching.exception.MatchingCompletedException;
 import econo.buddybridge.matching.exception.MatchingNotFoundException;
 import econo.buddybridge.matching.exception.MatchingNotParticipantException;
@@ -98,7 +98,7 @@ public class MatchingService {
         );
 
         if (exists) {
-            throw DuplicateMatchingException.EXCEPTION;
+            throw MatchingAlreadyExistsException.EXCEPTION;
         }
     }
 
