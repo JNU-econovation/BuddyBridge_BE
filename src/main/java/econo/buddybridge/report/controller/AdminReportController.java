@@ -115,7 +115,7 @@ public class AdminReportController {
         return ApiResponseGenerator.success(reports, HttpStatus.OK);
     }
 
-    @Operation(summary = "매칭 대화 내용 조회", description = "매칭 대화 내용을 조회합니다.")
+    @Operation(summary = "매칭(채팅방) 대화 내용 조회", description = "신고된 매칭(채팅방)의 대화 내용을 조회합니다.")
     @GetMapping("/{report-id}/chat")
     public ApiResponse<CustomBody<ChatMessageCustomPage>> getChatMessages(
             @PathVariable("report-id") Long reportId,
