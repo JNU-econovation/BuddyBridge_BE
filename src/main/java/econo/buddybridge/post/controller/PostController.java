@@ -126,7 +126,7 @@ public class PostController {
     @AllowAnonymous
     public ApiResponse<ApiResponse.CustomBody<PostDetailDto>> getPost(
             @PathVariable("post-id") Long postId,
-            @Parameter(hidden = true) @MemberTokenId Long memberId
+            @Parameter(hidden = true) @MemberTokenId(required = false) Long memberId
     ) {
         PostDetailDto postDetailDto = postService.findPost(memberId, postId);
         return ApiResponseGenerator.success(postDetailDto, HttpStatus.OK);
