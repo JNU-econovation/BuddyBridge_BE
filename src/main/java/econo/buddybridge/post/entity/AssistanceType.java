@@ -1,6 +1,7 @@
 package econo.buddybridge.post.entity;
 
 import econo.buddybridge.common.validation.ValueEnum;
+import econo.buddybridge.post.exception.AssistanceTypeInvaldException;
 import java.util.Arrays;
 import lombok.Getter;
 
@@ -26,6 +27,6 @@ public enum AssistanceType implements ValueEnum<String> {
         return Arrays.stream(AssistanceType.values())
                 .filter(assistanceType -> assistanceType.getValue().equals(value))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("AssistanceType에 해당하는 값이 없습니다."));
+                .orElseThrow(() -> AssistanceTypeInvaldException.EXCEPTION);
     }
 }

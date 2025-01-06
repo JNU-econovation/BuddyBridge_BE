@@ -1,6 +1,7 @@
 package econo.buddybridge.post.entity;
 
 import econo.buddybridge.common.validation.ValueEnum;
+import econo.buddybridge.post.exception.PostTypeInvalidException;
 import java.util.Arrays;
 import lombok.Getter;
 
@@ -24,6 +25,6 @@ public enum PostType implements ValueEnum<String> {
         return Arrays.stream(PostType.values())
                 .filter(postType -> postType.getValue().equals(value))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("PostType에 해당하는 값이 없습니다."));
+                .orElseThrow(() -> PostTypeInvalidException.EXCEPTION);
     }
 }
