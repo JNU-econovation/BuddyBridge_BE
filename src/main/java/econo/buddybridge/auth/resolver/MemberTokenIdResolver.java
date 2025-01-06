@@ -1,6 +1,11 @@
 package econo.buddybridge.auth.resolver;
 
+import econo.buddybridge.auth.exception.AccessDeniedException;
 import econo.buddybridge.auth.jwt.service.JwtTokenProvider;
+import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.entity.Role;
+import econo.buddybridge.member.service.MemberService;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -17,6 +22,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 public class MemberTokenIdResolver implements HandlerMethodArgumentResolver {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final MemberService memberService;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -31,7 +37,23 @@ public class MemberTokenIdResolver implements HandlerMethodArgumentResolver {
             WebDataBinderFactory binderFactory
     ) {
         Optional<String> token = jwtTokenProvider.extractTokenOptional(webRequest.getHeader(HttpHeaders.AUTHORIZATION));
-        // 있으면 memberId 반환, 없으면 null 반환
-        return token.map(jwtTokenProvider::getMemberIdFromAccessToken).orElse(null);
+        MemberTokenId memberTokenId = parameter.getParameterAnnotation(MemberTokenId.class);
+
+        if (!memberTokenId.required()) {
+            return token.map(jwtTokenProvider::getMemberIdFromAccessToken).orElse(null);
+        }
+
+        // required == true 이므로 memberId를 추출해 MemberRole을 확인
+        Long memberId = token.map(jwtTokenProvider::getMemberIdFromAccessToken).orElseThrow(() -> AccessDeniedException.EXCEPTION);
+        Member member = memberService.findMemberByIdOrThrow(memberId);
+
+        checkMemberRole(member, memberTokenId.allowedRoles());
+        return memberId;
+    }
+
+    private void checkMemberRole(Member member, Role[] roles) {
+        if (!List.of(roles).contains(member.getRole())) {
+            throw AccessDeniedException.EXCEPTION;
+        }
     }
 }

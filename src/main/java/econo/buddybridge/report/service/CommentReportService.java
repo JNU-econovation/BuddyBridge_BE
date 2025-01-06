@@ -1,5 +1,6 @@
 package econo.buddybridge.report.service;
 
+import econo.buddybridge.comment.dto.CommentResDto;
 import econo.buddybridge.comment.entity.Comment;
 import econo.buddybridge.comment.service.CommentService;
 import econo.buddybridge.member.entity.Member;
@@ -7,6 +8,7 @@ import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.report.dto.ReportRequest;
 import econo.buddybridge.report.entity.CommentReport;
 import econo.buddybridge.report.exception.ReportCommentAlreadyExistsException;
+import econo.buddybridge.report.exception.ReportNotFoundException;
 import econo.buddybridge.report.repository.CommentReportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,5 +37,16 @@ public class CommentReportService {
                 reportRequest.reportType(),
                 reportRequest.reportReason()
         ));
+    }
+
+    @Transactional(readOnly = true)
+    public CommentResDto getReportedComment(Long reportId) {
+        CommentReport commentReport = findReportByIdOrThrow(reportId);
+        return commentService.findReportedComment(commentReport.getReportedComment().getId());
+    }
+
+    private CommentReport findReportByIdOrThrow(Long reportId) {
+        return commentReportRepository.findById(reportId)
+                .orElseThrow(() -> ReportNotFoundException.EXCEPTION);
     }
 }

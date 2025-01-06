@@ -35,14 +35,9 @@ public class NotificationService {
     @Transactional
     public void markAsRead(Long notificationId, Long memberId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
-
         Notification notification = findNotificationByIdOrThrow(notificationId);
 
-        if (!notification.getReceiver().getId().equals(member.getId())) {
-            throw NotificationAccessDeniedException.EXCEPTION;
-        }
-
-        notification.markAsRead();
+        notification.markAsRead(member);
     }
 
     private Notification findNotificationByIdOrThrow(Long notificationId) {

@@ -4,23 +4,22 @@ import econo.buddybridge.chat.chatmessage.dto.ChatMessageCustomPage;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessagesWithCursor;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
+import econo.buddybridge.common.persistence.filter.annotation.WithDeletedContent;
 import econo.buddybridge.matching.dto.MatchingCustomPage;
 import econo.buddybridge.matching.dto.ReceiverDto;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.entity.MatchingStatus;
-import econo.buddybridge.matching.exception.MatchingUnauthorizedAccessException;
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.service.NotificationService;
 import econo.buddybridge.post.entity.Post;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,20 +39,30 @@ public class MatchingRoomService {
 
     @Transactional // 메시지 조회
     public ChatMessageCustomPage getMatchingRoomMessages(Long memberId, Long matchingId, Integer size, Long cursor) {
-
         Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
+        Member receiver = getReceiver(matching, memberId);
 
-        if (!matching.getGiver().getId().equals(memberId) && !matching.getTaker().getId().equals(memberId)) {
-            throw MatchingUnauthorizedAccessException.EXCEPTION;
-        }
+        matching.validateParticipants(receiver);
 
         if (cursor == null) {   // 첫 조회 시에 알림 읽음 처리
             notificationService.markAsReadByMatchingRoom(memberId, matchingId); // 해당 매칭방의 알림을 읽음 처리
         }
 
-        Member receiver = getReceiver(matching, memberId);
-        ReceiverDto receiverDto = ReceiverDto.from(receiver);
+        return getChatMessageCustomPage(size, cursor, matching, receiver);
+    }
 
+    @Transactional // 신고된 매칭(채팅방) 메시지 조회
+    @WithDeletedContent
+    public ChatMessageCustomPage getReportedMatchingRoomMessages(Long memberId, Long matchingId, Integer size, Long cursor) {
+        Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
+        Member receiver = getReceiver(matching, memberId);
+
+        matching.validateParticipants(receiver);
+
+        return getChatMessageCustomPage(size, cursor, matching, receiver);
+    }
+
+    private ChatMessageCustomPage getChatMessageCustomPage(Integer size, Long cursor, Matching matching, Member receiver) {
         ChatMessagesWithCursor chatMessagesWithCursor = chatMessageRepository.findByMatching(matching, cursor, PageRequest.of(0, size));
 
         List<ChatMessageResDto> chatMessageResDtos = chatMessagesWithCursor.chatMessages();
@@ -61,6 +70,7 @@ public class MatchingRoomService {
         boolean nextPage = chatMessagesWithCursor.nextPage();
 
         Post post = matching.getPost();
+        ReceiverDto receiverDto = ReceiverDto.from(receiver);
         return ChatMessageCustomPage.of(post, receiverDto, chatMessageResDtos, nextCursor, nextPage);
     }
 

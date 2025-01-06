@@ -11,6 +11,7 @@ public enum ReportErrorCode implements ErrorCode {
     REPORT_INVALID_TYPE("R005", HttpStatus.BAD_REQUEST, "유효하지 않은 신고 유형입니다."),
     REPORT_SELF_POST("R006", HttpStatus.BAD_REQUEST, "자신의 게시글을 신고할 수 없습니다."),
     REPORT_SELF_COMMENT("R007", HttpStatus.BAD_REQUEST, "자신의 댓글을 신고할 수 없습니다."),
+    REPORT_UNEXPECTED_CONVERT("R008", HttpStatus.INTERNAL_SERVER_ERROR, "신고 정보 변환 중 예기치 않은 오류가 발생했습니다.")
     ;
 
     private final String code;

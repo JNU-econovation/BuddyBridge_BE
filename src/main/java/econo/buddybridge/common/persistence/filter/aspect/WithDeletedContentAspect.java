@@ -27,6 +27,7 @@ public class WithDeletedContentAspect {
 
         // @WithDeletedContent 어노테이션이 붙어있는 경우 필터를 적용하지 않음 (삭제된 데이터도 조회)
         if (method.isAnnotationPresent(WithDeletedContent.class)) {
+            sessionFilterManager.disableFilter(DELETED_FILTER);
             return joinPoint.proceed();
         }
 

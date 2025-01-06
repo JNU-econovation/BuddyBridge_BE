@@ -64,6 +64,27 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return toPostDetailDto(content, isLiked, postStatus);
     }
 
+    @Override // 신고된 단일 게시글 조회
+    public PostDetailDto findByMemberIdAndReportedPostId(Long postId) {
+        Post content = queryFactory
+                .selectFrom(post)
+                .where(post.id.eq(postId))
+                .fetchOne();
+
+        if (content == null) {
+            throw PostNotFoundException.EXCEPTION;
+        }
+
+        List<Matching> matchings = queryFactory.
+                selectFrom(matching)
+                .where(matching.post.id.eq(postId))
+                .fetch();
+
+        PostStatus postStatus = calculatePostStatus(matchings);
+
+        return toPostDetailDto(content, false, postStatus);
+    }
+
     @Override // 게시글 목록 조회
     public PostCustomPage findPosts(Long memberId, Integer page, Integer size, String sort, PostType postType,
                                     PostStatus postStatus, List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {

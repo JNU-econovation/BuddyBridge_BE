@@ -2,6 +2,7 @@ package econo.buddybridge.post.service;
 
 import static econo.buddybridge.post.mapper.PostMapper.toEntity;
 
+import econo.buddybridge.common.persistence.filter.annotation.WithDeletedContent;
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
@@ -53,6 +54,12 @@ public class PostService {
     @Transactional(readOnly = true) // 단일 게시글 조회
     public PostDetailDto findPost(Long memberId, Long postId) {
         return postRepository.findByMemberIdAndPostId(memberId, postId);
+    }
+
+    @Transactional(readOnly = true) // 신고된 단일 게시글 조회
+    @WithDeletedContent
+    public PostDetailDto findReportedPost(Long postId) {
+        return postRepository.findByMemberIdAndReportedPostId(postId);
     }
 
     @Transactional(readOnly = true) // 내가 작성한 게시글 조회
