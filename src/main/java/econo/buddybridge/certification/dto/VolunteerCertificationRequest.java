@@ -3,6 +3,7 @@ package econo.buddybridge.certification.dto;
 import econo.buddybridge.common.validation.EnumTypeValue;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.PostType;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -36,4 +37,8 @@ public record VolunteerCertificationRequest(
         String content
 ) {
 
+    @AssertTrue(message = "봉사 시작 시간은 봉사 종료 시간보다 빨라야 합니다.")
+    private boolean isStartTimeBeforeEndTime() {
+        return !startTime.isAfter(endTime);
+    }
 }
