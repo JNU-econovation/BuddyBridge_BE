@@ -1,7 +1,7 @@
 package econo.buddybridge.matching.state.impl;
 
 import econo.buddybridge.matching.entity.MatchingStatus;
-import econo.buddybridge.matching.exception.state.VerifiedMatchingStateChangeForbiddenException;
+import econo.buddybridge.matching.exception.state.UnexpectedVolunteeringVerifiedEventException;
 import econo.buddybridge.matching.state.MatchingState;
 import econo.buddybridge.matching.state.MatchingStatusChangeEvent;
 import econo.buddybridge.member.entity.MemberRole;
@@ -22,6 +22,9 @@ public class VolunteeringVerifiedState implements MatchingState {
 
     @Override
     public MatchingState handleEvent(MatchingStatusChangeEvent event, MemberRole role) {
-        throw VerifiedMatchingStateChangeForbiddenException.EXCEPTION;
+        if (event == MatchingStatusChangeEvent.SUBMIT_VOLUNTEERING_VERIFICATION && role == MemberRole.GIVER) {
+            return VolunteeringVerifiedState.getInstance();
+        }
+        throw UnexpectedVolunteeringVerifiedEventException.EXCEPTION;
     }
 }

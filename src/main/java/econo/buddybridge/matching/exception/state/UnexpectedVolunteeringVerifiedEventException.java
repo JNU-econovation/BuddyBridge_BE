@@ -2,11 +2,11 @@ package econo.buddybridge.matching.exception.state;
 
 import econo.buddybridge.common.exception.BusinessException;
 
-public class VerifiedMatchingStateChangeForbiddenException extends BusinessException {
+public class UnexpectedVolunteeringVerifiedEventException extends BusinessException {
 
-    public static final BusinessException EXCEPTION = new VerifiedMatchingStateChangeForbiddenException();
+    public static final BusinessException EXCEPTION = new UnexpectedVolunteeringVerifiedEventException();
 
-    private VerifiedMatchingStateChangeForbiddenException() {
-        super(MatchingStateErrorCode.VERIFIED_MATCHING_STATE_CHANGE_FORBIDDEN);
+    private UnexpectedVolunteeringVerifiedEventException() {
+        super(MatchingStateErrorCode.UNEXPECTED_VOLUNTEERING_VERIFIED_EVENT);
     }
 }
