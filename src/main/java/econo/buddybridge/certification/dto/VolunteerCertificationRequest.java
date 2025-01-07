@@ -1,5 +1,6 @@
 package econo.buddybridge.certification.dto;
 
+import econo.buddybridge.common.validation.EnumTypeValue;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.PostType;
 import jakarta.validation.constraints.NotBlank;
@@ -15,12 +16,14 @@ public record VolunteerCertificationRequest(
         @NotBlank(message = "봉사자 이메일은 필수 입니다.")
         String giverEmail,
 
-        PostType postType,
+        @EnumTypeValue(enumClass = PostType.class)
+        String postType,
 
         @NotNull(message = "봉사 일자는 필수 입니다.")
         LocalDate volunteerDate,
 
-        AssistanceType assistanceType,
+        @EnumTypeValue(enumClass = AssistanceType.class)
+        String assistanceType,
 
         @NotNull(message = "봉사 시작 시간은 필수 입니다.")
         LocalTime startTime,
