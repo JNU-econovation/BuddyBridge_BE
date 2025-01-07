@@ -61,4 +61,9 @@ public class VolunteerCertification extends BaseEntity {
             throw VolunteerCertificationMatchingMismatchException.EXCEPTION;
         }
     }
+
+    public void updateVolunteerCertification(VolunteerTime volunteerTime, String content) {
+        this.volunteerTime = volunteerTime;
+        this.content = content;
+    }
 }
