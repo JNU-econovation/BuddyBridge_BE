@@ -1,5 +1,11 @@
 package econo.buddybridge.post.repository;
 
+import static econo.buddybridge.matching.entity.QMatching.matching;
+import static econo.buddybridge.post.entity.QPost.post;
+import static econo.buddybridge.post.entity.QPostLike.postLike;
+import static econo.buddybridge.post.mapper.PostMapper.toPostDetailDto;
+import static econo.buddybridge.post.mapper.PostMapper.toPostListItemDto;
+
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -16,8 +22,6 @@ import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.entity.QPost;
 import econo.buddybridge.post.exception.PostInvalidSortValueException;
 import econo.buddybridge.post.exception.PostNotFoundException;
-import lombok.RequiredArgsConstructor;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,12 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static econo.buddybridge.matching.entity.QMatching.matching;
-import static econo.buddybridge.post.entity.QPost.post;
-import static econo.buddybridge.post.entity.QPostLike.postLike;
-import static econo.buddybridge.post.mapper.PostMapper.toPostDetailDto;
-import static econo.buddybridge.post.mapper.PostMapper.toPostListItemDto;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom {
@@ -87,7 +86,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     @Override // 게시글 목록 조회
     public PostCustomPage findPosts(Long memberId, Integer page, Integer size, String sort, PostType postType,
-                                    PostStatus postStatus, List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
+            PostStatus postStatus, List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
 
         List<Long> finishedPostIds = Collections.emptyList();
 
@@ -209,9 +208,11 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     public PostStatus calculatePostStatus(List<Matching> matchings) {
+        List<MatchingStatus> matchingStatuses = MatchingStatus.getCompletedStatuses();
+
         return matchings
                 .stream()
-                .anyMatch(m -> m.getMatchingStatus() == MatchingStatus.DONE)
+                .anyMatch(m -> matchingStatuses.contains(m.getMatchingStatus()))
                 ? PostStatus.FINISHED
                 : PostStatus.RECRUITING;
     }
