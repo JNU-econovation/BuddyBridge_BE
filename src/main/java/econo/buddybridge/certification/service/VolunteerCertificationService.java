@@ -1,7 +1,9 @@
 package econo.buddybridge.certification.service;
 
 import econo.buddybridge.certification.dto.VolunteerCertificationRequest;
+import econo.buddybridge.certification.dto.VolunteerCertificationUpdateRequest;
 import econo.buddybridge.certification.entity.VolunteerCertification;
+import econo.buddybridge.certification.exception.VolunteerCertificationNotFoundException;
 import econo.buddybridge.certification.mapper.VolunteerCertificationMapper;
 import econo.buddybridge.certification.repository.VolunteerCertificationRepository;
 import econo.buddybridge.certification.validator.VolunteerCertificationValidator;
@@ -45,5 +47,32 @@ public class VolunteerCertificationService {
                 VolunteerCertificationMapper.toVolunteerTime(request),
                 request.content()
         ));
+    }
+
+    @Transactional
+    public void modifyVolunteerCertification(Long matchingId, Long certificationId, VolunteerCertificationUpdateRequest request, Long memberId) {
+        VolunteerCertification volunteerCertification = findVolunteerCertificationByIdWithMatching(certificationId);
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+        Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
+        Post post = matching.getPost();
+
+        volunteerCertificationValidator.validateVolunteerCertificationUpdate(volunteerCertification, matching, post, author, request);
+
+        volunteerCertification.updateVolunteerCertification(
+                VolunteerCertificationMapper.toVolunteerTime(request),
+                request.content()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public VolunteerCertification findVolunteerCertificationByIdOrThrow(Long volunteerCertificationId) {
+        return volunteerCertificationRepository.findById(volunteerCertificationId)
+                .orElseThrow(() -> VolunteerCertificationNotFoundException.EXCEPTION);
+    }
+
+    @Transactional(readOnly = true)
+    public VolunteerCertification findVolunteerCertificationByIdWithMatching(Long volunteerCertificationId) {
+        return volunteerCertificationRepository.findByIdWithMatching(volunteerCertificationId)
+                .orElseThrow(() -> VolunteerCertificationNotFoundException.EXCEPTION);
     }
 }
