@@ -12,15 +12,15 @@ public enum AssistanceType implements ValueEnum<String> {
     이동("이동"),
     기타("기타");
 
-    private final String assistanceType;
+    private final String value;
 
-    AssistanceType(String assistanceType) {
-        this.assistanceType = assistanceType;
+    AssistanceType(String value) {
+        this.value = value;
     }
 
     @Override
     public String getValue() {
-        return assistanceType;
+        return value;
     }
 
     public static AssistanceType fromValue(String value) {
