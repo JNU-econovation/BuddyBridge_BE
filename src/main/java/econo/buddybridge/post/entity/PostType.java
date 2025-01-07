@@ -7,8 +7,8 @@ import lombok.Getter;
 
 @Getter
 public enum PostType implements ValueEnum<String> {
-    TAKER("도와줄래요?"),
-    GIVER("도와줄게요!");
+    TAKER("TAKER"),
+    GIVER("GIVER");
 
     private final String value;
 
