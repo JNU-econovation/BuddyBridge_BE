@@ -2,6 +2,7 @@ package econo.buddybridge.certification.controller;
 
 import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.certification.dto.VolunteerCertificationRequest;
+import econo.buddybridge.certification.dto.VolunteerCertificationUpdateRequest;
 import econo.buddybridge.certification.service.VolunteerCertificationService;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponse.CustomBody;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,5 +37,17 @@ public class VolunteerCertificationController {
     ) {
         volunteerCertificationService.submitVolunteerCertification(matchingId, volunteerCertificationRequest, memberId);
         return ApiResponseGenerator.success(HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "봉사활동 인증 폼 수정", description = "봉사활동 인증 폼을 수정합니다.")
+    @PutMapping("/{matching-id}/{certification-id}")
+    public ApiResponse<CustomBody<Void>> modifyVolunteerCertification(
+            @PathVariable("matching-id") Long matchingId,
+            @PathVariable("certification-id") Long certificationId,
+            @Valid @RequestBody VolunteerCertificationUpdateRequest volunteerCertificationUpdateRequest,
+            @Parameter(hidden = true) @MemberTokenId Long memberId
+    ) {
+        volunteerCertificationService.modifyVolunteerCertification(matchingId, certificationId, volunteerCertificationUpdateRequest, memberId);
+        return ApiResponseGenerator.success(HttpStatus.OK);
     }
 }
