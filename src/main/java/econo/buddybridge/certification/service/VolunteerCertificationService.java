@@ -8,7 +8,9 @@ import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.service.MatchingService;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
+import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.Post;
+import econo.buddybridge.post.entity.PostType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +37,7 @@ public class VolunteerCertificationService {
         }
 
         // 게시글 타입 검사 - 받아온 matchingId에 대해 Post를 가져와 Giver인지 Taker인지
-        if (!post.getPostType().equals(request.postType())) {
+        if (!post.getPostType().equals(PostType.fromValue(request.postType()))) {
             throw new IllegalArgumentException("봉사 인증 작성 중 문제가 발생했습니다. 올바른 게시글 타입이 아닙니다. 관리자에게 문의해주세요.");
         }
 
@@ -59,7 +61,7 @@ public class VolunteerCertificationService {
         }
 
         // 도움 유형 검증
-        if (!request.assistanceType().equals(post.getAssistanceType())) {
+        if (!post.getAssistanceType().equals(AssistanceType.fromValue(request.assistanceType()))) {
             throw new IllegalArgumentException("봉사 인증 작성 중 문제가 발생했습니다. 도움 유형이 일치하지 않습니다.");
         }
 
