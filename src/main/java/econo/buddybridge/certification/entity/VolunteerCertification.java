@@ -1,5 +1,6 @@
 package econo.buddybridge.certification.entity;
 
+import econo.buddybridge.certification.exception.VolunteerCertificationMatchingMismatchException;
 import econo.buddybridge.common.persistence.BaseEntity;
 import econo.buddybridge.matching.entity.Matching;
 import jakarta.persistence.Column;
@@ -23,7 +24,7 @@ import lombok.NoArgsConstructor;
 public class VolunteerCertification extends BaseEntity {
 
     @Id
-    @Column(name = "form_id")
+    @Column(name = "certification_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -53,5 +54,11 @@ public class VolunteerCertification extends BaseEntity {
                 .volunteerTime(volunteerTime)
                 .content(content)
                 .build();
+    }
+
+    public void validateBelongingMatching(Matching matching) {
+        if (!this.matching.equals(matching)) {
+            throw VolunteerCertificationMatchingMismatchException.EXCEPTION;
+        }
     }
 }
