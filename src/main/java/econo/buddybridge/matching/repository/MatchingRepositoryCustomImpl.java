@@ -139,7 +139,9 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
                                 matching.post.schedule.scheduleType,
                                 matching.post.schedule.scheduleDetails
                         ),
-                        matching.matchingStatus
+                        matching.matchingStatus,
+                        matching.giver.name,
+                        matching.giver.email
                 ))
                 .from(matching)
                 .leftJoin(matching.post, post)

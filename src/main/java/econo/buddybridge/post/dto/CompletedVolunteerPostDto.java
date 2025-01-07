@@ -18,7 +18,9 @@ public record CompletedVolunteerPostDto(
         DisabilityType disabilityType,
         AssistanceType assistanceType,
         ScheduleDetailResDto schedule,
-        MatchingStatus matchingStatus
+        MatchingStatus matchingStatus,
+        String giverName,
+        String giverEmail
 ) {
 
     @QueryProjection
