@@ -1,6 +1,8 @@
 package econo.buddybridge.certification.validator;
 
 import econo.buddybridge.certification.dto.VolunteerCertificationRequest;
+import econo.buddybridge.certification.dto.VolunteerCertificationUpdateRequest;
+import econo.buddybridge.certification.entity.VolunteerCertification;
 import econo.buddybridge.certification.exception.VolunteerCertificationAssistanceTimeMismatchException;
 import econo.buddybridge.certification.exception.VolunteerCertificationAssistanceTypeMismatchException;
 import econo.buddybridge.certification.exception.VolunteerCertificationNotAllowedMatchingStatusException;
@@ -24,19 +26,34 @@ public class VolunteerCertificationValidator {
         // VOLUNTEERING_COMPLETED, VOLUNTEERING_VERIFIED 상태 확인 Todo: 필요한지 고려
         validateMatchingStatus(matching);
 
-        // 봉사자 정보 확인 (이름과 이메일을 검증했는데, 봉사자 = 매칭의 giver 이면됨)
+        // 봉사자 정보 확인 (봉사자 == 매칭의 giver 인지)
         validateVolunteer(matching, member);
 
         // postType 확인
         validatePostType(post, PostType.fromValue(request.postType()));
 
-        // Schedule 확인
+        // ScheduleDate 확인(봉사 일자가 게시글의 기간에 포함되는지)
         validateScheduleDate(post, request.volunteerDate());
 
         // AssistanceType 확인
         validateAssistanceType(post, AssistanceType.fromValue(request.assistanceType()));
 
-        // AssistanceTime 확인
+        // AssistanceTime 확인(봉사 시간이 게시글의 시간에 포함되는지)
+        validateAssistanceTime(post, request.startTime(), request.endTime());
+    }
+
+    public void validateVolunteerCertificationUpdate(VolunteerCertification volunteerCertification, Matching matching,
+            Post post, Member author, VolunteerCertificationUpdateRequest request) {
+        // 인증 폼의 매칭과 입력 받은 매칭 일치 여부 확인
+        volunteerCertification.validateBelongingMatching(matching);
+
+        // 봉사자(인증 폼 작성자) 정보 확인 (인증 폼 작성자 == 매칭의 giver 인지)
+        validateVolunteer(matching, author);
+
+        // ScheduleDate 확인(봉사 일자가 게시글의 기간에 포함되는지)
+        validateScheduleDate(post, request.volunteerDate());
+
+        // AssistanceTime 확인(봉사 시간이 게시글의 시간에 포함되는지)
         validateAssistanceTime(post, request.startTime(), request.endTime());
     }
 
