@@ -24,7 +24,7 @@ public class VolunteerCertificationService {
     private final VolunteerCertificationValidator volunteerCertificationValidator;
 
     @Transactional
-    public void submitVolunteerForm(Long matchingId, VolunteerCertificationRequest request, Long memberId) {
+    public void submitVolunteerCertification(Long matchingId, VolunteerCertificationRequest request, Long memberId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
         Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
         Post post = matching.getPost();

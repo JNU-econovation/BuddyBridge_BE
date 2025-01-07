@@ -28,12 +28,12 @@ public class VolunteerCertificationController {
 
     @Operation(summary = "봉사활동 인증 폼 작성", description = "봉사활동 인증 폼을 작성합니다.")
     @PostMapping("/{matching-id}")
-    public ApiResponse<CustomBody<Void>> submitVolunteerForm(
+    public ApiResponse<CustomBody<Void>> submitVolunteerCertification(
             @PathVariable("matching-id") Long matchingId,
             @Valid @RequestBody VolunteerCertificationRequest volunteerCertificationRequest,
             @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        volunteerCertificationService.submitVolunteerForm(matchingId, volunteerCertificationRequest, memberId);
+        volunteerCertificationService.submitVolunteerCertification(matchingId, volunteerCertificationRequest, memberId);
         return ApiResponseGenerator.success(HttpStatus.CREATED);
     }
 }
