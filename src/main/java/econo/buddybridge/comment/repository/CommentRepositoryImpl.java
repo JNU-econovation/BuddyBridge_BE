@@ -1,5 +1,9 @@
 package econo.buddybridge.comment.repository;
 
+import static econo.buddybridge.comment.entity.QComment.comment;
+import static econo.buddybridge.post.entity.QPost.post;
+import static org.springframework.data.domain.Sort.Order;
+
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -17,16 +21,11 @@ import econo.buddybridge.post.dto.PostStatus;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.repository.PostRepositoryImpl;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static econo.buddybridge.comment.entity.QComment.comment;
-import static econo.buddybridge.post.entity.QPost.post;
-import static org.springframework.data.domain.Sort.Order;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 
 @RequiredArgsConstructor
 public class CommentRepositoryImpl implements CommentRepositoryCustom {
@@ -115,7 +114,10 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 )
                 .fetchOne();
 
-        return new MyPageCommentCustomPage(updatedContent, totalElements, content.size() < size);
+        long totalPage = (totalElements + size - 1) / size;
+        boolean last = page >= totalPage - 1;
+
+        return new MyPageCommentCustomPage(updatedContent, totalElements, last);
     }
 
     private List<MyPageCommentResDto> updatePostStatusInContent(List<MyPageCommentResDto> content, Map<Long, List<Matching>> postMatchings) {

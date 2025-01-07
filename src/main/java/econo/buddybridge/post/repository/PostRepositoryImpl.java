@@ -119,7 +119,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         buildPostDisabilityTypesExpression(disabilityType), buildPostAssistanceTypesExpression(assistanceType))
                 .fetchOne();
 
-        return new PostCustomPage(content, totalElements, content.size() < size);
+        long totalPage = (totalElements + size - 1) / size;
+        boolean last = page >= totalPage - 1;
+
+        return new PostCustomPage(content, totalElements, last);
     }
 
     @Override // 내가 작성한 게시글 목록 조회 - 마이페이지
@@ -141,7 +144,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .where(buildMemberIdExpression(memberId), buildPostTypeExpression(postType, post))
                 .fetchOne();
 
-        return new PostCustomPage(content, totalElements, content.size() < size);
+        long totalPage = (totalElements + size - 1) / size;
+        boolean last = page >= totalPage - 1;
+
+        return new PostCustomPage(content, totalElements, last);
     }
 
     @Override // 내가 좋아요한 게시글 목록 조회
@@ -163,7 +169,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .where(postLike.member.id.eq(memberId))
                 .fetchOne();
 
-        return new PostCustomPage(content, totalElements, content.size() < size);
+        long totalPage = (totalElements + size - 1) / size;
+        boolean last = page >= totalPage - 1;
+
+        return new PostCustomPage(content, totalElements, last);
     }
 
     private List<PostListItemDto> getContent(Long memberId, List<Post> posts, Boolean isLikedPage) {
