@@ -12,10 +12,10 @@ import java.time.LocalTime;
 
 public record VolunteerCertificationRequest(
         @NotBlank(message = "봉사자 이름은 필수 입니다.")
-        String giverName,
+        String volunteerName,
 
         @NotBlank(message = "봉사자 이메일은 필수 입니다.")
-        String giverEmail,
+        String volunteerEmail,
 
         @EnumTypeValue(enumClass = PostType.class)
         String postType,

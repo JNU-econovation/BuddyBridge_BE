@@ -9,7 +9,7 @@ import lombok.experimental.UtilityClass;
 public final class VolunteerCertificationMapper {
 
     public static Volunteer toVolunteer(VolunteerCertificationRequest request) {
-        return new Volunteer(request.giverName(), request.giverEmail());
+        return new Volunteer(request.volunteerName(), request.volunteerEmail());
     }
 
     public static VolunteerTime toVolunteerTime(VolunteerCertificationRequest request) {
