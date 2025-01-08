@@ -3,6 +3,7 @@ package econo.buddybridge.matching.entity;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
 import econo.buddybridge.common.persistence.SoftDeletableEntity;
 import econo.buddybridge.matching.exception.MatchingNotParticipantException;
+import econo.buddybridge.matching.exception.MatchingStatusNotDone;
 import econo.buddybridge.matching.state.MatchingState;
 import econo.buddybridge.matching.state.MatchingStatusChangeEvent;
 import econo.buddybridge.matching.state.impl.DoneState;
@@ -28,13 +29,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -97,6 +97,12 @@ public class Matching extends SoftDeletableEntity {
     public void validateParticipants(Member member) {
         if (!taker.equals(member) && !giver.equals(member)) {
             throw MatchingNotParticipantException.EXCEPTION;
+        }
+    }
+
+    public void validateMatchingStatusDone(MatchingStatus matchingStatus) {
+        if (matchingStatus != MatchingStatus.DONE) {
+            throw MatchingStatusNotDone.EXCEPTION;
         }
     }
 
