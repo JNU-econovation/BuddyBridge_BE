@@ -1,5 +1,6 @@
 package econo.buddybridge.certification.service;
 
+import econo.buddybridge.certification.dto.VolunteerCertificationCustomPage;
 import econo.buddybridge.certification.dto.VolunteerCertificationRequest;
 import econo.buddybridge.certification.dto.VolunteerCertificationUpdateRequest;
 import econo.buddybridge.certification.entity.VolunteerCertification;
@@ -26,6 +27,11 @@ public class VolunteerCertificationService {
     private final MatchingService matchingService;
     private final MemberService memberService;
     private final VolunteerCertificationValidator volunteerCertificationValidator;
+
+    @Transactional(readOnly = true)
+    public VolunteerCertificationCustomPage getVolunteerCertifications(Integer page, Integer size, String sort) {
+        return volunteerCertificationRepository.findVolunteerCertifications(page - 1, size, sort);
+    }
 
     @Transactional
     public void submitVolunteerCertification(Long matchingId, VolunteerCertificationRequest request, Long memberId) {
