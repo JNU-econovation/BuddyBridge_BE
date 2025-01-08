@@ -60,6 +60,12 @@ public class VolunteerCertificationService {
         );
     }
 
+    @Transactional
+    public void deleteVolunteerCertification(Long certificationId) {
+        VolunteerCertification volunteerCertification = findVolunteerCertificationByIdOrThrow(certificationId);
+        volunteerCertificationRepository.delete(volunteerCertification);
+    }
+
     @Transactional(readOnly = true)
     public VolunteerCertification findVolunteerCertificationByIdOrThrow(Long volunteerCertificationId) {
         return volunteerCertificationRepository.findById(volunteerCertificationId)
