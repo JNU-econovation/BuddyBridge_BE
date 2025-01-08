@@ -1,5 +1,7 @@
 package econo.buddybridge.matching.entity;
 
+import econo.buddybridge.matching.exception.certification.CertificationAlreadyCompletedException;
+import econo.buddybridge.matching.exception.certification.RequestCoolDownPeriodException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -47,13 +49,13 @@ public class CertificationTracking {
 
     public void validateRequestedAt(LocalDateTime requestedAt) {
         if (!this.requestedAt.plusHours(24).isBefore(requestedAt)) {
-            throw new IllegalArgumentException("봉사 인증 요청은 24시간 이후에 가능합니다.");
+            throw RequestCoolDownPeriodException.EXCEPTION;
         }
     }
 
     public void validateMatchingStatus(MatchingStatus matchingStatus) {
         if (this.getMatching().getMatchingStatus() == MatchingStatus.VOLUNTEERING_COMPLETED) {
-            throw new IllegalArgumentException("수혜자가 봉사 완료 인증을 마쳤습니다.");
+            throw CertificationAlreadyCompletedException.EXCEPTION;
         }
     }
 
