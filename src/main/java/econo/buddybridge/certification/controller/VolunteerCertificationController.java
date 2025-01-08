@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/volunteer-form")
+@RequestMapping("/api/v1/matchings")
 @RequiredArgsConstructor
 @Tag(name = "봉사활동 인증 폼 API", description = "봉사활동 인증 폼 관련 API")
 public class VolunteerCertificationController {
@@ -32,7 +32,7 @@ public class VolunteerCertificationController {
     private final ChatMessageService chatMessageService;
 
     @Operation(summary = "봉사 인증 요청 문자 전송", description = "Giver(봉사자)가 봉사를 완료한 후 TAKER(수혜자)에 봉사 인증 요청을 부탁하는 문자를 전송합니다.")
-    @PostMapping("/{matching-id}/certification")
+    @PostMapping("/{matching-id}/certification-requests")
     public ApiResponse<CustomBody<ChatMessageResDto>> sendVolunteerCompletionRequest(
             @PathVariable("matching-id") Long matchingId,
             @Parameter(hidden = true) @MemberTokenId Long memberId
@@ -42,7 +42,7 @@ public class VolunteerCertificationController {
     }
 
     @Operation(summary = "봉사활동 인증 폼 작성", description = "봉사활동 인증 폼을 작성합니다.")
-    @PostMapping("/{matching-id}")
+    @PostMapping("/{matching-id}/certifications")
     public ApiResponse<CustomBody<Void>> submitVolunteerCertification(
             @PathVariable("matching-id") Long matchingId,
             @Valid @RequestBody VolunteerCertificationRequest volunteerCertificationRequest,
@@ -53,7 +53,7 @@ public class VolunteerCertificationController {
     }
 
     @Operation(summary = "봉사활동 인증 폼 수정", description = "봉사활동 인증 폼을 수정합니다.")
-    @PutMapping("/{matching-id}/{certification-id}")
+    @PutMapping("/{matching-id}/certifications/{certification-id}")
     public ApiResponse<CustomBody<Void>> modifyVolunteerCertification(
             @PathVariable("matching-id") Long matchingId,
             @PathVariable("certification-id") Long certificationId,
