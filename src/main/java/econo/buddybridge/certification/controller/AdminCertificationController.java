@@ -36,7 +36,7 @@ public class AdminCertificationController {
             @RequestParam(defaultValue = "desc", required = false) String sort,
             @Parameter(hidden = true) @MemberTokenId(allowedRoles = {Role.ADMIN}) Long memberId
     ) {
-        VolunteerCertificationCustomPage volunteerCertificationCustomPage = volunteerCertificationService.getVolunteerCertifications(page, size, sort);
+        VolunteerCertificationCustomPage volunteerCertificationCustomPage = volunteerCertificationService.getVolunteerCertificationsForAdmin(page, size, sort);
         return ApiResponseGenerator.success(volunteerCertificationCustomPage, HttpStatus.OK);
     }
 
@@ -46,7 +46,7 @@ public class AdminCertificationController {
             @PathVariable("certification-id") Long certificationId,
             @Parameter(hidden = true) @MemberTokenId(allowedRoles = {Role.ADMIN}) Long memberId
     ) {
-        CertificationDetailResponse certificationDetailResponse = volunteerCertificationService.getVolunteerCertification(certificationId);
+        CertificationDetailResponse certificationDetailResponse = volunteerCertificationService.getVolunteerCertificationForAdmin(certificationId);
         return ApiResponseGenerator.success(certificationDetailResponse, HttpStatus.OK);
     }
 
