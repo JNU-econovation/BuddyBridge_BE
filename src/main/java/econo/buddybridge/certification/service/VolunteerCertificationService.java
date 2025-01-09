@@ -6,6 +6,7 @@ import econo.buddybridge.certification.dto.VolunteerCertificationUpdateRequest;
 import econo.buddybridge.certification.dto.detail.CertificationDetailQueryDto;
 import econo.buddybridge.certification.dto.detail.CertificationDetailResponse;
 import econo.buddybridge.certification.entity.VolunteerCertification;
+import econo.buddybridge.certification.exception.VolunteerCertificationAlreadyExistsException;
 import econo.buddybridge.certification.exception.VolunteerCertificationNotFoundException;
 import econo.buddybridge.certification.mapper.VolunteerCertificationMapper;
 import econo.buddybridge.certification.repository.VolunteerCertificationRepository;
@@ -46,7 +47,7 @@ public class VolunteerCertificationService {
     @Transactional
     public void submitVolunteerCertification(Long matchingId, VolunteerCertificationRequest request, Long memberId) {
         if (volunteerCertificationRepository.existsByMatchingId(matchingId)) {
-            throw new IllegalArgumentException("작성한 봉사활동 인증 폼이 존재합니다.");
+            throw VolunteerCertificationAlreadyExistsException.EXCEPTION;
         }
         
         Member member = memberService.findMemberByIdOrThrow(memberId);
