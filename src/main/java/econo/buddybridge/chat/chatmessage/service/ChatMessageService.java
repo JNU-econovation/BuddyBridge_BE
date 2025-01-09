@@ -80,7 +80,6 @@ public class ChatMessageService {
 
     private void validateAndUpdateTracking(CertificationTracking tracking, LocalDateTime requestedAt) {
         tracking.validateMatchingStatus(tracking.getMatching().getMatchingStatus());
-        tracking.validateRequestedAt(requestedAt);
         tracking.updateRequestedAt(requestedAt);
     }
 

@@ -47,12 +47,6 @@ public class CertificationTracking {
                 .build();
     }
 
-    public void validateRequestedAt(LocalDateTime requestedAt) {
-        if (!this.requestedAt.plusHours(24).isBefore(requestedAt)) {
-            throw RequestCoolDownPeriodException.EXCEPTION;
-        }
-    }
-
     public void validateMatchingStatus(MatchingStatus matchingStatus) {
         if (this.getMatching().getMatchingStatus() == MatchingStatus.VOLUNTEERING_COMPLETED) {
             throw CertificationAlreadyCompletedException.EXCEPTION;
@@ -60,6 +54,9 @@ public class CertificationTracking {
     }
 
     public void updateRequestedAt(LocalDateTime requestedAt) {
+        if (!this.requestedAt.plusHours(24).isBefore(requestedAt)) {
+            throw RequestCoolDownPeriodException.EXCEPTION;
+        }
         this.requestedAt = requestedAt;
     }
 }
