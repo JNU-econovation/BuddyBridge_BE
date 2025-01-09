@@ -4,7 +4,7 @@ import econo.buddybridge.common.exception.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 public enum VolunteerCertificationErrorCode implements ErrorCode {
-    VOLUNTEER_CERTIFICATION_NOT_ALLOWED_MATCHING_STATUS("VC001", HttpStatus.BAD_REQUEST, "봉사 인증 폼 작성 중 문제가 발생했습니다. 봉사 인증은 매칭 상태가 봉사 완료(VOLUNTEERING_COMPLETED, VOLUNTEERING_VERIFIED)인 경우에만 가능합니다."),
+    VOLUNTEER_CERTIFICATION_NOT_ALLOWED_MATCHING_STATUS("VC001", HttpStatus.BAD_REQUEST, "봉사 인증 폼 작성 중 문제가 발생했습니다. 봉사 인증은 매칭 상태가 봉사 완료(VOLUNTEERING_COMPLETED)인 경우에만 가능합니다."),
     VOLUNTEER_CERTIFICATION_VOLUNTEER_MISMATCH("VC002", HttpStatus.BAD_REQUEST, "봉사 인증 폼 작성 중 문제가 발생했습니다. 봉사자가 일치하지 않습니다. 관리자에게 문의해주세요."),
     VOLUNTEER_CERTIFICATION_POST_TYPE_MISMATCH("VC003", HttpStatus.BAD_REQUEST, "봉사 인증 폼 작성 중 문제가 발생했습니다. 게시글 유형이 일치하지 않습니다. 관리자에게 문의해주세요."),
     VOLUNTEER_CERTIFICATION_SCHEDULE_DATE_MISMATCH("VC004", HttpStatus.BAD_REQUEST, "봉사 인증 폼 작성 중 문제가 발생했습니다. 봉사 일자가 게시글에 명시된 일자와 일치하지 않습니다."),

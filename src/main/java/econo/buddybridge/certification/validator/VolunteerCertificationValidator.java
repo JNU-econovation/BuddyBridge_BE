@@ -23,8 +23,8 @@ import org.springframework.stereotype.Component;
 public class VolunteerCertificationValidator {
 
     public void validateVolunteerCertification(Matching matching, Post post, Member member, VolunteerCertificationRequest request) {
-        // VOLUNTEERING_COMPLETED, VOLUNTEERING_VERIFIED 상태 확인 Todo: 필요한지 고려
-        validateMatchingStatus(matching);
+        // VOLUNTEERING_COMPLETED
+        validateMatchingStatusCompleted(matching);
 
         // 봉사자 정보 확인 (봉사자 == 매칭의 giver 인지)
         validateVolunteer(matching, member);
@@ -57,9 +57,8 @@ public class VolunteerCertificationValidator {
         validateAssistanceTime(post, request.startTime(), request.endTime());
     }
 
-    private void validateMatchingStatus(Matching matching) {
-        if (!matching.getMatchingStatus().equals(MatchingStatus.VOLUNTEERING_COMPLETED) &&
-                !matching.getMatchingStatus().equals(MatchingStatus.VOLUNTEERING_VERIFIED)) {
+    private void validateMatchingStatusCompleted(Matching matching) {
+        if (!matching.getMatchingStatus().equals(MatchingStatus.VOLUNTEERING_COMPLETED)) {
             throw VolunteerCertificationNotAllowedMatchingStatusException.EXCEPTION;
         }
     }
