@@ -73,7 +73,7 @@ public class VolunteerCertificationController {
             @PathVariable("certification-id") Long certificationId,
             @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        VolunteeringDetailResponse response = volunteerCertificationService.getVolunteerCertification(certificationId, memberId);
+        VolunteeringDetailResponse response = volunteerCertificationService.getVolunteerCertification(matchingId, certificationId, memberId);
         return ApiResponseGenerator.success(response, HttpStatus.OK);
     }
 }

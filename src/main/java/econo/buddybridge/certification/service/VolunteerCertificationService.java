@@ -45,10 +45,11 @@ public class VolunteerCertificationService {
     }
 
     @Transactional(readOnly = true)
-    public VolunteeringDetailResponse getVolunteerCertification(Long certificationId, Long memberId) {
+    public VolunteeringDetailResponse getVolunteerCertification(Long matchingId, Long certificationId, Long memberId) {
         Member author = memberService.findMemberByIdOrThrow(memberId);
+        Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
         VolunteerCertification volunteerCertification = findVolunteerCertificationByIdWithMatching(certificationId);
-        volunteerCertificationValidator.validateVolunteerCertificationAuthor(author, volunteerCertification.getMatching());
+        volunteerCertificationValidator.validateVolunteerCertificationAuthor(author, matching);
         return volunteerCertificationRepository.findVolunteeringDetailResponseByMemberAndCertification(author, volunteerCertification);
     }
 
