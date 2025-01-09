@@ -22,6 +22,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class VolunteerCertificationValidator {
 
+    public void validateVolunteerCertificationAuthor(Member author, Matching matching) {
+        // 봉사자(인증 폼 작성자) 정보 확인 (인증 폼 작성자 == 매칭의 giver 인지)
+        validateVolunteer(matching, author);
+    }
+
     public void validateVolunteerCertification(Matching matching, Post post, Member member, VolunteerCertificationRequest request) {
         // VOLUNTEERING_COMPLETED
         validateMatchingStatusCompleted(matching);

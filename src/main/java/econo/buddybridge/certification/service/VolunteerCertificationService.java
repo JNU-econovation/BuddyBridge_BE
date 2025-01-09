@@ -5,6 +5,7 @@ import econo.buddybridge.certification.dto.VolunteerCertificationRequest;
 import econo.buddybridge.certification.dto.VolunteerCertificationUpdateRequest;
 import econo.buddybridge.certification.dto.detail.CertificationDetailQueryDto;
 import econo.buddybridge.certification.dto.detail.CertificationDetailResponse;
+import econo.buddybridge.certification.dto.detail.VolunteeringDetailResponse;
 import econo.buddybridge.certification.entity.VolunteerCertification;
 import econo.buddybridge.certification.exception.VolunteerCertificationAlreadyExistsException;
 import econo.buddybridge.certification.exception.VolunteerCertificationNotFoundException;
@@ -32,16 +33,23 @@ public class VolunteerCertificationService {
     private final VolunteerCertificationValidator volunteerCertificationValidator;
 
     @Transactional(readOnly = true)
-    public VolunteerCertificationCustomPage getVolunteerCertifications(Integer page, Integer size, String sort) {
+    public VolunteerCertificationCustomPage getVolunteerCertificationsForAdmin(Integer page, Integer size, String sort) {
         return volunteerCertificationRepository.findVolunteerCertifications(page - 1, size, sort);
     }
 
     @Transactional(readOnly = true)
-    public CertificationDetailResponse getVolunteerCertification(Long certificationId) {
+    public CertificationDetailResponse getVolunteerCertificationForAdmin(Long certificationId) {
         VolunteerCertification volunteerCertification = findVolunteerCertificationByIdOrThrow(certificationId);
-
-        CertificationDetailQueryDto certificationDetailQueryDto = volunteerCertificationRepository.findCertificationDetailQueryDtoById(certificationId);
+        CertificationDetailQueryDto certificationDetailQueryDto = volunteerCertificationRepository.findCertificationDetailQueryDtoByVolunteerCertification(volunteerCertification);
         return certificationDetailQueryDto.toCertificationDetailResponse();
+    }
+
+    @Transactional(readOnly = true)
+    public VolunteeringDetailResponse getVolunteerCertification(Long certificationId, Long memberId) {
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+        VolunteerCertification volunteerCertification = findVolunteerCertificationByIdWithMatching(certificationId);
+        volunteerCertificationValidator.validateVolunteerCertificationAuthor(author, volunteerCertification.getMatching());
+        return volunteerCertificationRepository.findVolunteeringDetailResponseByMemberAndCertification(author, volunteerCertification);
     }
 
     @Transactional
@@ -49,7 +57,7 @@ public class VolunteerCertificationService {
         if (volunteerCertificationRepository.existsByMatchingId(matchingId)) {
             throw VolunteerCertificationAlreadyExistsException.EXCEPTION;
         }
-        
+
         Member member = memberService.findMemberByIdOrThrow(memberId);
         Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
         Post post = matching.getPost();
