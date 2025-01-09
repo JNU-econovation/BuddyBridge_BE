@@ -45,6 +45,10 @@ public class VolunteerCertificationService {
 
     @Transactional
     public void submitVolunteerCertification(Long matchingId, VolunteerCertificationRequest request, Long memberId) {
+        if (volunteerCertificationRepository.existsByMatchingId(matchingId)) {
+            throw new IllegalArgumentException("작성한 봉사활동 인증 폼이 존재합니다.");
+        }
+        
         Member member = memberService.findMemberByIdOrThrow(memberId);
         Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
         Post post = matching.getPost();
