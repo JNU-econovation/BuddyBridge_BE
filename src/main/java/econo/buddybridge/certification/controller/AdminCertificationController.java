@@ -2,6 +2,7 @@ package econo.buddybridge.certification.controller;
 
 import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.certification.dto.VolunteerCertificationCustomPage;
+import econo.buddybridge.certification.dto.detail.CertificationDetailResponse;
 import econo.buddybridge.certification.service.VolunteerCertificationService;
 import econo.buddybridge.member.entity.Role;
 import econo.buddybridge.utils.api.ApiResponse;
@@ -37,6 +38,16 @@ public class AdminCertificationController {
     ) {
         VolunteerCertificationCustomPage volunteerCertificationCustomPage = volunteerCertificationService.getVolunteerCertifications(page, size, sort);
         return ApiResponseGenerator.success(volunteerCertificationCustomPage, HttpStatus.OK);
+    }
+
+    @Operation(summary = "인증 폼 상세 조회", description = "인증 폼을 상세 조회합니다.")
+    @GetMapping("/certifications/{certification-id}")
+    public ApiResponse<CustomBody<CertificationDetailResponse>> getVolunteerCertification(
+            @PathVariable("certification-id") Long certificationId,
+            @Parameter(hidden = true) @MemberTokenId(allowedRoles = {Role.ADMIN}) Long memberId
+    ) {
+        CertificationDetailResponse certificationDetailResponse = volunteerCertificationService.getVolunteerCertification(certificationId);
+        return ApiResponseGenerator.success(certificationDetailResponse, HttpStatus.OK);
     }
 
     @Operation(summary = "인증 폼 삭제", description = "인증 폼을 삭제합니다.")

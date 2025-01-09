@@ -3,6 +3,8 @@ package econo.buddybridge.certification.service;
 import econo.buddybridge.certification.dto.VolunteerCertificationCustomPage;
 import econo.buddybridge.certification.dto.VolunteerCertificationRequest;
 import econo.buddybridge.certification.dto.VolunteerCertificationUpdateRequest;
+import econo.buddybridge.certification.dto.detail.CertificationDetailQueryDto;
+import econo.buddybridge.certification.dto.detail.CertificationDetailResponse;
 import econo.buddybridge.certification.entity.VolunteerCertification;
 import econo.buddybridge.certification.exception.VolunteerCertificationNotFoundException;
 import econo.buddybridge.certification.mapper.VolunteerCertificationMapper;
@@ -31,6 +33,14 @@ public class VolunteerCertificationService {
     @Transactional(readOnly = true)
     public VolunteerCertificationCustomPage getVolunteerCertifications(Integer page, Integer size, String sort) {
         return volunteerCertificationRepository.findVolunteerCertifications(page - 1, size, sort);
+    }
+
+    @Transactional(readOnly = true)
+    public CertificationDetailResponse getVolunteerCertification(Long certificationId) {
+        VolunteerCertification volunteerCertification = findVolunteerCertificationByIdOrThrow(certificationId);
+
+        CertificationDetailQueryDto certificationDetailQueryDto = volunteerCertificationRepository.findCertificationDetailQueryDtoById(certificationId);
+        return certificationDetailQueryDto.toCertificationDetailResponse();
     }
 
     @Transactional
