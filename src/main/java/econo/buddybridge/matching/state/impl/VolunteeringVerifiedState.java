@@ -22,9 +22,6 @@ public class VolunteeringVerifiedState implements MatchingState {
 
     @Override
     public MatchingState handleEvent(MatchingStatusChangeEvent event, MemberRole role) {
-        if (event == MatchingStatusChangeEvent.SUBMIT_VOLUNTEERING_VERIFICATION && role == MemberRole.GIVER) {
-            return VolunteeringVerifiedState.getInstance();
-        }
         throw UnexpectedVolunteeringVerifiedEventException.EXCEPTION;
     }
 }
