@@ -11,10 +11,10 @@ public record CertificationPostDetailResponse(
 
         District district,
 
-        @JsonFormat(pattern = "yyyy.MM.dd")
+        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDateTime startDate,
 
-        @JsonFormat(pattern = "yyyy.MM.dd")
+        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDateTime endDate,
 
         ScheduleType scheduleType,

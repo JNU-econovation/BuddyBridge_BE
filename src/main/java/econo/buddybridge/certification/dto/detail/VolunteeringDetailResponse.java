@@ -12,7 +12,7 @@ public record VolunteeringDetailResponse(
 
         String volunteerNickname,
 
-        @JsonFormat(pattern = "yyyy.MM.dd")
+        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDateTime certificationCreatedDate,
 
         String volunteerName,
