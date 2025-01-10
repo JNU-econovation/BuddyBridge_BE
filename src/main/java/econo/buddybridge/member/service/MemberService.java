@@ -10,6 +10,7 @@ import econo.buddybridge.member.dto.MemberSignUpReqDto;
 import econo.buddybridge.member.dto.MemberSignUpResDto;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.entity.Role;
 import econo.buddybridge.member.exception.InvalidPasswordOrEmailException;
 import econo.buddybridge.member.exception.MemberEmailAlreadyExistsException;
 import econo.buddybridge.member.exception.MemberNicknameAlreadyExistsException;
@@ -103,6 +104,7 @@ public class MemberService {
                 .age(age)
                 .disabilityType(DisabilityType.없음)
                 .gender(memberSignUpReqDto.gender())
+                .role(Role.USER)
                 .password(password)
                 .salt(salt)
                 .build();
