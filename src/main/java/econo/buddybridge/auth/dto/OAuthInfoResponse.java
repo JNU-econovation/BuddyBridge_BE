@@ -3,6 +3,7 @@ package econo.buddybridge.auth.dto;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.entity.Role;
 
 public interface OAuthInfoResponse {
     String getEmail();
@@ -21,6 +22,7 @@ public interface OAuthInfoResponse {
                 .gender(Gender.fromEnglishName(getGender()))
                 .profileImageUrl(getProfileImageUrl())
                 .disabilityType(DisabilityType.없음)  // 회원가입 시 초기 장애 유형은 없음으로 설정
+                .role(Role.USER)
                 .build();
     }
 }
