@@ -88,6 +88,9 @@ public class Post extends SoftDeletableEntity {
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<Comment> comments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
+    private final List<PostLike> postLikes = new ArrayList<>();
+
     public void validateAuthor(Member author) {
         if (!this.author.equals(author)) {
             throw PostUnauthorizedAccessException.EXCEPTION;
