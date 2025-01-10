@@ -3,19 +3,16 @@ package econo.buddybridge.matching.repository;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.entity.Post;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.List;
-import java.util.Optional;
 
 public interface MatchingRepository extends JpaRepository<Matching, Long>, MatchingRepositoryCustom {
 
     @Query("SELECT m FROM Matching m JOIN FETCH m.post JOIN FETCH m.giver JOIN FETCH m.taker WHERE m.id = :matchingId")
     Optional<Matching> findByIdWithMembersAndPost(Long matchingId);
-
-    List<Matching> findByPostId(Long postId);
 
     @Query("SELECT m FROM Matching m JOIN FETCH m.giver JOIN FETCH m.taker WHERE m.id = :matchingId")
     Optional<Matching> findByIdWithMembers(@Param("matchingId") Long matchingId);
@@ -34,4 +31,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long>, Match
             @Param("firstMember") Member firstMember,
             @Param("secondMember") Member secondMember
     );
+
+    List<Matching> findByPostIn(List<Post> posts);
 }
