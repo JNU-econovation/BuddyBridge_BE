@@ -17,4 +17,7 @@ public interface CommentReportRepository extends JpaRepository<CommentReport, Lo
 
     @Query("SELECT cr.reportedComment.post FROM CommentReport cr WHERE cr.reportedComment.post IN :posts")
     Set<Post> findPostByReportedCommentPostIn(List<Post> posts);
+
+    @Query("SELECT cr.reportedComment FROM CommentReport cr WHERE cr.reportedComment IN :comments")
+    Set<Comment> findByReportedCommentIn(List<Comment> comments);
 }
