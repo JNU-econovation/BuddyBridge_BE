@@ -52,7 +52,7 @@ public class VolunteerCertificationService {
 
     @Transactional
     public void modifyVolunteerCertification(Long matchingId, Long certificationId, VolunteerCertificationUpdateRequest request, Long memberId) {
-        VolunteerCertification volunteerCertification = findByIdWithMatchingAndPost(certificationId);
+        VolunteerCertification volunteerCertification = findVolunteerCertificationByIdWithMatchingAndPost(certificationId);
         Member author = memberService.findMemberByIdOrThrow(memberId);
         Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
         Post post = matching.getPost();
@@ -65,9 +65,21 @@ public class VolunteerCertificationService {
         );
     }
 
+    @Transactional
+    public void deleteVolunteerCertificationForAdmin(Long volunteerCertificationId) {
+        VolunteerCertification volunteerCertification = findVolunteerCertificationByIdOrThrow(volunteerCertificationId);
+        volunteerCertificationRepository.delete(volunteerCertification);
+    }
+
     @Transactional(readOnly = true)
-    public VolunteerCertification findByIdWithMatchingAndPost(Long volunteerCertificationId) {
+    public VolunteerCertification findVolunteerCertificationByIdWithMatchingAndPost(Long volunteerCertificationId) {
         return volunteerCertificationRepository.findByIdWithMatchingAndPost(volunteerCertificationId)
+                .orElseThrow(() -> VolunteerCertificationNotFoundException.EXCEPTION);
+    }
+
+    @Transactional(readOnly = true)
+    public VolunteerCertification findVolunteerCertificationByIdOrThrow(Long volunteerCertificationId) {
+        return volunteerCertificationRepository.findById(volunteerCertificationId)
                 .orElseThrow(() -> VolunteerCertificationNotFoundException.EXCEPTION);
     }
 }
