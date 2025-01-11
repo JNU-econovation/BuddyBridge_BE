@@ -1,10 +1,10 @@
 package econo.buddybridge.post.entity;
 
 
-import econo.buddybridge.certification.exception.VolunteerCertificationAssistanceTimeMismatch;
-import econo.buddybridge.certification.exception.VolunteerCertificationAssistanceTypeMismatch;
+import econo.buddybridge.certification.exception.VolunteerCertificationAssistanceTimeMismatchException;
+import econo.buddybridge.certification.exception.VolunteerCertificationAssistanceTypeMismatchException;
 import econo.buddybridge.certification.exception.VolunteerCertificationPostTypeMismatchException;
-import econo.buddybridge.certification.exception.VolunteerCertificationScheduleDateMismatch;
+import econo.buddybridge.certification.exception.VolunteerCertificationScheduleDateMismatchException;
 import econo.buddybridge.comment.entity.Comment;
 import econo.buddybridge.comment.exception.CommentSameGenderOnlyException;
 import econo.buddybridge.comment.exception.CommentSelfNotAllowedException;
@@ -102,7 +102,7 @@ public class Post extends SoftDeletableEntity {
         LocalDate endDate = this.schedule.getEndDate().toLocalDate();
 
         if (volunteerDate.isBefore(startDate) || volunteerDate.isAfter(endDate)) {
-            throw VolunteerCertificationScheduleDateMismatch.EXCEPTION;
+            throw VolunteerCertificationScheduleDateMismatchException.EXCEPTION;
         }
     }
 
@@ -111,7 +111,7 @@ public class Post extends SoftDeletableEntity {
         LocalTime assistanceEndTime = this.assistanceTime.getAssistanceEndTime();
 
         if (startTime.isBefore(assistanceStartTime) || endTime.isAfter(assistanceEndTime)) {
-            throw VolunteerCertificationAssistanceTimeMismatch.EXCEPTION;
+            throw VolunteerCertificationAssistanceTimeMismatchException.EXCEPTION;
         }
     }
 
@@ -123,7 +123,7 @@ public class Post extends SoftDeletableEntity {
 
     public void validateAssistanceType(AssistanceType assistanceType) {
         if (!this.assistanceType.equals(assistanceType)) {
-            throw VolunteerCertificationAssistanceTypeMismatch.EXCEPTION;
+            throw VolunteerCertificationAssistanceTypeMismatchException.EXCEPTION;
         }
     }
 
