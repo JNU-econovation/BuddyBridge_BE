@@ -1,6 +1,10 @@
 package econo.buddybridge.post.entity;
 
 
+import econo.buddybridge.certification.exception.VolunteerCertificationAssistanceTimeMismatch;
+import econo.buddybridge.certification.exception.VolunteerCertificationAssistanceTypeMismatch;
+import econo.buddybridge.certification.exception.VolunteerCertificationPostTypeMismatchException;
+import econo.buddybridge.certification.exception.VolunteerCertificationScheduleDateMismatch;
 import econo.buddybridge.comment.entity.Comment;
 import econo.buddybridge.comment.exception.CommentSameGenderOnlyException;
 import econo.buddybridge.comment.exception.CommentSelfNotAllowedException;
@@ -27,6 +31,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -90,6 +96,36 @@ public class Post extends SoftDeletableEntity {
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<PostLike> postLikes = new ArrayList<>();
+
+    public void validateScheduleDate(LocalDate volunteerDate) {
+        LocalDate startDate = this.schedule.getStartDate().toLocalDate();
+        LocalDate endDate = this.schedule.getEndDate().toLocalDate();
+
+        if (volunteerDate.isBefore(startDate) || volunteerDate.isAfter(endDate)) {
+            throw VolunteerCertificationScheduleDateMismatch.EXCEPTION;
+        }
+    }
+
+    public void validateAssistanceTime(LocalTime startTime, LocalTime endTime) {
+        LocalTime assistanceStartTime = this.assistanceTime.getAssistanceStartTime();
+        LocalTime assistanceEndTime = this.assistanceTime.getAssistanceEndTime();
+
+        if (startTime.isBefore(assistanceStartTime) || endTime.isAfter(assistanceEndTime)) {
+            throw VolunteerCertificationAssistanceTimeMismatch.EXCEPTION;
+        }
+    }
+
+    public void validatePostType(PostType postType) {
+        if (!this.postType.equals(postType)) {
+            throw VolunteerCertificationPostTypeMismatchException.EXCEPTION;
+        }
+    }
+
+    public void validateAssistanceType(AssistanceType assistanceType) {
+        if (!this.assistanceType.equals(assistanceType)) {
+            throw VolunteerCertificationAssistanceTypeMismatch.EXCEPTION;
+        }
+    }
 
     public void validateAuthor(Member author) {
         if (!this.author.equals(author)) {

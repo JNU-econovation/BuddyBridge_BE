@@ -1,5 +1,7 @@
 package econo.buddybridge.matching.entity;
 
+import econo.buddybridge.certification.exception.VolunteerCertificationAllowedOnlyVolunteeringCompletedException;
+import econo.buddybridge.certification.exception.VolunteerCertificationVolunteererMismatchException;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
 import econo.buddybridge.common.persistence.SoftDeletableEntity;
 import econo.buddybridge.matching.exception.MatchingNotParticipantException;
@@ -28,13 +30,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -97,6 +98,18 @@ public class Matching extends SoftDeletableEntity {
     public void validateParticipants(Member member) {
         if (!taker.equals(member) && !giver.equals(member)) {
             throw MatchingNotParticipantException.EXCEPTION;
+        }
+    }
+
+    public void validateVolunteerer(Member volunteerer) {
+        if (!this.giver.equals(volunteerer)) {
+            throw VolunteerCertificationVolunteererMismatchException.EXCEPTION;
+        }
+    }
+
+    public void validateMatchingStatusVolunteeringCompleted() {
+        if (!this.matchingStatus.equals(MatchingStatus.VOLUNTEERING_COMPLETED)) {
+            throw VolunteerCertificationAllowedOnlyVolunteeringCompletedException.EXCEPTION;
         }
     }
 

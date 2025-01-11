@@ -17,6 +17,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 public class AssistanceTime {
 
-    LocalTime assistanceStartTime;
-    LocalTime assistanceEndTime;
+    private LocalTime assistanceStartTime;
+    private LocalTime assistanceEndTime;
 }
