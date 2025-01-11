@@ -41,7 +41,6 @@ public class VolunteerCertificationService {
 
         volunteerCertificationValidator.validateVolunteerCertification(matching, post, member, request);
 
-        // GIVER가 인증 폼 작성을 완료하면 VOLUNTEERING_VERIFICATION 상태로 변경, 하드 코딩..
         matching.handleEvent(MatchingStatusChangeEvent.SUBMIT_VOLUNTEERING_VERIFICATION, MemberRole.GIVER);
 
         volunteerCertificationRepository.save(VolunteerCertification.of(
