@@ -2,6 +2,7 @@ package econo.buddybridge.comment.controller;
 
 import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.comment.dto.CommentCustomPage;
+import econo.buddybridge.comment.dto.CommentDeleteRequest;
 import econo.buddybridge.comment.dto.CommentReqDto;
 import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
 import econo.buddybridge.comment.service.CommentService;
@@ -18,6 +19,7 @@ import econo.buddybridge.utils.api.ApiResponseGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -97,6 +99,16 @@ public class CommentController {
             @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
         commentService.deleteComment(commentId, memberId);
+        return ApiResponseGenerator.success(HttpStatus.NO_CONTENT);
+    }
+
+    @Operation(summary = "댓글 다중 삭제", description = "댓글을 다중 삭제합니다.")
+    @DeleteMapping
+    public ApiResponse<CustomBody<Void>> deleteComments(
+            @Valid @RequestBody CommentDeleteRequest commentDeleteRequest,
+            @Parameter(hidden = true) @MemberTokenId Long memberId
+    ) {
+        commentService.deleteComments(commentDeleteRequest.commentIds(), memberId);
         return ApiResponseGenerator.success(HttpStatus.NO_CONTENT);
     }
 }
