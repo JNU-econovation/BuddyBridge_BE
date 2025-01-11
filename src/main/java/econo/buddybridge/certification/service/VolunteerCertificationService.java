@@ -1,5 +1,7 @@
 package econo.buddybridge.certification.service;
 
+import econo.buddybridge.certification.dto.AdminVolunteerCertificationDetailQueryDto;
+import econo.buddybridge.certification.dto.AdminVolunteerCertificationDetailResponse;
 import econo.buddybridge.certification.dto.VolunteerCertificationCustomPage;
 import econo.buddybridge.certification.dto.VolunteerCertificationRequest;
 import econo.buddybridge.certification.dto.VolunteerCertificationUpdateRequest;
@@ -32,6 +34,13 @@ public class VolunteerCertificationService {
     @Transactional(readOnly = true)
     public VolunteerCertificationCustomPage getVolunteerCertificationsForAdmin(Integer page, Integer size, String sort) {
         return volunteerCertificationRepository.findVolunteerCertifications(page - 1, size, sort);
+    }
+
+    @Transactional(readOnly = true)
+    public AdminVolunteerCertificationDetailResponse getVolunteerCertificationForAdmin(Long certificationId) {
+        VolunteerCertification volunteerCertification = findVolunteerCertificationByIdOrThrow(certificationId);
+        AdminVolunteerCertificationDetailQueryDto certificationDetailQueryDto = volunteerCertificationRepository.findAdminVolunteerCertificationDetailQueryDto(volunteerCertification);
+        return certificationDetailQueryDto.toCertificationDetailResponse();
     }
 
     @Transactional
