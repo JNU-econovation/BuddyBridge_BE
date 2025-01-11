@@ -27,7 +27,7 @@ public class AdminVolunteerCertificationController {
 
     private final VolunteerCertificationService volunteerCertificationService;
 
-    @Operation(summary = "인증 폼 전체 조회", description = "인증 폼 전체를 조회합니다.")
+    @Operation(summary = "관리자 인증 폼 전체 조회", description = "관리자로 인증 폼 전체를 조회합니다.")
     @GetMapping("/certifications")
     public ApiResponse<CustomBody<VolunteerCertificationCustomPage>> getVolunteerCertifications(
             @RequestParam("page") Integer page,
@@ -39,7 +39,7 @@ public class AdminVolunteerCertificationController {
         return ApiResponseGenerator.success(volunteerCertificationCustomPage, HttpStatus.OK);
     }
 
-
+    @Operation(summary = "관리자 인증 폼 삭제", description = "관리자로 인증 폼을 삭제합니다.")
     @DeleteMapping("/certifications/{certification-id}")
     public ApiResponse<CustomBody<Void>> deleteVolunteerCertification(
             @PathVariable("certification-id") Long volunteerCertificationId,
