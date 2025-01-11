@@ -3,6 +3,7 @@ package econo.buddybridge.certification.service;
 import econo.buddybridge.certification.dto.VolunteerCertificationRequest;
 import econo.buddybridge.certification.entity.VolunteerCertification;
 import econo.buddybridge.certification.exception.VolunteerCertificationAlreadyExistsException;
+import econo.buddybridge.certification.exception.VolunteerCertificationNotFoundException;
 import econo.buddybridge.certification.mapper.VolunteerCertificationMapper;
 import econo.buddybridge.certification.repository.VolunteerCertificationRepository;
 import econo.buddybridge.certification.validator.VolunteerCertificationValidator;
@@ -48,5 +49,11 @@ public class VolunteerCertificationService {
                 VolunteerCertificationMapper.toVolunteerTime(request),
                 request.content()
         ));
+    }
+
+    @Transactional(readOnly = true)
+    public VolunteerCertification findByIdWithMatchingAndPost(Long volunteerCertificationId) {
+        return volunteerCertificationRepository.findByIdWithMatchingAndPost(volunteerCertificationId)
+                .orElseThrow(() -> VolunteerCertificationNotFoundException.EXCEPTION);
     }
 }
