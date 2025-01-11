@@ -1,6 +1,7 @@
 package econo.buddybridge.certification.repository;
 
 import static econo.buddybridge.certification.entity.QVolunteerCertification.volunteerCertification;
+import static econo.buddybridge.matching.entity.QMatching.matching;
 import static econo.buddybridge.post.entity.QPost.post;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -10,9 +11,12 @@ import econo.buddybridge.certification.dto.QAdminCertificationDetailResponse;
 import econo.buddybridge.certification.dto.QAdminCertificationPostDetailResponse;
 import econo.buddybridge.certification.dto.QAdminVolunteerCertificationDetailResponse;
 import econo.buddybridge.certification.dto.QVolunteerCertificationListItem;
+import econo.buddybridge.certification.dto.QVolunteerCertificationResponse;
 import econo.buddybridge.certification.dto.VolunteerCertificationCustomPage;
 import econo.buddybridge.certification.dto.VolunteerCertificationListItem;
+import econo.buddybridge.certification.dto.VolunteerCertificationResponse;
 import econo.buddybridge.certification.entity.VolunteerCertification;
+import econo.buddybridge.member.entity.Member;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
@@ -22,8 +26,28 @@ public class VolunteerCertificationCustomRepositoryImpl implements VolunteerCert
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public AdminVolunteerCertificationDetailResponse findAdminVolunteerCertification(VolunteerCertification certification) {
+    public VolunteerCertificationResponse findVolunteerCertificationByMemberAndVolunteerCertification(Member member, VolunteerCertification certification) {
+        return queryFactory
+                .select(new QVolunteerCertificationResponse(
+                        volunteerCertification.id,
+                        matching.giver.name,
+                        matching.giver.email,
+                        matching.post.id,
+                        matching.post.postType,
+                        volunteerCertification.volunteerTime.volunteerDate,
+                        matching.post.assistanceType,
+                        volunteerCertification.volunteerTime.startTime,
+                        volunteerCertification.volunteerTime.endTime,
+                        volunteerCertification.content
+                ))
+                .from(volunteerCertification)
+                .leftJoin(volunteerCertification.matching, matching)
+                .where(volunteerCertification.eq(certification).and(volunteerCertification.matching.giver.eq(member)))
+                .fetchOne();
+    }
 
+    @Override
+    public AdminVolunteerCertificationDetailResponse findAdminVolunteerCertification(VolunteerCertification certification) {
         return queryFactory
                 .select(new QAdminVolunteerCertificationDetailResponse(
                                 new QAdminCertificationAuthorDetailResponse(

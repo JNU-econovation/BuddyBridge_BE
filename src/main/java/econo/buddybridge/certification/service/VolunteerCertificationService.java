@@ -3,6 +3,7 @@ package econo.buddybridge.certification.service;
 import econo.buddybridge.certification.dto.AdminVolunteerCertificationDetailResponse;
 import econo.buddybridge.certification.dto.VolunteerCertificationCustomPage;
 import econo.buddybridge.certification.dto.VolunteerCertificationRequest;
+import econo.buddybridge.certification.dto.VolunteerCertificationResponse;
 import econo.buddybridge.certification.dto.VolunteerCertificationUpdateRequest;
 import econo.buddybridge.certification.entity.VolunteerCertification;
 import econo.buddybridge.certification.exception.VolunteerCertificationAlreadyExistsException;
@@ -39,6 +40,18 @@ public class VolunteerCertificationService {
     public AdminVolunteerCertificationDetailResponse getVolunteerCertificationForAdmin(Long volunteerCertificationId) {
         VolunteerCertification volunteerCertification = findVolunteerCertificationByIdOrThrow(volunteerCertificationId);
         return volunteerCertificationRepository.findAdminVolunteerCertification(volunteerCertification);
+    }
+
+    @Transactional(readOnly = true)
+    public VolunteerCertificationResponse getVolunteerCertification(Long matchingId, Long certificationId, Long memberId) {
+        Member member = memberService.findMemberByIdOrThrow(memberId);
+        VolunteerCertification volunteerCertification = findVolunteerCertificationByIdWithMatchingAndPost(certificationId);
+        Matching matching = matchingService.findMatchingByIdOrThrow(matchingId);
+
+        volunteerCertification.validateMatching(matching);
+        matching.validateVolunteerer(member);
+
+        return volunteerCertificationRepository.findVolunteerCertificationByMemberAndVolunteerCertification(member, volunteerCertification);
     }
 
     @Transactional

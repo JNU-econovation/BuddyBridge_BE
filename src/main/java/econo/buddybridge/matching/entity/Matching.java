@@ -117,7 +117,7 @@ public class Matching extends SoftDeletableEntity {
         validateVolunteerer(volunteerer);
     }
 
-    private void validateVolunteerer(Member volunteerer) {
+    public void validateVolunteerer(Member volunteerer) {
         if (!this.giver.equals(volunteerer)) {
             throw VolunteerCertificationVolunteererMismatchException.EXCEPTION;
         }
