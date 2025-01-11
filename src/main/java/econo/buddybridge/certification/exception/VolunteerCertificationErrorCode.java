@@ -10,6 +10,7 @@ public enum VolunteerCertificationErrorCode implements ErrorCode {
     VOLUNTEER_CERTIFICATION_SCHEDULE_DATE_MISMATCH("VC004", HttpStatus.BAD_REQUEST, "봉사 일자가 게시글에 명시된 일자와 일치하지 않습니다."),
     VOLUNTEER_CERTIFICATION_ASSISTANCE_TIME_MISMATCH("VC005", HttpStatus.BAD_REQUEST, "봉사 시간이 게시글에 명시된 시간과 일치하지 않습니다."),
     VOLUNTEER_CERTIFICATION_ASSISTANCE_TYPE_MISMATCH("VC006", HttpStatus.BAD_REQUEST, "도움 유형이 게시글에 명시된 유형과 일치하지 않습니다."),
+    VOLUNTEER_CERTIFICATION_ALREADY_EXISTS("VC007", HttpStatus.BAD_REQUEST, "작성한 봉사활동 인증 폼이 존재합니다."),
     ;
 
     private final String code;

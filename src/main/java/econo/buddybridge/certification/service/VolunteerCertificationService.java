@@ -2,6 +2,7 @@ package econo.buddybridge.certification.service;
 
 import econo.buddybridge.certification.dto.VolunteerCertificationRequest;
 import econo.buddybridge.certification.entity.VolunteerCertification;
+import econo.buddybridge.certification.exception.VolunteerCertificationAlreadyExistsException;
 import econo.buddybridge.certification.mapper.VolunteerCertificationMapper;
 import econo.buddybridge.certification.repository.VolunteerCertificationRepository;
 import econo.buddybridge.certification.validator.VolunteerCertificationValidator;
@@ -28,6 +29,11 @@ public class VolunteerCertificationService {
     @Transactional
     public void submitVolunteerCertification(Long matchingId, VolunteerCertificationRequest request, Long memberId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
+
+        if (volunteerCertificationRepository.existsByMatchingId(matchingId)) {
+            throw VolunteerCertificationAlreadyExistsException.EXCEPTION;
+        }
+
         Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
         Post post = matching.getPost();
 
@@ -35,7 +41,7 @@ public class VolunteerCertificationService {
 
         // GIVER가 인증 폼 작성을 완료하면 VOLUNTEERING_VERIFICATION 상태로 변경, 하드 코딩..
         matching.handleEvent(MatchingStatusChangeEvent.SUBMIT_VOLUNTEERING_VERIFICATION, MemberRole.GIVER);
-        
+
         volunteerCertificationRepository.save(VolunteerCertification.of(
                 VolunteerCertificationMapper.toVolunteerer(request),
                 matching,
