@@ -5,6 +5,7 @@ import econo.buddybridge.certification.exception.VolunteerCertificationVolunteer
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
 import econo.buddybridge.common.persistence.SoftDeletableEntity;
 import econo.buddybridge.matching.exception.MatchingNotParticipantException;
+import econo.buddybridge.matching.exception.MatchingStatusNotDoneException;
 import econo.buddybridge.matching.state.MatchingState;
 import econo.buddybridge.matching.state.MatchingStatusChangeEvent;
 import econo.buddybridge.matching.state.impl.DoneState;
@@ -98,6 +99,12 @@ public class Matching extends SoftDeletableEntity {
     public void validateParticipants(Member member) {
         if (!taker.equals(member) && !giver.equals(member)) {
             throw MatchingNotParticipantException.EXCEPTION;
+        }
+    }
+
+    public void validateMatchingStatusDone(MatchingStatus matchingStatus) {
+        if (!this.matchingStatus.equals(matchingStatus)) {
+            throw MatchingStatusNotDoneException.EXCEPTION;
         }
     }
 
