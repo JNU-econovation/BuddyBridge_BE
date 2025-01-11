@@ -136,7 +136,7 @@ public class CommentService {
 
         comment.validateDeletionBy(author);
 
-        publisher.publishEvent(CommentDeleteEvent.from(comment));
+        publisher.publishEvent(CommentDeleteEvent.from(List.of(comment)));
     }
 
     private Comment findCommentByIdOrThrow(Long commentId) {

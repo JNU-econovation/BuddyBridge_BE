@@ -2,6 +2,7 @@ package econo.buddybridge.comment.event;
 
 import econo.buddybridge.comment.entity.Comment;
 import econo.buddybridge.common.event.DomainEvent;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,9 +11,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class CommentDeleteEvent extends DomainEvent {
 
-    private final Comment comment;
+    private final List<Comment> comments;
 
-    public static CommentDeleteEvent from(Comment comment) {
-        return new CommentDeleteEvent(comment);
+    public static CommentDeleteEvent from(List<Comment> comments) {
+        return new CommentDeleteEvent(comments);
     }
 }
