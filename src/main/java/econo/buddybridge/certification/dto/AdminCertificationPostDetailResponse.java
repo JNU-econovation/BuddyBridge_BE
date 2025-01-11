@@ -1,6 +1,7 @@
 package econo.buddybridge.certification.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.querydsl.core.annotations.QueryProjection;
 import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.ScheduleType;
 import java.time.LocalDateTime;
@@ -28,4 +29,7 @@ public record AdminCertificationPostDetailResponse(
         String postContent
 ) {
 
+    @QueryProjection
+    public AdminCertificationPostDetailResponse {
+    }
 }

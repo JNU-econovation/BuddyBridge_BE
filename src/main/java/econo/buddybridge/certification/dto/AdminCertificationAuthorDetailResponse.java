@@ -1,5 +1,6 @@
 package econo.buddybridge.certification.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Gender;
 
@@ -15,4 +16,7 @@ public record AdminCertificationAuthorDetailResponse(
         DisabilityType authorDisabilityType
 ) {
 
+    @QueryProjection
+    public AdminCertificationAuthorDetailResponse {
+    }
 }
