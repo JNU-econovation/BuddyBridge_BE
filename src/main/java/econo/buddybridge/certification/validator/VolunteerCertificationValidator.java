@@ -14,27 +14,19 @@ import org.springframework.stereotype.Component;
 public class VolunteerCertificationValidator {
 
     public void validateVolunteerCertification(Matching matching, Post post, Member member, VolunteerCertificationRequest request) {
-        matching.validateVolunteerer(member);
+        PostType postType = PostType.fromValue(request.postType());
+        AssistanceType assistanceType = AssistanceType.fromValue(request.assistanceType());
 
-        matching.validateMatchingStatusVolunteeringCompleted();
-
-        post.validatePostType(PostType.fromValue(request.postType()));
-
-        post.validateScheduleDate(request.volunteerDate());
-
-        post.validateAssistanceType(AssistanceType.fromValue(request.assistanceType()));
-
-        post.validateAssistanceTime(request.startTime(), request.endTime());
+        matching.validateCreateVolunteerer(member);
+        post.validateCreateCertification(request.volunteerDate(), request.startTime(), request.endTime(), postType, assistanceType);
     }
 
     public void validateVolunteerCertificationUpdate(VolunteerCertification volunteerCertification, Matching matching,
             Post post, Member member, VolunteerCertificationUpdateRequest request) {
         volunteerCertification.validateMatching(matching);
 
-        matching.validateVolunteerer(member);
+        matching.validateUpdateVolunteerer(member);
 
-        post.validateScheduleDate(request.volunteerDate());
-
-        post.validateAssistanceTime(request.startTime(), request.endTime());
+        post.validateUpdateCertification(request.volunteerDate(), request.startTime(), request.endTime());
     }
 }

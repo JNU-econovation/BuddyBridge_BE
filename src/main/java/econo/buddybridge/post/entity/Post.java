@@ -97,7 +97,19 @@ public class Post extends SoftDeletableEntity {
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<PostLike> postLikes = new ArrayList<>();
 
-    public void validateScheduleDate(LocalDate volunteerDate) {
+    public void validateCreateCertification(LocalDate volunteerDate, LocalTime startTime, LocalTime endTime, PostType postType, AssistanceType assistanceType) {
+        validateScheduleDate(volunteerDate);
+        validateAssistanceTime(startTime, endTime);
+        validatePostType(postType);
+        validateAssistanceType(assistanceType);
+    }
+
+    public void validateUpdateCertification(LocalDate volunteerDate, LocalTime startTime, LocalTime endTime) {
+        validateScheduleDate(volunteerDate);
+        validateAssistanceTime(startTime, endTime);
+    }
+
+    private void validateScheduleDate(LocalDate volunteerDate) {
         LocalDate startDate = this.schedule.getStartDate().toLocalDate();
         LocalDate endDate = this.schedule.getEndDate().toLocalDate();
 
@@ -106,7 +118,7 @@ public class Post extends SoftDeletableEntity {
         }
     }
 
-    public void validateAssistanceTime(LocalTime startTime, LocalTime endTime) {
+    private void validateAssistanceTime(LocalTime startTime, LocalTime endTime) {
         LocalTime assistanceStartTime = this.assistanceTime.getAssistanceStartTime();
         LocalTime assistanceEndTime = this.assistanceTime.getAssistanceEndTime();
 
@@ -115,13 +127,13 @@ public class Post extends SoftDeletableEntity {
         }
     }
 
-    public void validatePostType(PostType postType) {
+    private void validatePostType(PostType postType) {
         if (!this.postType.equals(postType)) {
             throw VolunteerCertificationPostTypeMismatchException.EXCEPTION;
         }
     }
 
-    public void validateAssistanceType(AssistanceType assistanceType) {
+    private void validateAssistanceType(AssistanceType assistanceType) {
         if (!this.assistanceType.equals(assistanceType)) {
             throw VolunteerCertificationAssistanceTypeMismatchException.EXCEPTION;
         }

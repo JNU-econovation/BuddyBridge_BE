@@ -101,13 +101,22 @@ public class Matching extends SoftDeletableEntity {
         }
     }
 
-    public void validateVolunteerer(Member volunteerer) {
+    public void validateCreateVolunteerer(Member volunteerer) {
+        validateVolunteerer(volunteerer);
+        validateMatchingStatusVolunteeringCompleted();
+    }
+
+    public void validateUpdateVolunteerer(Member volunteerer) {
+        validateVolunteerer(volunteerer);
+    }
+
+    private void validateVolunteerer(Member volunteerer) {
         if (!this.giver.equals(volunteerer)) {
             throw VolunteerCertificationVolunteererMismatchException.EXCEPTION;
         }
     }
 
-    public void validateMatchingStatusVolunteeringCompleted() {
+    private void validateMatchingStatusVolunteeringCompleted() {
         if (!this.matchingStatus.equals(MatchingStatus.VOLUNTEERING_COMPLETED)) {
             throw VolunteerCertificationAllowedOnlyVolunteeringCompletedException.EXCEPTION;
         }
