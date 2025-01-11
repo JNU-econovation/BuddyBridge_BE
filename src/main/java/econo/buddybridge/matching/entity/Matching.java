@@ -1,8 +1,11 @@
 package econo.buddybridge.matching.entity;
 
+import econo.buddybridge.certification.exception.VolunteerCertificationAllowedOnlyVolunteeringCompletedException;
+import econo.buddybridge.certification.exception.VolunteerCertificationVolunteererMismatchException;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
 import econo.buddybridge.common.persistence.SoftDeletableEntity;
 import econo.buddybridge.matching.exception.MatchingNotParticipantException;
+import econo.buddybridge.matching.exception.MatchingStatusNotDoneException;
 import econo.buddybridge.matching.state.MatchingState;
 import econo.buddybridge.matching.state.MatchingStatusChangeEvent;
 import econo.buddybridge.matching.state.impl.DoneState;
@@ -28,13 +31,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -97,6 +99,33 @@ public class Matching extends SoftDeletableEntity {
     public void validateParticipants(Member member) {
         if (!taker.equals(member) && !giver.equals(member)) {
             throw MatchingNotParticipantException.EXCEPTION;
+        }
+    }
+
+    public void validateMatchingStatusDone(MatchingStatus matchingStatus) {
+        if (!this.matchingStatus.equals(matchingStatus)) {
+            throw MatchingStatusNotDoneException.EXCEPTION;
+        }
+    }
+
+    public void validateCreateVolunteerer(Member volunteerer) {
+        validateVolunteerer(volunteerer);
+        validateMatchingStatusVolunteeringCompleted();
+    }
+
+    public void validateUpdateVolunteerer(Member volunteerer) {
+        validateVolunteerer(volunteerer);
+    }
+
+    private void validateVolunteerer(Member volunteerer) {
+        if (!this.giver.equals(volunteerer)) {
+            throw VolunteerCertificationVolunteererMismatchException.EXCEPTION;
+        }
+    }
+
+    private void validateMatchingStatusVolunteeringCompleted() {
+        if (!this.matchingStatus.equals(MatchingStatus.VOLUNTEERING_COMPLETED)) {
+            throw VolunteerCertificationAllowedOnlyVolunteeringCompletedException.EXCEPTION;
         }
     }
 

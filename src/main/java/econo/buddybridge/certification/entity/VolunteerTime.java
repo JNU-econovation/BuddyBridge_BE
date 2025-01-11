@@ -1,6 +1,7 @@
-package econo.buddybridge.post.entity;
+package econo.buddybridge.certification.entity;
 
 import jakarta.persistence.Embeddable;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,8 +16,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @EqualsAndHashCode
-public class AssistanceTime {
+public class VolunteerTime {
 
-    private LocalTime assistanceStartTime;
-    private LocalTime assistanceEndTime;
+    private LocalDate volunteerDate;
+
+    private LocalTime startTime;
+
+    private LocalTime endTime;
 }
