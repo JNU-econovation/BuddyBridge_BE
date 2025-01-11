@@ -13,8 +13,6 @@ public interface CommentReportRepository extends JpaRepository<CommentReport, Lo
 
     boolean existsByReportedCommentAndReporter(Comment comment, Member member);
 
-    boolean existsByReportedComment(Comment reportedComment);
-
     @Query("SELECT cr.reportedComment.post FROM CommentReport cr WHERE cr.reportedComment.post IN :posts")
     Set<Post> findPostByReportedCommentPostIn(List<Post> posts);
 
