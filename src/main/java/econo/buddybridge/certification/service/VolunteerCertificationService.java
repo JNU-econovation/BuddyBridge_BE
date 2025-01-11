@@ -45,7 +45,6 @@ public class VolunteerCertificationService {
         matching.handleEvent(MatchingStatusChangeEvent.SUBMIT_VOLUNTEERING_VERIFICATION, MemberRole.GIVER);
 
         volunteerCertificationRepository.save(VolunteerCertification.of(
-                VolunteerCertificationMapper.toVolunteerer(request),
                 matching,
                 VolunteerCertificationMapper.toVolunteerTime(request),
                 request.content()

@@ -27,9 +27,6 @@ public class VolunteerCertification extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Embedded
-    private Volunteerer volunteererInfo;
-
     @OneToOne(fetch = FetchType.LAZY)
     private Matching matching;
 
@@ -39,16 +36,14 @@ public class VolunteerCertification extends BaseEntity {
     private String content;
 
     @Builder
-    private VolunteerCertification(Volunteerer volunteererInfo, Matching matching, VolunteerTime volunteerTime, String content) {
-        this.volunteererInfo = volunteererInfo;
+    private VolunteerCertification(Matching matching, VolunteerTime volunteerTime, String content) {
         this.matching = matching;
         this.volunteerTime = volunteerTime;
         this.content = content;
     }
 
-    public static VolunteerCertification of(Volunteerer volunteererInfo, Matching matching, VolunteerTime volunteerTime, String content) {
+    public static VolunteerCertification of(Matching matching, VolunteerTime volunteerTime, String content) {
         return VolunteerCertification.builder()
-                .volunteererInfo(volunteererInfo)
                 .matching(matching)
                 .volunteerTime(volunteerTime)
                 .content(content)
