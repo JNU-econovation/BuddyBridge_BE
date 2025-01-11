@@ -144,6 +144,20 @@ public class CommentService {
                 .orElseThrow(() -> CommentNotFoundException.EXCEPTION);
     }
 
+    @Transactional
+    public void deleteComments(List<Long> commentIds, Long memberId) {
+        List<Comment> comments = commentRepository.findAllById(commentIds);
+
+        if (comments.size() != commentIds.size()) {
+            throw CommentNotFoundException.EXCEPTION;
+        }
+
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+        comments.forEach(comment -> comment.validateDeletionBy(author));
+
+        publisher.publishEvent(CommentDeleteEvent.from(comments));
+    }
+
     @Transactional(readOnly = true) // 댓글 조회
     public Comment findCommentByIdWithAuthorOrThrow(Long commentId) {
         return commentRepository.findByIdWithAuthor(commentId)
