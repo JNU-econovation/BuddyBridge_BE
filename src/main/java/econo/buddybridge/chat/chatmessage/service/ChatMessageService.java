@@ -6,6 +6,7 @@ import static econo.buddybridge.common.consts.BuddyBridgeStatic.CHAT_NOTIFICATIO
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageReqDto;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
+import econo.buddybridge.chat.chatmessage.entity.MessageType;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.exception.MatchingUnauthorizedAccessException;
@@ -33,6 +34,32 @@ public class ChatMessageService {
     private final MatchingService matchingService;
     private final SimpUserRegistry simpUserRegistry;
     private final MessageReadStatusService messageReadStatusService;
+
+    @Transactional
+    public ChatMessageResDto sendVolunteerCompletionRequest(Long matchingId, Long memberId) {
+        Member sender = memberService.findMemberByIdOrThrow(memberId);
+        Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
+
+        matching.validateMatchingStatusDone(matching.getMatchingStatus());
+
+        Long receiverId = getReceiverId(sender.getId(), matching.getId());
+        Member receiver = memberService.findMemberByIdOrThrow(receiverId);
+
+        String content = String.format("%s님이 '봉사 인증 요청'을 보냈습니다.", sender.getName());
+        ChatMessage chatMessage = ChatMessage.of(matching, sender, content, MessageType.INFO);
+        chatMessageRepository.save(chatMessage);
+
+        sendNotification(receiver, sender, chatMessage, matching);
+        updateParticipantsReadStatus(matchingId);   // 읽은 시간 갱신
+
+        return ChatMessageResDto.of(
+                chatMessage.getId(),
+                chatMessage.getSender().getId(),
+                chatMessage.getContent(),
+                chatMessage.getMessageType(),
+                chatMessage.getCreatedAt()
+        );
+    }
 
     @Transactional // 메시지 저장
     public ChatMessageResDto save(Long senderId, ChatMessageReqDto chatMessageReqDto, Long matchingId) {
