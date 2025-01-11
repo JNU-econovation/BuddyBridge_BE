@@ -29,7 +29,7 @@ public class VolunteerCertificationController {
     private final VolunteerCertificationService volunteerCertificationService;
 
     @Operation(summary = "봉사활동 인증 폼 작성", description = "봉사활동 인증 폼을 작성합니다.")
-    @PostMapping("/{matching-id}")
+    @PostMapping("/{matching-id}/certifications")
     public ApiResponse<CustomBody<Void>> submitVolunteerCertification(
             @PathVariable("matching-id") Long matchingId,
             @Valid @RequestBody VolunteerCertificationRequest volunteerCertificationRequest,
