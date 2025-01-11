@@ -1,6 +1,8 @@
 package econo.buddybridge.certification.validator;
 
 import econo.buddybridge.certification.dto.VolunteerCertificationRequest;
+import econo.buddybridge.certification.dto.VolunteerCertificationUpdateRequest;
+import econo.buddybridge.certification.entity.VolunteerCertification;
 import econo.buddybridge.certification.exception.VolunteerCertificationAllowedOnlyVolunteeringCompletedException;
 import econo.buddybridge.certification.exception.VolunteerCertificationAssistanceTimeMismatch;
 import econo.buddybridge.certification.exception.VolunteerCertificationAssistanceTypeMismatch;
@@ -30,6 +32,15 @@ public class VolunteerCertificationValidator {
         validateScheduleDate(post, request.volunteerDate());
 
         validateAssistanceType(post, AssistanceType.fromValue(request.assistanceType()));
+
+        validateAssistanceTime(post, request.startTime(), request.endTime());
+    }
+
+    public void validateVolunteerCertificationUpdate(VolunteerCertification volunteerCertification, Matching matching,
+            Post post, Member author, VolunteerCertificationUpdateRequest request) {
+        validateVolunteerer(matching, author);
+
+        validateScheduleDate(post, request.volunteerDate());
 
         validateAssistanceTime(post, request.startTime(), request.endTime());
     }
