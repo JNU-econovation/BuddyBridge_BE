@@ -12,6 +12,7 @@ public enum VolunteerCertificationErrorCode implements ErrorCode {
     VOLUNTEER_CERTIFICATION_ASSISTANCE_TYPE_MISMATCH("VC006", HttpStatus.BAD_REQUEST, "도움 유형이 게시글에 명시된 유형과 일치하지 않습니다."),
     VOLUNTEER_CERTIFICATION_ALREADY_EXISTS("VC007", HttpStatus.BAD_REQUEST, "작성한 봉사활동 인증 폼이 존재합니다."),
     VOLUNTEER_CERTIFICATION_NOT_FOUND("VC008", HttpStatus.NOT_FOUND, "봉사 인증 폼을 찾을 수 없습니다."),
+    VOLUNTEER_CERTIFICATION_MATCHING_MISMATCH("VC009", HttpStatus.BAD_REQUEST, "매칭이 일치하지 않습니다. 관리자에게 문의해주세요."),
     ;
 
     private final String code;

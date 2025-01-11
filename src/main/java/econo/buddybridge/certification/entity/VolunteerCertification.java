@@ -1,5 +1,6 @@
 package econo.buddybridge.certification.entity;
 
+import econo.buddybridge.certification.exception.VolunteerCertificationMatchingMismatchException;
 import econo.buddybridge.common.persistence.BaseEntity;
 import econo.buddybridge.matching.entity.Matching;
 import jakarta.persistence.Column;
@@ -53,5 +54,11 @@ public class VolunteerCertification extends BaseEntity {
     public void updateVolunteerCertification(VolunteerTime volunteerTime, String content) {
         this.volunteerTime = volunteerTime;
         this.content = content;
+    }
+
+    public void validateMatching(Matching matching) {
+        if (!this.matching.equals(matching)) {
+            throw VolunteerCertificationMatchingMismatchException.EXCEPTION;
+        }
     }
 }
