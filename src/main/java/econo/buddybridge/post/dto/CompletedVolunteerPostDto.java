@@ -11,6 +11,8 @@ import lombok.Builder;
 @Builder
 public record CompletedVolunteerPostDto(
         Long postId,
+        String giverName,
+        String giverEmail,
         String title,
         PostType postType,
         PostStatus postStatus,

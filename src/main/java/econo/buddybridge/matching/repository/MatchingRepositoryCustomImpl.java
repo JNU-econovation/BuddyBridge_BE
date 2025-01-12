@@ -127,6 +127,8 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
         List<CompletedVolunteerPostDto> content = queryFactory
                 .select(new QCompletedVolunteerPostDto(
                         matching.post.id,
+                        matching.giver.name,
+                        matching.giver.email,
                         matching.post.title,
                         matching.post.postType,
                         Expressions.constant(PostStatus.FINISHED),
