@@ -24,7 +24,6 @@ public class VolunteerCertificationValidator {
         volunteerCertification.validateMatching(matching);
 
         matching.validateUpdateVolunteerer(member);
-
         post.validateUpdateCertification(request.volunteerDate(), request.startTime(), request.endTime());
     }
 }
