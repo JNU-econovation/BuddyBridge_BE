@@ -46,7 +46,7 @@ public class CertificationTracking {
     }
 
     public void validateMatchingStatus(MatchingStatus matchingStatus) {
-        if (this.getMatching().getMatchingStatus() == MatchingStatus.VOLUNTEERING_COMPLETED) {
+        if (this.getMatching().getMatchingStatus() == matchingStatus) {
             throw CertificationAlreadyCompletedException.EXCEPTION;
         }
     }
