@@ -71,7 +71,7 @@ public class MatchingRoomService {
 
         Post post = matching.getPost();
         ReceiverDto receiverDto = ReceiverDto.from(receiver);
-        return ChatMessageCustomPage.of(post, receiverDto, chatMessageResDtos, nextCursor, nextPage);
+        return ChatMessageCustomPage.of(post, matching, receiverDto, chatMessageResDtos, nextCursor, nextPage);
     }
 
     private Member getReceiver(Matching matching, Long memberId) {
