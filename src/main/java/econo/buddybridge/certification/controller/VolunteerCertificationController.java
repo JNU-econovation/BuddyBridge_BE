@@ -2,6 +2,7 @@ package econo.buddybridge.certification.controller;
 
 import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.certification.dto.VolunteerCertificationRequest;
+import econo.buddybridge.certification.dto.VolunteerCertificationResponse;
 import econo.buddybridge.certification.dto.VolunteerCertificationUpdateRequest;
 import econo.buddybridge.certification.service.VolunteerCertificationService;
 import econo.buddybridge.utils.api.ApiResponse;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,6 +29,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class VolunteerCertificationController {
 
     private final VolunteerCertificationService volunteerCertificationService;
+
+    @Operation(summary = "봉사 인증 폼 조회", description = "봉사 인증 폼을 조회합니다.")
+    @GetMapping("/{matching-id}/certifications/{certification-id}")
+    public ApiResponse<CustomBody<VolunteerCertificationResponse>> getVolunteerCertification(
+            @PathVariable("matching-id") Long matchingId,
+            @PathVariable("certification-id") Long certificationId,
+            @Parameter(hidden = true) @MemberTokenId Long memberId
+    ) {
+        VolunteerCertificationResponse response = volunteerCertificationService.getVolunteerCertification(matchingId, certificationId, memberId); // 왓 !!!!
+        return ApiResponseGenerator.success(response, HttpStatus.OK);
+    }
 
     @Operation(summary = "봉사활동 인증 폼 작성", description = "봉사활동 인증 폼을 작성합니다.")
     @PostMapping("/{matching-id}/certifications")

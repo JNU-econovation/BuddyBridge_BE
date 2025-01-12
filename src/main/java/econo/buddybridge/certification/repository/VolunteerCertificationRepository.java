@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface VolunteerCertificationRepository extends JpaRepository<VolunteerCertification, Long> {
+public interface VolunteerCertificationRepository extends JpaRepository<VolunteerCertification, Long>, VolunteerCertificationCustomRepository {
 
     boolean existsByMatchingId(Long matchingId);
 
