@@ -19,7 +19,7 @@ public record CompletedVolunteerPostDto(
         District district,
         DisabilityType disabilityType,
         AssistanceType assistanceType,
-        ScheduleDetailResDto schedule,
+        CompletedVolunteerScheduleDto schedule,
         MatchingStatus matchingStatus
 ) {
 

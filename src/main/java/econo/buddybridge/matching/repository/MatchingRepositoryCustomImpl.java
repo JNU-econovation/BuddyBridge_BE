@@ -24,7 +24,7 @@ import econo.buddybridge.post.dto.CompletedVolunteerPostDto;
 import econo.buddybridge.post.dto.CompletedVolunteerPostPage;
 import econo.buddybridge.post.dto.PostStatus;
 import econo.buddybridge.post.dto.QCompletedVolunteerPostDto;
-import econo.buddybridge.post.dto.QScheduleDetailResDto;
+import econo.buddybridge.post.dto.QCompletedVolunteerScheduleDto;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.QPost;
 import econo.buddybridge.post.exception.PostInvalidSortValueException;
@@ -135,11 +135,12 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
                         matching.post.district,
                         matching.post.disabilityType,
                         matching.post.assistanceType,
-                        new QScheduleDetailResDto(
-                                matching.post.schedule.startDate,
-                                matching.post.schedule.endDate,
-                                matching.post.schedule.scheduleType,
-                                matching.post.schedule.scheduleDetails
+                        new QCompletedVolunteerScheduleDto(
+                                post.schedule.startDate,
+                                post.schedule.endDate,
+                                post.schedule.scheduleType,
+                                post.assistanceTime.assistanceStartTime,
+                                post.assistanceTime.assistanceEndTime
                         ),
                         matching.matchingStatus
                 ))
