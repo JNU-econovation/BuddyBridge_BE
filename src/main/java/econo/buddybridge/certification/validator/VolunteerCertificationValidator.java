@@ -7,18 +7,16 @@ import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.Post;
-import econo.buddybridge.post.entity.PostType;
 import org.springframework.stereotype.Component;
 
 @Component
 public class VolunteerCertificationValidator {
 
     public void validateVolunteerCertification(Matching matching, Post post, Member member, VolunteerCertificationRequest request) {
-        PostType postType = PostType.fromValue(request.postType());
         AssistanceType assistanceType = AssistanceType.fromValue(request.assistanceType());
 
         matching.validateCreateVolunteerer(member);
-        post.validateCreateCertification(request.volunteerDate(), request.startTime(), request.endTime(), postType, assistanceType);
+        post.validateCreateCertification(request.volunteerDate(), request.startTime(), request.endTime(), assistanceType);
     }
 
     public void validateVolunteerCertificationUpdate(VolunteerCertification volunteerCertification, Matching matching,
@@ -26,7 +24,6 @@ public class VolunteerCertificationValidator {
         volunteerCertification.validateMatching(matching);
 
         matching.validateUpdateVolunteerer(member);
-
         post.validateUpdateCertification(request.volunteerDate(), request.startTime(), request.endTime());
     }
 }

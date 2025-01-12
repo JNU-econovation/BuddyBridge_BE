@@ -3,7 +3,6 @@ package econo.buddybridge.post.entity;
 
 import econo.buddybridge.certification.exception.VolunteerCertificationAssistanceTimeMismatchException;
 import econo.buddybridge.certification.exception.VolunteerCertificationAssistanceTypeMismatchException;
-import econo.buddybridge.certification.exception.VolunteerCertificationPostTypeMismatchException;
 import econo.buddybridge.certification.exception.VolunteerCertificationScheduleDateMismatchException;
 import econo.buddybridge.comment.entity.Comment;
 import econo.buddybridge.comment.exception.CommentSameGenderOnlyException;
@@ -97,10 +96,9 @@ public class Post extends SoftDeletableEntity {
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<PostLike> postLikes = new ArrayList<>();
 
-    public void validateCreateCertification(LocalDate volunteerDate, LocalTime startTime, LocalTime endTime, PostType postType, AssistanceType assistanceType) {
+    public void validateCreateCertification(LocalDate volunteerDate, LocalTime startTime, LocalTime endTime, AssistanceType assistanceType) {
         validateScheduleDate(volunteerDate);
         validateAssistanceTime(startTime, endTime);
-        validatePostType(postType);
         validateAssistanceType(assistanceType);
     }
 
@@ -124,12 +122,6 @@ public class Post extends SoftDeletableEntity {
 
         if (startTime.isBefore(assistanceStartTime) || endTime.isAfter(assistanceEndTime)) {
             throw VolunteerCertificationAssistanceTimeMismatchException.EXCEPTION;
-        }
-    }
-
-    private void validatePostType(PostType postType) {
-        if (!this.postType.equals(postType)) {
-            throw VolunteerCertificationPostTypeMismatchException.EXCEPTION;
         }
     }
 
