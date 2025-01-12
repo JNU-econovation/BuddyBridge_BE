@@ -161,7 +161,10 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
                 )
                 .fetchOne();
 
-        return new CompletedVolunteerPostPage(content, totalElements, content.size() < size);
+        long totalPage = (totalElements + size - 1) / size;
+        boolean last = page >= totalPage - 1;
+
+        return new CompletedVolunteerPostPage(content, totalElements, last);
     }
 
     private BooleanExpression completedMatchingStatusExpression(MemberRole memberRole, Boolean isCompleted) {
