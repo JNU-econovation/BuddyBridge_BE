@@ -80,7 +80,8 @@ public class VolunteerCertificationCustomRepositoryImpl implements VolunteerCert
                                         volunteerCertification.matching.post.assistanceType,
                                         volunteerCertification.volunteerTime.startTime,
                                         volunteerCertification.volunteerTime.endTime,
-                                        volunteerCertification.content
+                                        volunteerCertification.content,
+                                        volunteerCertification.isCertified
                                 )
                         )
                 )
@@ -99,6 +100,7 @@ public class VolunteerCertificationCustomRepositoryImpl implements VolunteerCert
                         volunteerCertification.matching.giver.email,
                         volunteerCertification.matching.post.id,
                         volunteerCertification.matching.post.postType,
+                        volunteerCertification.isCertified,
                         volunteerCertification.createdAt
                 ))
                 .from(volunteerCertification)

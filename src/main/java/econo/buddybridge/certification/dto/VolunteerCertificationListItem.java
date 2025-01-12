@@ -16,9 +16,9 @@ public record VolunteerCertificationListItem(
 
         PostType postType,
 
-        // 봉사 시간 부여 여부 -> 추후 계산해서 넣어주기
+        boolean isCertified,
 
-        @JsonFormat(pattern = "yyyy.MM.dd")
+        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDateTime certificationCreatedDate
 ) {
 
