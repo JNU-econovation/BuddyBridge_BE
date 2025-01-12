@@ -11,7 +11,6 @@ import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
 import econo.buddybridge.comment.entity.Comment;
 import econo.buddybridge.comment.event.CommentDeleteEvent;
 import econo.buddybridge.comment.exception.CommentAlreadyWrittenException;
-import econo.buddybridge.comment.exception.CommentDeleteNotAllowedException;
 import econo.buddybridge.comment.exception.CommentInvalidDirectionException;
 import econo.buddybridge.comment.exception.CommentNotFoundException;
 import econo.buddybridge.comment.exception.CommentUpdateNotAllowedException;
@@ -24,6 +23,7 @@ import econo.buddybridge.notification.service.EmitterService;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.service.PostService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
@@ -132,17 +132,30 @@ public class CommentService {
     @Transactional  // 댓글 삭제
     public void deleteComment(Long commentId, Long memberId) {
         Comment comment = findCommentByIdOrThrow(commentId);
+        Member author = memberService.findMemberByIdOrThrow(memberId);
 
-        if (!comment.getAuthor().getId().equals(memberId)) {
-            throw CommentDeleteNotAllowedException.EXCEPTION;
-        }
+        comment.validateDeletionBy(author);
 
-        publisher.publishEvent(CommentDeleteEvent.from(comment));
+        publisher.publishEvent(CommentDeleteEvent.from(List.of(comment)));
     }
 
     private Comment findCommentByIdOrThrow(Long commentId) {
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> CommentNotFoundException.EXCEPTION);
+    }
+
+    @Transactional
+    public void deleteComments(List<Long> commentIds, Long memberId) {
+        List<Comment> comments = commentRepository.findAllById(commentIds);
+
+        if (comments.size() != commentIds.size()) {
+            throw CommentNotFoundException.EXCEPTION;
+        }
+
+        Member author = memberService.findMemberByIdOrThrow(memberId);
+        comments.forEach(comment -> comment.validateDeletionBy(author));
+
+        publisher.publishEvent(CommentDeleteEvent.from(comments));
     }
 
     @Transactional(readOnly = true) // 댓글 조회

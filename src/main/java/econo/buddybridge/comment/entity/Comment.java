@@ -1,5 +1,6 @@
 package econo.buddybridge.comment.entity;
 
+import econo.buddybridge.comment.exception.CommentDeleteNotAllowedException;
 import econo.buddybridge.common.persistence.SoftDeletableEntity;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.entity.Post;
@@ -47,5 +48,11 @@ public class Comment extends SoftDeletableEntity {
 
     public void updateContent(String content) {
         this.content = content;
+    }
+
+    public void validateDeletionBy(Member author) {
+        if (!this.author.equals(author)) {
+            throw CommentDeleteNotAllowedException.EXCEPTION;
+        }
     }
 }
