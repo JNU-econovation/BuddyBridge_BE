@@ -39,7 +39,7 @@ public final class PostMapper {
                 .gender(author.getGender())
                 .age(author.getAge())
                 .assistanceTime(AssistanceTime.builder()
-                        .assistanceStartTime(request.assistanceEndTime())
+                        .assistanceStartTime(request.assistanceStartTime())
                         .assistanceEndTime(request.assistanceEndTime())
                         .build())
                 .build();
