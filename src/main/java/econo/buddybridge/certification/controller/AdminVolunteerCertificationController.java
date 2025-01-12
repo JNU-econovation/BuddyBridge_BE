@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,5 +59,15 @@ public class AdminVolunteerCertificationController {
     ) {
         volunteerCertificationService.deleteVolunteerCertificationForAdmin(volunteerCertificationId);
         return ApiResponseGenerator.success(HttpStatus.NO_CONTENT);
+    }
+
+    @Operation(summary = "인증 폼 봉사 시간 부여 여부 변경", description = "인증 폼의 봉사 시간 부여 여부를 변경합니다.(true: 봉사 시간 부여, false: 봉사 시간 미부여)")
+    @PostMapping("/certifications/{certification-id}/toggle")
+    public ApiResponse<CustomBody<Boolean>> toggleVolunteerCertification(
+            @PathVariable("certification-id") Long volunteerCertificationId,
+            @Parameter(hidden = true) @MemberTokenId(allowedRoles = {Role.ADMIN}) Long memberId
+    ) {
+        Boolean response = volunteerCertificationService.toggleVolunteerCertification(volunteerCertificationId);
+        return ApiResponseGenerator.success(response, HttpStatus.OK);
     }
 }
