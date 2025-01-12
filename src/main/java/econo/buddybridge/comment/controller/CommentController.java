@@ -11,7 +11,9 @@ import econo.buddybridge.common.docs.comment.CreateCommentExceptionDocs;
 import econo.buddybridge.common.docs.comment.DeleteCommentExceptionDocs;
 import econo.buddybridge.common.docs.comment.GetCommentExceptionDocs;
 import econo.buddybridge.common.docs.comment.UpdateCommentExceptionDocs;
+import econo.buddybridge.common.dto.PageOrder;
 import econo.buddybridge.common.swagger.ApiExceptionExamples;
+import econo.buddybridge.common.validation.EnumTypeValue;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponse.CustomBody;
@@ -60,7 +62,7 @@ public class CommentController {
     public ApiResponse<CustomBody<CommentCustomPage>> getComments(
             @PathVariable("post-id") Long postId,
             @RequestParam("limit") Integer size,
-            @RequestParam(defaultValue = "DESC") String order,
+            @RequestParam(defaultValue = "desc") @EnumTypeValue(enumClass = PageOrder.class) String order,
             @RequestParam(value = "cursor", required = false) Long cursor
     ) {
         CommentCustomPage comments = commentService.getComments(postId, size, order, cursor);
