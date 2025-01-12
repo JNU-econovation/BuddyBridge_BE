@@ -11,7 +11,6 @@ import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
 import econo.buddybridge.comment.entity.Comment;
 import econo.buddybridge.comment.event.CommentDeleteEvent;
 import econo.buddybridge.comment.exception.CommentAlreadyWrittenException;
-import econo.buddybridge.comment.exception.CommentInvalidDirectionException;
 import econo.buddybridge.comment.exception.CommentNotFoundException;
 import econo.buddybridge.comment.exception.CommentUpdateNotAllowedException;
 import econo.buddybridge.comment.repository.CommentRepository;
@@ -50,16 +49,7 @@ public class CommentService {
     @Transactional(readOnly = true) // 댓글 조회
     public CommentCustomPage getComments(Long postId, Integer size, String order, Long cursor) {
         Post post = postService.findPostByIdOrThrow(postId);
-
-        Direction direction;
-        try {
-            direction = Direction.valueOf(order);
-        } catch (IllegalArgumentException e) {
-            throw CommentInvalidDirectionException.EXCEPTION;
-        }
-
-        PageRequest page = PageRequest.of(0, size, Sort.by(direction, "id"));
-
+        PageRequest page = PageRequest.of(0, size, Sort.by(Direction.fromString(order), "id"));
         return commentRepository.findByPost(post, cursor, page);
     }
 
