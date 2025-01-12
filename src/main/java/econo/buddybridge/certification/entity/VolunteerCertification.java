@@ -36,11 +36,14 @@ public class VolunteerCertification extends BaseEntity {
 
     private String content;
 
+    private boolean isCertified;
+
     @Builder
-    private VolunteerCertification(Matching matching, VolunteerTime volunteerTime, String content) {
+    private VolunteerCertification(Matching matching, VolunteerTime volunteerTime, String content, boolean isCertified) {
         this.matching = matching;
         this.volunteerTime = volunteerTime;
         this.content = content;
+        this.isCertified = isCertified;
     }
 
     public static VolunteerCertification of(Matching matching, VolunteerTime volunteerTime, String content) {
@@ -48,6 +51,7 @@ public class VolunteerCertification extends BaseEntity {
                 .matching(matching)
                 .volunteerTime(volunteerTime)
                 .content(content)
+                .isCertified(false)
                 .build();
     }
 
@@ -60,5 +64,10 @@ public class VolunteerCertification extends BaseEntity {
         if (!this.matching.equals(matching)) {
             throw VolunteerCertificationMatchingMismatchException.EXCEPTION;
         }
+    }
+
+    public Boolean toggleCertified() {
+        this.isCertified = !this.isCertified;
+        return this.isCertified;
     }
 }

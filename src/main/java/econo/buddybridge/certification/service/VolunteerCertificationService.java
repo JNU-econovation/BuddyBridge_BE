@@ -31,6 +31,12 @@ public class VolunteerCertificationService {
     private final MemberService memberService;
     private final VolunteerCertificationValidator volunteerCertificationValidator;
 
+    @Transactional
+    public Boolean toggleVolunteerCertification(Long volunteerCertificationId) {
+        VolunteerCertification volunteerCertification = findVolunteerCertificationByIdOrThrow(volunteerCertificationId);
+        return volunteerCertification.toggleCertified();
+    }
+
     @Transactional(readOnly = true)
     public VolunteerCertificationCustomPage getVolunteerCertificationsForAdmin(Integer page, Integer size, String sort) {
         return volunteerCertificationRepository.findAdminVolunteerCertifications(page - 1, size, sort);

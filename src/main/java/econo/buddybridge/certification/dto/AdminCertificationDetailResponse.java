@@ -32,7 +32,9 @@ public record AdminCertificationDetailResponse(
 
         LocalTime endTime,
 
-        String volunteerContent
+        String volunteerContent,
+
+        boolean isCertified
 ) {
 
     @QueryProjection
