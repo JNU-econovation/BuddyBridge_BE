@@ -28,6 +28,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -71,6 +72,9 @@ public class Matching extends SoftDeletableEntity {
     @OneToMany(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<ChatMessage> chatMessages = new ArrayList<>();
 
+    @OneToOne(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
+    private CertificationTracking certificationTracking;
+
     @Builder
     public Matching(Post post, Member taker, Member giver, MatchingStatus matchingStatus) {
         this.post = post;
@@ -78,6 +82,10 @@ public class Matching extends SoftDeletableEntity {
         this.giver = giver;
         this.matchingStatus = matchingStatus;
         initializeMatchingState();
+    }
+
+    public boolean canRequestCertification() {
+        return certificationTracking.isRequestedWithinOneDay();
     }
 
     public void handleEvent(MatchingStatusChangeEvent event, MemberRole role) {
