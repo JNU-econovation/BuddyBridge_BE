@@ -33,4 +33,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("DELETE FROM Comment c WHERE c IN :comments")
     void deleteAllIn(List<Comment> comments);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE Comment c SET c.deleted = true WHERE c.post IN :reportedPosts")
+    void softDeleteAllByPostIn(Set<Post> reportedPosts);
 }
