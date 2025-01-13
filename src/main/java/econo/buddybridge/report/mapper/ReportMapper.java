@@ -1,5 +1,6 @@
 package econo.buddybridge.report.mapper;
 
+import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.report.dto.CommentReportDetailResponse;
 import econo.buddybridge.report.dto.MatchingReportDetailResponse;
 import econo.buddybridge.report.dto.ParsedReportInfo;
@@ -37,6 +38,7 @@ public final class ReportMapper {
         return new ReportListItem(
                 report.getId(),
                 parsedReportInfo.postId(),
+                parsedReportInfo.postType(),
                 parsedReportInfo.reportedContent(),
                 report.getReporter().getName(),
                 report.getReported().getName(),
@@ -47,25 +49,28 @@ public final class ReportMapper {
 
     private static ParsedReportInfo toParsedReportInfo(Report report) {
         Long postId;
+        PostType postType;
         String reportedContent;
 
         switch (report) {
             case PostReport postReport -> {
                 postId = postReport.getReportedPost().getId();
+                postType = postReport.getReportedPost().getPostType();
                 reportedContent = String.format(REPORT_CONTENT_FORMAT, "게시글", postReport.getReportedPost().getTitle());
             }
             case CommentReport commentReport -> {
                 postId = commentReport.getReportedComment().getPost().getId();
+                postType = commentReport.getReportedComment().getPost().getPostType();
                 reportedContent = String.format(REPORT_CONTENT_FORMAT, "댓글", commentReport.getReportedComment().getContent());
             }
             case MatchingReport matchingReport -> {
-                postId = matchingReport.getReportedMatching().getId();
+                postId = matchingReport.getReportedMatching().getPost().getId();
+                postType = matchingReport.getReportedMatching().getPost().getPostType();
                 reportedContent = String.format(REPORT_CONTENT_FORMAT, "채팅방", matchingReport.getReportedMatching().getId());
             }
             default -> throw ReportUnexpectedConvertException.EXCEPTION;
         }
-
-        return new ParsedReportInfo(postId, reportedContent);
+        return new ParsedReportInfo(postId, postType, reportedContent);
     }
 
     public static ReportDetailResponse toReportDetailResponse(Report report) {
