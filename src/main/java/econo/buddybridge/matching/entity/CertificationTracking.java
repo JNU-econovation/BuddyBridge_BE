@@ -1,6 +1,5 @@
 package econo.buddybridge.matching.entity;
 
-import econo.buddybridge.matching.exception.certification.CertificationAlreadyCompletedException;
 import econo.buddybridge.matching.exception.certification.RequestCoolDownPeriodException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,12 +42,6 @@ public class CertificationTracking {
                 .matching(matching)
                 .requestedAt(requestedAt)
                 .build();
-    }
-
-    public void validateMatchingStatus(MatchingStatus matchingStatus) {
-        if (this.getMatching().getMatchingStatus() == matchingStatus) {
-            throw CertificationAlreadyCompletedException.EXCEPTION;
-        }
     }
 
     public void updateRequestedAt(LocalDateTime requestedAt) {

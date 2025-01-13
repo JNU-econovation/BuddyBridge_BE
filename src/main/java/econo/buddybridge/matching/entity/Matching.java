@@ -110,8 +110,8 @@ public class Matching extends SoftDeletableEntity {
         }
     }
 
-    public void validateMatchingStatusDone(MatchingStatus matchingStatus) {
-        if (!this.matchingStatus.equals(matchingStatus)) {
+    public void validateMatchingStatusDone() {
+        if (!this.matchingStatus.equals(MatchingStatus.DONE)) {
             throw MatchingStatusNotDoneException.EXCEPTION;
         }
     }
