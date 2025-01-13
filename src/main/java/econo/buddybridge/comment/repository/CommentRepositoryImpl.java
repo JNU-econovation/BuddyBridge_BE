@@ -7,7 +7,6 @@ import static org.springframework.data.domain.Sort.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentResDto;
@@ -16,14 +15,9 @@ import econo.buddybridge.comment.dto.MyPageCommentResDto;
 import econo.buddybridge.comment.dto.QAuthorDto;
 import econo.buddybridge.comment.dto.QCommentResDto;
 import econo.buddybridge.comment.dto.QMyPageCommentResDto;
-import econo.buddybridge.matching.entity.Matching;
-import econo.buddybridge.post.dto.PostStatus;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
-import econo.buddybridge.post.repository.PostRepositoryImpl;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 
@@ -31,7 +25,6 @@ import org.springframework.data.domain.Pageable;
 public class CommentRepositoryImpl implements CommentRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-    private final PostRepositoryImpl postRepositoryImpl;
 
     @Override
     public CommentCustomPage findByPost(Post post, Long cursor, Pageable page) {
@@ -56,7 +49,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .from(comment)
                 .where(comment.post.eq(post), buildCursorPredicate(cursor, order))
                 .orderBy(createOrderSpecifier(order))
-                .limit(pageSize + 1)
+                .limit(pageSize + 1L)
                 .fetch();
 
         Boolean nextPage = false;
@@ -74,18 +67,17 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     public MyPageCommentCustomPage findByMemberId(Long memberId, Integer page, Integer size, String sort, PostType postType) {
 
         List<MyPageCommentResDto> content = queryFactory
-                .select(new QMyPageCommentResDto( // MyPageCommentResDto를 생성
+                .select(new QMyPageCommentResDto(
                         comment.content,
                         comment.id,
                         comment.post.id,
                         comment.post.title,
-                        Expressions.constant(PostStatus.RECRUITING),
                         comment.post.postType,
                         comment.post.disabilityType,
                         comment.post.assistanceType,
                         comment.createdAt
                 ))
-                .from(comment) // comment를 기준으로 조회
+                .from(comment)
                 .where(
                         buildPostTypeExpression(postType),
                         comment.author.id.eq(memberId)
@@ -94,15 +86,6 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .limit(size)
                 .offset((long) page * size)
                 .fetch();
-
-        // 해당하는 게시글 ID 리스트 조회
-        List<Long> postIds = content.stream().map(MyPageCommentResDto::postId).toList();
-
-        // 각 게시글 ID에 대해 전체 매칭 조회
-        Map<Long, List<Matching>> postMatchings = postRepositoryImpl.getMatchings(postIds);
-
-        // content를 순환하면서 각 게시글의 해당하는 postStatus 설정
-        List<MyPageCommentResDto> updatedContent = updatePostStatusInContent(content, postMatchings);
 
         // 댓글 단 게시글 수 조회
         Long totalElements = queryFactory
@@ -117,26 +100,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
         long totalPage = (totalElements + size - 1) / size;
         boolean last = page >= totalPage - 1;
 
-        return new MyPageCommentCustomPage(updatedContent, totalElements, last);
-    }
-
-    private List<MyPageCommentResDto> updatePostStatusInContent(List<MyPageCommentResDto> content, Map<Long, List<Matching>> postMatchings) {
-        return content.stream()
-                .map(comment -> {
-                    List<Matching> matchings = postMatchings.getOrDefault(comment.postId(), Collections.emptyList());
-                    PostStatus status = postRepositoryImpl.calculatePostStatus(matchings);
-                    return MyPageCommentResDto.builder()
-                            .content(comment.content())
-                            .commentId(comment.commentId())
-                            .postId(comment.postId())
-                            .postTitle(comment.postTitle())
-                            .postStatus(status)
-                            .postType(comment.postType())
-                            .disabilityType(comment.disabilityType())
-                            .assistanceType(comment.assistanceType())
-                            .postCreatedAt(comment.postCreatedAt())
-                            .build();
-                }).toList();
+        return new MyPageCommentCustomPage(content, totalElements, last);
     }
 
     private BooleanExpression buildPostTypeExpression(PostType postType) {
