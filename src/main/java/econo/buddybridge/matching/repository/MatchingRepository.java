@@ -5,7 +5,9 @@ import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.entity.Post;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -33,4 +35,8 @@ public interface MatchingRepository extends JpaRepository<Matching, Long>, Match
     );
 
     List<Matching> findByPostIn(List<Post> posts);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE Matching m SET m.deleted = true WHERE m.post IN :reportedPosts")
+    void softDeleteAllByPostIn(Set<Post> reportedPosts);
 }
