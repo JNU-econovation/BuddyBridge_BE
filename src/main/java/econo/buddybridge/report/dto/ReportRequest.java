@@ -4,12 +4,14 @@ import econo.buddybridge.common.validation.EnumTypeValue;
 import econo.buddybridge.report.entity.ReportType;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public record ReportRequest(
         @EnumTypeValue(enumClass = ReportType.class)
         String reportType,
 
         @NotNull(message = "신고 사유는 NULL일 수 없습니다.")
+        @Size(max = 500, message = "신고 사유는 500자 이하로 입력해야 합니다.")
         String reportReason
 ) {
 
