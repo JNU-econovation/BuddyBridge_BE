@@ -15,6 +15,7 @@ import econo.buddybridge.comment.dto.MyPageCommentResDto;
 import econo.buddybridge.comment.dto.QAuthorDto;
 import econo.buddybridge.comment.dto.QCommentResDto;
 import econo.buddybridge.comment.dto.QMyPageCommentResDto;
+import econo.buddybridge.comment.exception.CommentInvalidDirectionException;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostType;
 import java.util.List;
@@ -108,7 +109,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     }
 
     private Order getPageOrder(Pageable page) {
-        return page.getSort().get().findFirst().orElseThrow(() -> new IllegalArgumentException("정렬 조건을 가져야 합니다."));
+        return page.getSort().get().findFirst().orElseThrow(() -> CommentInvalidDirectionException.EXCEPTION);
     }
 
     private Predicate buildCursorPredicate(Long cursor, Order order) {
