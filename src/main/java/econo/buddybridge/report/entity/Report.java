@@ -45,6 +45,7 @@ public abstract class Report extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     private ReportType reportType;
 
+    @Column(length = 500)
     private String reportReason;
 
     protected Report(Member reporter, Member reported, ReportType reportType, String reportReason) {
