@@ -48,6 +48,8 @@ public class PostDeleteEventHandler {
         // 신고된 게시글은 soft delete
         if (!reportedPosts.isEmpty()) {
             postRepository.softDeleteAllIn(reportedPosts);
+            commentRepository.softDeleteAllByPostIn(reportedPosts);
+            matchingRepository.softDeleteAllByPostIn(reportedPosts);
         }
 
         // 신고된 게시글이 아닌 경우 완전 삭제
