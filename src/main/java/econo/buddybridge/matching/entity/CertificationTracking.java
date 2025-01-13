@@ -52,9 +52,14 @@ public class CertificationTracking {
     }
 
     public void updateRequestedAt(LocalDateTime requestedAt) {
-        if (!this.requestedAt.plusHours(24).isBefore(requestedAt)) {
+        if (!this.requestedAt.plusDays(1).isBefore(requestedAt)) {
             throw RequestCoolDownPeriodException.EXCEPTION;
         }
         this.requestedAt = requestedAt;
+    }
+
+    public boolean isRequestedWithinOneDay() {
+        LocalDateTime now = LocalDateTime.now();
+        return this.requestedAt.plusDays(1).isBefore(now);
     }
 }
