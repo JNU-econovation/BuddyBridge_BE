@@ -61,7 +61,7 @@ public class CommentService {
         return toCommentResDto(comment);
     }
 
-    private CommentResDto toCommentResDto(Comment comment) {
+    public CommentResDto toCommentResDto(Comment comment) {
         return CommentResDto.builder()
                 .commentId(comment.getId())
                 .postId(comment.getPost().getId())
