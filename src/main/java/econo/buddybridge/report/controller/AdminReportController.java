@@ -2,11 +2,11 @@ package econo.buddybridge.report.controller;
 
 import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageCustomPage;
-import econo.buddybridge.comment.dto.CommentResDto;
 import econo.buddybridge.member.entity.Role;
 import econo.buddybridge.post.dto.PostDetailDto;
 import econo.buddybridge.report.dto.ReportCustomPage;
 import econo.buddybridge.report.dto.ReportDetailResponse;
+import econo.buddybridge.report.dto.ReportedCommentWithPostResponse;
 import econo.buddybridge.report.service.CommentReportService;
 import econo.buddybridge.report.service.MatchingReportService;
 import econo.buddybridge.report.service.PostReportService;
@@ -95,11 +95,11 @@ public class AdminReportController {
 
     @Operation(summary = "댓글 내용 조회", description = "신고된 댓글 내용을 조회합니다.")
     @GetMapping("/{report-id}/comment")
-    public ApiResponse<CustomBody<CommentResDto>> getComment(
+    public ApiResponse<CustomBody<ReportedCommentWithPostResponse>> getComment(
             @PathVariable("report-id") Long reportId,
             @Parameter(hidden = true) @MemberTokenId(allowedRoles = {Role.ADMIN}) Long memberId
     ) {
-        CommentResDto report = commentReportService.getReportedComment(reportId);
+        ReportedCommentWithPostResponse report = commentReportService.getReportedComment(reportId);
         return ApiResponseGenerator.success(report, HttpStatus.OK);
     }
 
