@@ -30,7 +30,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PostLoad;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
@@ -83,14 +82,8 @@ public class Matching extends SoftDeletableEntity {
         this.taker = taker;
         this.giver = giver;
         this.matchingStatus = matchingStatus;
+        this.certificationTracking = CertificationTracking.of(LocalDateTime.now().plusDays(2));
         initializeMatchingState();
-    }
-
-    private static final LocalDateTime INITIAL_REQUESTED_AT = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
-
-    @PrePersist
-    private void prePersist() {
-        this.certificationTracking = CertificationTracking.of(this, INITIAL_REQUESTED_AT);
     }
 
     public boolean canRequestCertification() {
