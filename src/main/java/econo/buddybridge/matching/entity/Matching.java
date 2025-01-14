@@ -63,7 +63,6 @@ public class Matching extends SoftDeletableEntity {
     @JoinColumn(name = "giver_id")
     private Member giver;
 
-    // 매칭 상태
     @Enumerated(EnumType.STRING)
     private MatchingStatus matchingStatus;
 
@@ -73,7 +72,7 @@ public class Matching extends SoftDeletableEntity {
     @OneToMany(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<ChatMessage> chatMessages = new ArrayList<>();
 
-    @OneToOne(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private CertificationTracking certificationTracking;
 
     @Builder
