@@ -39,7 +39,7 @@ public class VolunteerCertificationService {
 
     @Transactional(readOnly = true)
     public VolunteerCertificationCustomPage getVolunteerCertificationsForAdmin(Integer page, Integer size, String sort) {
-        return volunteerCertificationRepository.findAdminVolunteerCertifications(page - 1, size, sort);
+        return volunteerCertificationRepository.findAdminVolunteerCertifications(page, size, sort);
     }
 
     @Transactional(readOnly = true)

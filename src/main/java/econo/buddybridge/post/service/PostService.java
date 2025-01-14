@@ -64,18 +64,18 @@ public class PostService {
 
     @Transactional(readOnly = true) // 내가 작성한 게시글 조회
     public PostCustomPage getPostsMyPage(Long memberId, Integer page, Integer size, String sort, PostType postType) {
-        return postRepository.findPostsMyPage(memberId, page - 1, size, sort, postType);
+        return postRepository.findPostsMyPage(memberId, page, size, sort, postType);
     }
 
     @Transactional(readOnly = true) // 전체 게시글 조회
     public PostCustomPage getPosts(Long memberId, Integer page, Integer size, String sort, PostType postType, PostStatus postStatus,
             List<DisabilityType> disabilityType, List<AssistanceType> assistanceType) {
-        return postRepository.findPosts(memberId, page - 1, size, sort, postType, postStatus, disabilityType, assistanceType);
+        return postRepository.findPosts(memberId, page, size, sort, postType, postStatus, disabilityType, assistanceType);
     }
 
     @Transactional(readOnly = true) // 찜한 게시글 조회
     public PostCustomPage getPostsLikes(Long memberId, Integer page, Integer size, String sort, PostType postType) {
-        return postRepository.findPostsByLikes(memberId, page - 1, size, sort, postType);
+        return postRepository.findPostsByLikes(memberId, page, size, sort, postType);
     }
 
     @Transactional(readOnly = true) // 매칭 상태가 DONE 이후인 봉사 게시글 조회
@@ -83,7 +83,7 @@ public class PostService {
             Boolean isCompleted) {
         Member author = memberService.findMemberByIdOrThrow(memberId);
 
-        return matchingRepository.getCompletedVolunteerPosts(author, page - 1, size, sort, memberRole, isCompleted);
+        return matchingRepository.getCompletedVolunteerPosts(author, page, size, sort, memberRole, isCompleted);
     }
 
     // 검증 과정 필요성 고려
