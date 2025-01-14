@@ -59,7 +59,7 @@ public class ChatMessageService {
         Member receiver = memberService.findMemberByIdOrThrow(receiverId);
 
         String content = String.format("%s님이 '봉사 인증 요청'을 보냈습니다.", sender.getName());
-        ChatMessage chatMessage = ChatMessage.of(matching, sender, content, MessageType.INFO);
+        ChatMessage chatMessage = ChatMessage.of(matching, sender, content, MessageType.REQUEST);
         chatMessageRepository.save(chatMessage);
 
         sendNotification(receiver, sender, chatMessage, matching);
