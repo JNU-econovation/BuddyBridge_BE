@@ -8,7 +8,6 @@ import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
 import econo.buddybridge.chat.chatmessage.entity.MessageType;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
-import econo.buddybridge.matching.entity.CertificationTracking;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.exception.MatchingUnauthorizedAccessException;
 import econo.buddybridge.matching.repository.CertificationTrackingRepository;
@@ -44,21 +43,17 @@ public class ChatMessageService {
         Member sender = memberService.findMemberByIdOrThrow(memberId);
         Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
 
+        matching.validateVolunteerer(sender);
+        matching.validateMatchingStatusDone();
+
         LocalDateTime requestedAt = LocalDateTime.now();
-
-        certificationTrackingRepository.findByMatchingIdWithMatching(matchingId)
-                .ifPresentOrElse(
-                        tracking -> validateAndUpdateTracking(tracking, requestedAt),
-                        () -> createNewTracking(matching, requestedAt)
-                );
-
-        matching.validateMatchingStatusDone(matching.getMatchingStatus());
+        matching.getCertificationTracking().updateRequestedAt(requestedAt);
 
         Long receiverId = getReceiverId(sender.getId(), matching.getId());
         Member receiver = memberService.findMemberByIdOrThrow(receiverId);
 
         String content = String.format("%s님이 '봉사 인증 요청'을 보냈습니다.", sender.getName());
-        ChatMessage chatMessage = ChatMessage.of(matching, sender, content, MessageType.INFO);
+        ChatMessage chatMessage = ChatMessage.of(matching, sender, content, MessageType.REQUEST);
         chatMessageRepository.save(chatMessage);
 
         sendNotification(receiver, sender, chatMessage, matching);
@@ -71,16 +66,6 @@ public class ChatMessageService {
                 chatMessage.getMessageType(),
                 chatMessage.getCreatedAt()
         );
-    }
-
-    private void createNewTracking(Matching matching, LocalDateTime requestedAt) {
-        CertificationTracking newTracking = CertificationTracking.of(matching, requestedAt);
-        certificationTrackingRepository.save(newTracking);
-    }
-
-    private void validateAndUpdateTracking(CertificationTracking tracking, LocalDateTime requestedAt) {
-        tracking.validateMatchingStatus(tracking.getMatching().getMatchingStatus());
-        tracking.updateRequestedAt(requestedAt);
     }
 
     @Transactional // 메시지 저장

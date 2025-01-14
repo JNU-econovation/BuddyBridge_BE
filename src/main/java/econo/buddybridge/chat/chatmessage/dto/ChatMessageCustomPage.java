@@ -15,6 +15,7 @@ public record ChatMessageCustomPage(
         Long postAuthorId,
         ReceiverDto receiver,
         MatchingStatus matchingStatus,
+        Boolean canVerificationRequest,
         List<ChatMessageResDto> chatMessages,
         Long cursor,
         Boolean nextPage
@@ -27,6 +28,7 @@ public record ChatMessageCustomPage(
                 .postAuthorId(post.getAuthor().getId())
                 .receiver(receiver)
                 .matchingStatus(matching.getMatchingStatus())
+                .canVerificationRequest(matching.canRequestCertification())
                 .chatMessages(chatMessages)
                 .cursor(cursor)
                 .nextPage(nextPage)
