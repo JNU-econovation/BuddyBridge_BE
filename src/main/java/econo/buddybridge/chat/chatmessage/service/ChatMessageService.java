@@ -44,16 +44,15 @@ public class ChatMessageService {
         Member sender = memberService.findMemberByIdOrThrow(memberId);
         Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
 
-        matching.validateVolunteerer(sender);
-        matching.validateMatchingStatusDone();
-
         LocalDateTime requestedAt = LocalDateTime.now();
 
         certificationTrackingRepository.findByMatchingIdWithMatching(matchingId)
                 .ifPresentOrElse(
-                        tracking -> updateTracking(tracking, requestedAt),
+                        tracking -> validateAndUpdateTracking(tracking, requestedAt),
                         () -> createNewTracking(matching, requestedAt)
                 );
+
+        matching.validateMatchingStatusDone(matching.getMatchingStatus());
 
         Long receiverId = getReceiverId(sender.getId(), matching.getId());
         Member receiver = memberService.findMemberByIdOrThrow(receiverId);
@@ -79,7 +78,8 @@ public class ChatMessageService {
         certificationTrackingRepository.save(newTracking);
     }
 
-    private void updateTracking(CertificationTracking tracking, LocalDateTime requestedAt) {
+    private void validateAndUpdateTracking(CertificationTracking tracking, LocalDateTime requestedAt) {
+        tracking.validateMatchingStatus(tracking.getMatching().getMatchingStatus());
         tracking.updateRequestedAt(requestedAt);
     }
 
