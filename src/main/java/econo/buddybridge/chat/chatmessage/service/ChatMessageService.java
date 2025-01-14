@@ -44,21 +44,22 @@ public class ChatMessageService {
         Member sender = memberService.findMemberByIdOrThrow(memberId);
         Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
 
+        matching.validateVolunteerer(sender);
+        matching.validateMatchingStatusDone();
+
         LocalDateTime requestedAt = LocalDateTime.now();
 
         certificationTrackingRepository.findByMatchingIdWithMatching(matchingId)
                 .ifPresentOrElse(
-                        tracking -> validateAndUpdateTracking(tracking, requestedAt),
+                        tracking -> updateTracking(tracking, requestedAt),
                         () -> createNewTracking(matching, requestedAt)
                 );
-
-        matching.validateMatchingStatusDone(matching.getMatchingStatus());
 
         Long receiverId = getReceiverId(sender.getId(), matching.getId());
         Member receiver = memberService.findMemberByIdOrThrow(receiverId);
 
         String content = String.format("%s님이 '봉사 인증 요청'을 보냈습니다.", sender.getName());
-        ChatMessage chatMessage = ChatMessage.of(matching, sender, content, MessageType.INFO);
+        ChatMessage chatMessage = ChatMessage.of(matching, sender, content, MessageType.REQUEST);
         chatMessageRepository.save(chatMessage);
 
         sendNotification(receiver, sender, chatMessage, matching);
@@ -78,8 +79,7 @@ public class ChatMessageService {
         certificationTrackingRepository.save(newTracking);
     }
 
-    private void validateAndUpdateTracking(CertificationTracking tracking, LocalDateTime requestedAt) {
-        tracking.validateMatchingStatus(tracking.getMatching().getMatchingStatus());
+    private void updateTracking(CertificationTracking tracking, LocalDateTime requestedAt) {
         tracking.updateRequestedAt(requestedAt);
     }
 

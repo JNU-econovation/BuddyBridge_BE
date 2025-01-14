@@ -7,6 +7,7 @@ public enum MessageType {
     INFO("INFO"), // JOIN, LEAVE, ETC...
     CHAT("CHAT"),
     DELETE("DELETE"),
+    REQUEST("REQUEST"),
     ERROR("ERROR");
 
     private final String messageType;

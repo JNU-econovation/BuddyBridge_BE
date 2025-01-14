@@ -28,9 +28,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -71,13 +73,21 @@ public class Matching extends SoftDeletableEntity {
     @OneToMany(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<ChatMessage> chatMessages = new ArrayList<>();
 
+    @OneToOne(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
+    private CertificationTracking certificationTracking;
+
     @Builder
     public Matching(Post post, Member taker, Member giver, MatchingStatus matchingStatus) {
         this.post = post;
         this.taker = taker;
         this.giver = giver;
         this.matchingStatus = matchingStatus;
+        this.certificationTracking = CertificationTracking.of(LocalDateTime.now().plusDays(2));
         initializeMatchingState();
+    }
+
+    public boolean canRequestCertification() {
+        return certificationTracking.isRequestedWithinOneDay();
     }
 
     public void handleEvent(MatchingStatusChangeEvent event, MemberRole role) {
@@ -102,8 +112,8 @@ public class Matching extends SoftDeletableEntity {
         }
     }
 
-    public void validateMatchingStatusDone(MatchingStatus matchingStatus) {
-        if (!this.matchingStatus.equals(matchingStatus)) {
+    public void validateMatchingStatusDone() {
+        if (!this.matchingStatus.equals(MatchingStatus.DONE)) {
             throw MatchingStatusNotDoneException.EXCEPTION;
         }
     }
