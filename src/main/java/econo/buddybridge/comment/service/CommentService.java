@@ -43,7 +43,7 @@ public class CommentService {
 
     @Transactional(readOnly = true) // MyPage 댓글 조회
     public MyPageCommentCustomPage getMyPageComments(Long memberId, Integer page, Integer size, String sort, PostType postType) {
-        return commentRepository.findByMemberId(memberId, page - 1, size, sort, postType);
+        return commentRepository.findByMemberId(memberId, page, size, sort, postType);
     }
 
     @Transactional(readOnly = true) // 댓글 조회
