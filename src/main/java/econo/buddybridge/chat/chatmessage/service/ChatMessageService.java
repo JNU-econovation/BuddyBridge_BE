@@ -8,7 +8,6 @@ import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
 import econo.buddybridge.chat.chatmessage.entity.MessageType;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
-import econo.buddybridge.matching.entity.CertificationTracking;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.exception.MatchingUnauthorizedAccessException;
 import econo.buddybridge.matching.repository.CertificationTrackingRepository;
@@ -48,12 +47,7 @@ public class ChatMessageService {
         matching.validateMatchingStatusDone();
 
         LocalDateTime requestedAt = LocalDateTime.now();
-
-        certificationTrackingRepository.findByMatchingIdWithMatching(matchingId)
-                .ifPresentOrElse(
-                        tracking -> updateTracking(tracking, requestedAt),
-                        () -> createNewTracking(matching, requestedAt)
-                );
+        matching.getCertificationTracking().updateRequestedAt(requestedAt);
 
         Long receiverId = getReceiverId(sender.getId(), matching.getId());
         Member receiver = memberService.findMemberByIdOrThrow(receiverId);
@@ -72,15 +66,6 @@ public class ChatMessageService {
                 chatMessage.getMessageType(),
                 chatMessage.getCreatedAt()
         );
-    }
-
-    private void createNewTracking(Matching matching, LocalDateTime requestedAt) {
-        CertificationTracking newTracking = CertificationTracking.of(matching, requestedAt);
-        certificationTrackingRepository.save(newTracking);
-    }
-
-    private void updateTracking(CertificationTracking tracking, LocalDateTime requestedAt) {
-        tracking.updateRequestedAt(requestedAt);
     }
 
     @Transactional // 메시지 저장
