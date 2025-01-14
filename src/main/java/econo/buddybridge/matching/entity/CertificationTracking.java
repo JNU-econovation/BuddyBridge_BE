@@ -1,6 +1,5 @@
 package econo.buddybridge.matching.entity;
 
-import econo.buddybridge.matching.exception.certification.CertificationAlreadyCompletedException;
 import econo.buddybridge.matching.exception.certification.RequestCoolDownPeriodException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,16 +44,15 @@ public class CertificationTracking {
                 .build();
     }
 
-    public void validateMatchingStatus(MatchingStatus matchingStatus) {
-        if (this.getMatching().getMatchingStatus() == matchingStatus) {
-            throw CertificationAlreadyCompletedException.EXCEPTION;
-        }
-    }
-
     public void updateRequestedAt(LocalDateTime requestedAt) {
-        if (!this.requestedAt.plusHours(24).isBefore(requestedAt)) {
+        if (!this.requestedAt.plusDays(1).isBefore(requestedAt)) {
             throw RequestCoolDownPeriodException.EXCEPTION;
         }
         this.requestedAt = requestedAt;
+    }
+
+    public boolean isRequestedWithinOneDay() {
+        LocalDateTime now = LocalDateTime.now();
+        return this.requestedAt.plusDays(1).isBefore(now);
     }
 }
