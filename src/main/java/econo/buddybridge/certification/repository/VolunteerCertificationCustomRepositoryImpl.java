@@ -4,11 +4,10 @@ import static econo.buddybridge.certification.entity.QVolunteerCertification.vol
 import static econo.buddybridge.matching.entity.QMatching.matching;
 import static econo.buddybridge.post.entity.QPost.post;
 
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import econo.buddybridge.certification.dto.AdminVolunteerCertificationDetailResponse;
-import econo.buddybridge.certification.dto.QAdminCertificationAuthorDetailResponse;
 import econo.buddybridge.certification.dto.QAdminCertificationDetailResponse;
-import econo.buddybridge.certification.dto.QAdminCertificationPostDetailResponse;
 import econo.buddybridge.certification.dto.QAdminVolunteerCertificationDetailResponse;
 import econo.buddybridge.certification.dto.QVolunteerCertificationListItem;
 import econo.buddybridge.certification.dto.QVolunteerCertificationResponse;
@@ -17,6 +16,12 @@ import econo.buddybridge.certification.dto.VolunteerCertificationListItem;
 import econo.buddybridge.certification.dto.VolunteerCertificationResponse;
 import econo.buddybridge.certification.entity.VolunteerCertification;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.post.dto.PostStatus;
+import econo.buddybridge.post.dto.QAssistanceResDto;
+import econo.buddybridge.post.dto.QPostAuthorDto;
+import econo.buddybridge.post.dto.QPostDetailDto;
+import econo.buddybridge.post.dto.QPostDetailInfoDto;
+import econo.buddybridge.post.dto.QScheduleDetailResDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
@@ -50,23 +55,36 @@ public class VolunteerCertificationCustomRepositoryImpl implements VolunteerCert
     public AdminVolunteerCertificationDetailResponse findAdminVolunteerCertification(VolunteerCertification certification) {
         return queryFactory
                 .select(new QAdminVolunteerCertificationDetailResponse(
-                                new QAdminCertificationAuthorDetailResponse(
-                                        post.author.name,
-                                        post.author.nickname,
-                                        post.author.gender,
-                                        post.author.age,
-                                        post.author.disabilityType
-                                ),
-                                new QAdminCertificationPostDetailResponse(
-                                        post.title,
-                                        post.district,
-                                        post.schedule.startDate,
-                                        post.schedule.endDate,
-                                        post.schedule.scheduleType,
-                                        post.schedule.scheduleDetails,
-                                        post.assistanceTime.assistanceStartTime,
-                                        post.assistanceTime.assistanceEndTime,
-                                        post.content
+                                new QPostDetailDto(
+                                        new QPostAuthorDto(
+                                                post.author.id,
+                                                post.author.nickname,
+                                                post.author.profileImageUrl,
+                                                post.author.age,
+                                                post.author.gender,
+                                                post.author.disabilityType
+                                        ),
+                                        new QPostDetailInfoDto(
+                                                post.id,
+                                                post.title,
+                                                new QScheduleDetailResDto(
+                                                        post.schedule.startDate,
+                                                        post.schedule.endDate,
+                                                        post.schedule.scheduleType,
+                                                        post.schedule.scheduleDetails
+                                                ),
+                                                post.district,
+                                                post.content,
+                                                post.postType,
+                                                post.createdAt,
+                                                new QAssistanceResDto(
+                                                        post.assistanceType,
+                                                        post.assistanceTime.assistanceStartTime,
+                                                        post.assistanceTime.assistanceEndTime
+                                                ),
+                                                Expressions.constant(PostStatus.FINISHED), // 관리자 페이지에서는 항상 모집 완료
+                                                Expressions.constant(false) // 관리자 페이지에서는 항상 좋아요 여부가 없음
+                                        )
                                 ),
                                 new QAdminCertificationDetailResponse(
                                         volunteerCertification.id,
