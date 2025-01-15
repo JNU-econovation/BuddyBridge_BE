@@ -1,10 +1,10 @@
 package econo.buddybridge.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.querydsl.core.annotations.QueryProjection;
 import econo.buddybridge.post.entity.AssistanceType;
-import lombok.Builder;
-
 import java.time.LocalTime;
+import lombok.Builder;
 
 @Builder
 public record AssistanceResDto(
@@ -13,4 +13,7 @@ public record AssistanceResDto(
         @JsonFormat(pattern = "HH:mm") LocalTime assistanceEndTime
 ) {
 
+    @QueryProjection
+    public AssistanceResDto {
+    }
 }

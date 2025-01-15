@@ -1,10 +1,10 @@
 package econo.buddybridge.post.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.PostType;
-import lombok.Builder;
-
 import java.time.LocalDateTime;
+import lombok.Builder;
 
 @Builder
 public record PostDetailInfoDto(
@@ -20,4 +20,7 @@ public record PostDetailInfoDto(
         Boolean isLiked
 ) {
 
+    @QueryProjection
+    public PostDetailInfoDto {
+    }
 }
