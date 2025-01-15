@@ -1,5 +1,6 @@
 package econo.buddybridge.matching.entity;
 
+import econo.buddybridge.certification.entity.VolunteerCertification;
 import econo.buddybridge.certification.exception.VolunteerCertificationAllowedOnlyVolunteeringCompletedException;
 import econo.buddybridge.certification.exception.VolunteerCertificationVolunteererMismatchException;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
@@ -72,6 +73,9 @@ public class Matching extends SoftDeletableEntity {
     @OneToMany(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<ChatMessage> chatMessages = new ArrayList<>();
 
+    @OneToOne(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
+    private VolunteerCertification volunteerCertification;
+
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private CertificationTracking certificationTracking;
 
@@ -83,6 +87,10 @@ public class Matching extends SoftDeletableEntity {
         this.matchingStatus = matchingStatus;
         this.certificationTracking = CertificationTracking.of(LocalDateTime.now().plusDays(2));
         initializeMatchingState();
+    }
+
+    public void addVolunteerCertification(VolunteerCertification volunteerCertification) {
+        this.volunteerCertification = volunteerCertification;
     }
 
     public boolean canRequestCertification() {

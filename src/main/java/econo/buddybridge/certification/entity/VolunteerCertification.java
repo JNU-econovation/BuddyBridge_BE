@@ -47,12 +47,14 @@ public class VolunteerCertification extends BaseEntity {
     }
 
     public static VolunteerCertification of(Matching matching, VolunteerTime volunteerTime, String content) {
-        return VolunteerCertification.builder()
+        VolunteerCertification certification = VolunteerCertification.builder()
                 .matching(matching)
                 .volunteerTime(volunteerTime)
                 .content(content)
                 .isCertified(false)
                 .build();
+        matching.addVolunteerCertification(certification);
+        return certification;
     }
 
     public void updateVolunteerCertification(VolunteerTime volunteerTime, String content) {
