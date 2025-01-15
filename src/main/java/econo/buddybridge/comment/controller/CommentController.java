@@ -4,7 +4,6 @@ import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.comment.dto.CommentCustomPage;
 import econo.buddybridge.comment.dto.CommentDeleteRequest;
 import econo.buddybridge.comment.dto.CommentReqDto;
-import econo.buddybridge.comment.dto.MyPageCommentCustomPage;
 import econo.buddybridge.comment.service.CommentService;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import econo.buddybridge.common.docs.comment.CreateCommentExceptionDocs;
@@ -14,7 +13,6 @@ import econo.buddybridge.common.docs.comment.UpdateCommentExceptionDocs;
 import econo.buddybridge.common.dto.PageOrder;
 import econo.buddybridge.common.swagger.ApiExceptionExamples;
 import econo.buddybridge.common.validation.EnumTypeValue;
-import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.utils.api.ApiResponse;
 import econo.buddybridge.utils.api.ApiResponse.CustomBody;
 import econo.buddybridge.utils.api.ApiResponseGenerator;
@@ -41,19 +39,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommentController {
 
     private final CommentService commentService;
-
-    @Operation(summary = "내가 작성한 댓글 조회", description = "내가 작성한 게시글의 댓글을 조회합니다.")
-    @GetMapping("/my-page")
-    public ApiResponse<CustomBody<MyPageCommentCustomPage>> getCommentsMyPage(
-            @RequestParam("page") Integer page,
-            @RequestParam("size") Integer size,
-            @RequestParam(defaultValue = "DESC", required = false) String sort,
-            @RequestParam(value = "post-type", required = false) PostType postType,
-            @Parameter(hidden = true) @MemberTokenId Long memberId
-    ) {
-        MyPageCommentCustomPage comments = commentService.getMyPageComments(memberId, page, size, sort, postType);
-        return ApiResponseGenerator.success(comments, HttpStatus.OK);
-    }
 
     @Operation(summary = "댓글 조회", description = "게시글의 댓글을 조회합니다.")
     @GetMapping("/{post-id}")
