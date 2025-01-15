@@ -88,7 +88,7 @@ public class VolunteerCertificationService {
 
         VolunteerCertification volunteerCertification = matching.getVolunteerCertification();
 
-        volunteerCertificationValidator.validateVolunteerCertificationUpdate(volunteerCertification, matching, post, author, request);
+        volunteerCertificationValidator.validateVolunteerCertificationUpdate(matching, post, author, request);
 
         volunteerCertification.updateVolunteerCertification(
                 VolunteerCertificationMapper.toVolunteerTime(request),
