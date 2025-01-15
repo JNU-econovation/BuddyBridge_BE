@@ -1,11 +1,11 @@
 package econo.buddybridge.certification.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
+import econo.buddybridge.post.dto.PostDetailDto;
 
 public record AdminVolunteerCertificationDetailResponse(
-        AdminCertificationAuthorDetailResponse authorDetail,
-        AdminCertificationPostDetailResponse postDetail,
-        AdminCertificationDetailResponse volunteeringDetail
+        PostDetailDto post,
+        AdminCertificationDetailResponse certification
 ) {
 
     @QueryProjection
