@@ -48,13 +48,11 @@ public class VolunteerCertificationService {
         return volunteerCertificationRepository.findAdminVolunteerCertification(volunteerCertification);
     }
 
-    @Transactional(readOnly = true)
-    public VolunteerCertificationResponse getVolunteerCertification(Long matchingId, Long certificationId, Long memberId) {
+    @Transactional(readOnly = true) // 사용자 조회
+    public VolunteerCertificationResponse getVolunteerCertification(Long matchingId, Long memberId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
-        VolunteerCertification volunteerCertification = findVolunteerCertificationByIdWithMatchingAndPost(certificationId);
         Matching matching = matchingService.findMatchingByIdOrThrow(matchingId);
-
-        volunteerCertification.validateMatching(matching);
+        VolunteerCertification volunteerCertification = matching.getVolunteerCertification();
         matching.validateVolunteerer(member);
 
         return volunteerCertificationRepository.findVolunteerCertificationByMemberAndVolunteerCertification(member, volunteerCertification);
@@ -83,11 +81,12 @@ public class VolunteerCertificationService {
     }
 
     @Transactional
-    public void modifyVolunteerCertification(Long matchingId, Long certificationId, VolunteerCertificationUpdateRequest request, Long memberId) {
-        VolunteerCertification volunteerCertification = findVolunteerCertificationByIdWithMatchingAndPost(certificationId);
+    public void modifyVolunteerCertification(Long matchingId, VolunteerCertificationUpdateRequest request, Long memberId) {
         Member author = memberService.findMemberByIdOrThrow(memberId);
         Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
         Post post = matching.getPost();
+
+        VolunteerCertification volunteerCertification = matching.getVolunteerCertification();
 
         volunteerCertificationValidator.validateVolunteerCertificationUpdate(volunteerCertification, matching, post, author, request);
 
@@ -101,12 +100,6 @@ public class VolunteerCertificationService {
     public void deleteVolunteerCertificationForAdmin(Long volunteerCertificationId) {
         VolunteerCertification volunteerCertification = findVolunteerCertificationByIdOrThrow(volunteerCertificationId);
         volunteerCertificationRepository.delete(volunteerCertification);
-    }
-
-    @Transactional(readOnly = true)
-    public VolunteerCertification findVolunteerCertificationByIdWithMatchingAndPost(Long volunteerCertificationId) {
-        return volunteerCertificationRepository.findByIdWithMatchingAndPost(volunteerCertificationId)
-                .orElseThrow(() -> VolunteerCertificationNotFoundException.EXCEPTION);
     }
 
     @Transactional(readOnly = true)
