@@ -11,6 +11,7 @@ public enum PostErrorCode implements ErrorCode {
     POST_INVALID_SORT_VALUE("P005", HttpStatus.BAD_REQUEST, "유효하지 않은 정렬 값입니다.(desc, asc중 하나를 넣어주세요)"),
     POST_TYPE_INVALID("P006", HttpStatus.BAD_REQUEST, "유효하지 않은 게시글 타입 유형입니다."),
     ASSISTANCE_TYPE_INVALID("P007", HttpStatus.BAD_REQUEST, "유효하지 않은 도움 유형입니다."),
+    SCHEDULE_TYPE_INVALID("P008", HttpStatus.BAD_REQUEST, "유효하지 않은 일정 유형입니다."),
     ;
 
     private final String code;
