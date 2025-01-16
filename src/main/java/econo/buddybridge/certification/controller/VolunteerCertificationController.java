@@ -31,13 +31,12 @@ public class VolunteerCertificationController {
     private final VolunteerCertificationService volunteerCertificationService;
 
     @Operation(summary = "봉사 인증 폼 조회", description = "봉사 인증 폼을 조회합니다.")
-    @GetMapping("/{matching-id}/certifications/{certification-id}")
+    @GetMapping("/{matching-id}/certifications")
     public ApiResponse<CustomBody<VolunteerCertificationResponse>> getVolunteerCertification(
             @PathVariable("matching-id") Long matchingId,
-            @PathVariable("certification-id") Long certificationId,
             @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        VolunteerCertificationResponse response = volunteerCertificationService.getVolunteerCertification(matchingId, certificationId, memberId); // 왓 !!!!
+        VolunteerCertificationResponse response = volunteerCertificationService.getVolunteerCertification(matchingId, memberId); // 왓 !!!!
         return ApiResponseGenerator.success(response, HttpStatus.OK);
     }
 
@@ -53,14 +52,13 @@ public class VolunteerCertificationController {
     }
 
     @Operation(summary = "봉사활동 인증 폼 수정", description = "봉사활동 인증 폼을 수정합니다.")
-    @PutMapping("/{matching-id}/certifications/{certification-id}")
+    @PutMapping("/{matching-id}/certifications")
     public ApiResponse<CustomBody<Void>> modifyVolunteerCertification(
             @PathVariable("matching-id") Long matchingId,
-            @PathVariable("certification-id") Long certificationId,
             @Valid @RequestBody VolunteerCertificationUpdateRequest volunteerCertificationUpdateRequest,
             @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
-        volunteerCertificationService.modifyVolunteerCertification(matchingId, certificationId, volunteerCertificationUpdateRequest, memberId);
+        volunteerCertificationService.modifyVolunteerCertification(matchingId, volunteerCertificationUpdateRequest, memberId);
         return ApiResponseGenerator.success(HttpStatus.OK);
     }
 }
