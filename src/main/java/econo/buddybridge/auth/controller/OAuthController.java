@@ -71,6 +71,7 @@ public class OAuthController {
     }
 
     @Operation(summary = "카카오 소셜 로그인 (토큰으로 로그인)", description = "Redirect URL이 프론트엔드 주소로 설정될 때 사용합니다.")
+    @AllowAnonymous
     @PostMapping("/login")
     public ApiResponse<CustomBody<MemberResDto>> login(@RequestBody KakaoLoginParams params, HttpServletRequest request) {
         MemberResDto memberDto = oAuthLoginService.login(params);
