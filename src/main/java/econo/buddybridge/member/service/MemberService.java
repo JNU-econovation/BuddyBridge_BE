@@ -4,6 +4,8 @@ import econo.buddybridge.auth.dto.LoginReqDto;
 import econo.buddybridge.auth.dto.PasswordHashDto;
 import econo.buddybridge.auth.dto.kakao.UserInfoWithKakaoToken;
 import econo.buddybridge.auth.utils.PasswordEncoder;
+import econo.buddybridge.member.dto.MemberCustomPage;
+import econo.buddybridge.member.dto.MemberListItem;
 import econo.buddybridge.member.dto.MemberReqDto;
 import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.dto.MemberSignUpReqDto;
@@ -16,12 +18,12 @@ import econo.buddybridge.member.exception.MemberEmailAlreadyExistsException;
 import econo.buddybridge.member.exception.MemberNicknameAlreadyExistsException;
 import econo.buddybridge.member.exception.MemberNotFoundException;
 import econo.buddybridge.member.repository.MemberRepository;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.Period;
 
 @Service
 @RequiredArgsConstructor
@@ -122,5 +124,16 @@ public class MemberService {
         }
 
         return new MemberResDto(member);
+    }
+
+    @Transactional(readOnly = true)
+    public MemberCustomPage getMembers(Integer page, Integer size, String sort) {
+        List<MemberListItem> members = memberRepository.findMembers(page, size, sort);
+        Long totalElements = memberRepository.totalElements();
+
+        long totalPage = (totalElements + size - 1) / size;
+        boolean last = page >= totalPage - 1;
+
+        return new MemberCustomPage(members, totalElements, last);
     }
 }
