@@ -6,7 +6,6 @@ import econo.buddybridge.certification.dto.VolunteerCertificationRequest;
 import econo.buddybridge.certification.dto.VolunteerCertificationResponse;
 import econo.buddybridge.certification.dto.VolunteerCertificationUpdateRequest;
 import econo.buddybridge.certification.entity.VolunteerCertification;
-import econo.buddybridge.certification.exception.VolunteerCertificationAlreadyExistsException;
 import econo.buddybridge.certification.exception.VolunteerCertificationNotFoundException;
 import econo.buddybridge.certification.mapper.VolunteerCertificationMapper;
 import econo.buddybridge.certification.repository.VolunteerCertificationRepository;
@@ -61,15 +60,12 @@ public class VolunteerCertificationService {
     @Transactional
     public void submitVolunteerCertification(Long matchingId, VolunteerCertificationRequest request, Long memberId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
-
-        if (volunteerCertificationRepository.existsByMatchingId(matchingId)) {
-            throw VolunteerCertificationAlreadyExistsException.EXCEPTION;
-        }
-
+        
         Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
         Post post = matching.getPost();
 
         volunteerCertificationValidator.validateVolunteerCertification(matching, post, member, request);
+        matching.validateCreateVolunteerCertification();
 
         matching.handleEvent(MatchingStatusChangeEvent.SUBMIT_VOLUNTEERING_VERIFICATION, MemberRole.GIVER);
 

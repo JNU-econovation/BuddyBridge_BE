@@ -4,6 +4,5 @@ import econo.buddybridge.certification.entity.VolunteerCertification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface VolunteerCertificationRepository extends JpaRepository<VolunteerCertification, Long>, VolunteerCertificationCustomRepository {
-
-    boolean existsByMatchingId(Long matchingId);
+    
 }
