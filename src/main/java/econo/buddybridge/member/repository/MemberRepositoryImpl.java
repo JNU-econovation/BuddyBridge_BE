@@ -20,8 +20,8 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
         return queryFactory
                 .select(new QMemberListItem(
                         member.id,
+                        member.name,
                         member.nickname,
-                        member.email,
                         member.gender,
                         member.age,
                         member.disabilityType,
