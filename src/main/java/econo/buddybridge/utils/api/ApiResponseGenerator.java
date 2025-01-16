@@ -25,6 +25,10 @@ public class ApiResponseGenerator {
         return new ApiResponse<>(new ApiResponse.CustomBody<>(false, null, errorResponse), status);
     }
 
+    public static ApiResponse<Object> fail(final Object object, final HttpStatus status) {
+        return new ApiResponse<>(new ApiResponse.CustomBody<>(false, null, (ErrorResponse) object), status);
+    }
+
     public static <D> ApiResponse<ApiResponse.CustomBody<D>> success(final D data, final HttpHeaders headers, final HttpStatus status) {
         return new ApiResponse<>(new ApiResponse.CustomBody<>(true, data,null), headers, status);
     }

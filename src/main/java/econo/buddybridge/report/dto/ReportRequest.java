@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record ReportRequest(
-        @EnumTypeValue(enumClass = ReportType.class)
+        @EnumTypeValue(enumClass = ReportType.class, message = "올바른 신고 유형을 선택해주세요.")
         String reportType,
 
         @NotNull(message = "신고 사유는 NULL일 수 없습니다.")

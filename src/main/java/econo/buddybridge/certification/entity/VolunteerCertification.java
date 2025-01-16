@@ -1,17 +1,14 @@
 package econo.buddybridge.certification.entity;
 
 import econo.buddybridge.certification.exception.VolunteerCertificationAlreadyCertifiedException;
-import econo.buddybridge.certification.exception.VolunteerCertificationMatchingMismatchException;
 import econo.buddybridge.common.persistence.BaseEntity;
 import econo.buddybridge.matching.entity.Matching;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,9 +26,6 @@ public class VolunteerCertification extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private Matching matching;
-
     @Embedded
     private VolunteerTime volunteerTime;
 
@@ -42,31 +36,25 @@ public class VolunteerCertification extends BaseEntity {
     private boolean isCertified;
 
     @Builder
-    private VolunteerCertification(Matching matching, VolunteerTime volunteerTime, String content, boolean isCertified) {
-        this.matching = matching;
+    private VolunteerCertification(VolunteerTime volunteerTime, String content, boolean isCertified) {
         this.volunteerTime = volunteerTime;
         this.content = content;
         this.isCertified = isCertified;
     }
 
     public static VolunteerCertification of(Matching matching, VolunteerTime volunteerTime, String content) {
-        return VolunteerCertification.builder()
-                .matching(matching)
+        VolunteerCertification certification = VolunteerCertification.builder()
                 .volunteerTime(volunteerTime)
                 .content(content)
                 .isCertified(false)
                 .build();
+        matching.addVolunteerCertification(certification);
+        return certification;
     }
 
     public void updateVolunteerCertification(VolunteerTime volunteerTime, String content) {
         this.volunteerTime = volunteerTime;
         this.content = content;
-    }
-
-    public void validateMatching(Matching matching) {
-        if (!this.matching.equals(matching)) {
-            throw VolunteerCertificationMatchingMismatchException.EXCEPTION;
-        }
     }
 
     public void certify() {

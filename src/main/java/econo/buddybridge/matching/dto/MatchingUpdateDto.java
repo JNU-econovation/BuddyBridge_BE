@@ -5,7 +5,7 @@ import econo.buddybridge.matching.state.MatchingStatusChangeEvent;
 import jakarta.validation.constraints.AssertFalse;
 
 public record MatchingUpdateDto(
-        @EnumTypeValue(enumClass = MatchingStatusChangeEvent.class)
+        @EnumTypeValue(enumClass = MatchingStatusChangeEvent.class, message = "올바른 매칭 상태 변경 이벤트를 요청해주세요.")
         String matchingStatusEvent
 ) {
 

@@ -11,8 +11,11 @@ import econo.buddybridge.post.dto.PostStatus;
 import econo.buddybridge.post.dto.ScheduleDetailResDto;
 import econo.buddybridge.post.dto.ScheduleListResDto;
 import econo.buddybridge.post.entity.AssistanceTime;
+import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.Post;
+import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.entity.Schedule;
+import econo.buddybridge.post.entity.ScheduleType;
 
 public final class PostMapper {
 
@@ -25,16 +28,16 @@ public final class PostMapper {
         return Post.builder()
                 .author(author)
                 .title(request.title())
-                .assistanceType(request.assistanceType())
+                .assistanceType(AssistanceType.fromValue(request.assistanceType()))
                 .schedule(Schedule.builder()
                         .startDate(request.startDate())
                         .endDate(request.endDate())
-                        .scheduleType(request.scheduleType())
+                        .scheduleType(ScheduleType.fromValue(request.scheduleType()))
                         .scheduleDetails(request.scheduleDetails())
                         .build())
                 .district(request.district())
                 .content(request.content())
-                .postType(request.postType())
+                .postType(PostType.fromValue(request.postType()))
                 .disabilityType(author.getDisabilityType())
                 .gender(author.getGender())
                 .age(author.getAge())

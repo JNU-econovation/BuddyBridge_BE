@@ -30,7 +30,7 @@ public class VolunteerCertificationCustomRepositoryImpl implements VolunteerCert
 
     private final JPAQueryFactory queryFactory;
 
-    @Override
+    @Override // 사용자 인증 폼 상세 조회
     public VolunteerCertificationResponse findVolunteerCertificationByMemberAndVolunteerCertification(Member member, VolunteerCertification certification) {
         return queryFactory
                 .select(new QVolunteerCertificationResponse(
@@ -45,13 +45,13 @@ public class VolunteerCertificationCustomRepositoryImpl implements VolunteerCert
                         volunteerCertification.volunteerTime.endTime,
                         volunteerCertification.content
                 ))
-                .from(volunteerCertification)
-                .leftJoin(volunteerCertification.matching, matching)
-                .where(volunteerCertification.eq(certification).and(volunteerCertification.matching.giver.eq(member)))
+                .from(matching)
+                .leftJoin(matching.volunteerCertification, volunteerCertification)
+                .where(volunteerCertification.eq(certification).and(matching.giver.eq(member)))
                 .fetchOne();
     }
 
-    @Override
+    @Override // 관리자 인증 폼 상세 조회
     public AdminVolunteerCertificationDetailResponse findAdminVolunteerCertification(VolunteerCertification certification) {
         return queryFactory
                 .select(new QAdminVolunteerCertificationDetailResponse(
@@ -88,14 +88,14 @@ public class VolunteerCertificationCustomRepositoryImpl implements VolunteerCert
                                 ),
                                 new QAdminCertificationDetailResponse(
                                         volunteerCertification.id,
-                                        volunteerCertification.matching.giver.nickname,
+                                        matching.giver.nickname,
                                         volunteerCertification.createdAt,
-                                        volunteerCertification.matching.giver.name,
-                                        volunteerCertification.matching.giver.email,
-                                        volunteerCertification.matching.post.id,
-                                        volunteerCertification.matching.post.postType,
+                                        matching.giver.name,
+                                        matching.giver.email,
+                                        matching.post.id,
+                                        matching.post.postType,
                                         volunteerCertification.volunteerTime.volunteerDate,
-                                        volunteerCertification.matching.post.assistanceType,
+                                        matching.post.assistanceType,
                                         volunteerCertification.volunteerTime.startTime,
                                         volunteerCertification.volunteerTime.endTime,
                                         volunteerCertification.content,
@@ -103,33 +103,37 @@ public class VolunteerCertificationCustomRepositoryImpl implements VolunteerCert
                                 )
                         )
                 )
-                .from(volunteerCertification)
-                .leftJoin(volunteerCertification.matching.post, post)
+                .from(matching)
+                .leftJoin(matching.volunteerCertification, volunteerCertification)
+                .leftJoin(matching.post, post)
                 .where(volunteerCertification.eq(certification))
                 .fetchOne();
     }
 
-    @Override
+    @Override // 관리자 인증 폼 전체 조회
     public VolunteerCertificationCustomPage findAdminVolunteerCertifications(Integer page, Integer size, String sort) {
         List<VolunteerCertificationListItem> content = queryFactory
                 .select(new QVolunteerCertificationListItem(
                         volunteerCertification.id,
-                        volunteerCertification.matching.giver.name,
-                        volunteerCertification.matching.giver.email,
-                        volunteerCertification.matching.post.id,
-                        volunteerCertification.matching.post.postType,
+                        matching.giver.name,
+                        matching.giver.email,
+                        matching.post.id,
+                        matching.post.postType,
                         volunteerCertification.isCertified,
                         volunteerCertification.createdAt
                 ))
-                .from(volunteerCertification)
+                .from(matching)
+                .leftJoin(matching.volunteerCertification, volunteerCertification)
+                .where(matching.volunteerCertification.isNotNull())
                 .offset((long) page * size)
                 .limit(size)
                 .orderBy(volunteerCertification.createdAt.desc())
                 .fetch();
 
         Long totalElements = queryFactory
-                .select(volunteerCertification.count())
-                .from(volunteerCertification)
+                .select(matching.volunteerCertification.count())
+                .from(matching)
+                .where(matching.volunteerCertification.isNotNull())
                 .fetchOne();
 
         long totalPage = (totalElements + size - 1) / size;

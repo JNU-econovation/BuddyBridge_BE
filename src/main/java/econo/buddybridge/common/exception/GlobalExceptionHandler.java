@@ -34,11 +34,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         // 세부 검증 오류는 ErrorResponse#invalidParams에 담아서 반환
         ErrorCode errorCode = CommonErrorCode.INVALID_INPUT_VALUE;
 
-        return ResponseEntity.status(errorCode.getHttpStatus())
-                .body(makeErrorResponse(ex, errorCode));
+        return makeErrorResponse(ex, errorCode);
     }
 
-    private ErrorResponse makeErrorResponse(MethodArgumentNotValidException ex, ErrorCode errorCode) {
+    private ApiResponse<Object> makeErrorResponse(MethodArgumentNotValidException ex, ErrorCode errorCode) {
         ErrorResponse errorResponse = new ErrorResponse(errorCode);
 
         errorResponse.setInvalidParams(ex.getBindingResult()
@@ -47,6 +46,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(ValidationError::of)
                 .toList());
 
-        return errorResponse;
+        return ApiResponseGenerator.fail((Object) errorResponse, errorCode.getHttpStatus());
     }
 }
