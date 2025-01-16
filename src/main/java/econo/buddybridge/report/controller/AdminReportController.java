@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/reports")
 @RequiredArgsConstructor
-@Tag(name = "관리자 API")
+@Tag(name = "관리자 신고 API", description = "관리자 신고 관리 API")
 public class AdminReportController {
 
     private final ReportService reportService;
