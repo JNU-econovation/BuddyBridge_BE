@@ -183,11 +183,11 @@ public class Post extends SoftDeletableEntity {
         }
 
         this.title = postUpdateReqDto.title() != null ? postUpdateReqDto.title() : this.title;
-        this.assistanceType = postUpdateReqDto.assistanceType() != null ? postUpdateReqDto.assistanceType() : this.assistanceType;
+        this.assistanceType = postUpdateReqDto.assistanceType() != null ? AssistanceType.fromValue(postUpdateReqDto.assistanceType()) : this.assistanceType;
         this.schedule = updateSchedule != null ? updateSchedule : this.schedule;
         this.district = postUpdateReqDto.district() != null ? postUpdateReqDto.district() : this.district;
         this.content = postUpdateReqDto.content() != null ? postUpdateReqDto.content() : this.content;
-        this.disabilityType = postUpdateReqDto.disabilityType() != null ? postUpdateReqDto.disabilityType() : this.disabilityType;
+        this.disabilityType = postUpdateReqDto.disabilityType() != null ? DisabilityType.fromValue(postUpdateReqDto.disabilityType()) : this.disabilityType;
         this.gender = postUpdateReqDto.gender() != null ? postUpdateReqDto.gender() : this.gender;
         this.age = postUpdateReqDto.age() != null ? postUpdateReqDto.age() : this.age;
         this.assistanceTime = updateAssistanceTime != null ? updateAssistanceTime : this.assistanceTime;
