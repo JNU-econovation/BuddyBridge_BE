@@ -2,6 +2,7 @@ package econo.buddybridge.matching.entity;
 
 import econo.buddybridge.certification.entity.VolunteerCertification;
 import econo.buddybridge.certification.exception.VolunteerCertificationAllowedOnlyVolunteeringCompletedException;
+import econo.buddybridge.certification.exception.VolunteerCertificationAlreadyExistsException;
 import econo.buddybridge.certification.exception.VolunteerCertificationVolunteererMismatchException;
 import econo.buddybridge.chat.chatmessage.entity.ChatMessage;
 import econo.buddybridge.chat.chatmessage.entity.MessageReadStatus;
@@ -77,7 +78,7 @@ public class Matching extends SoftDeletableEntity {
     @OneToMany(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<MessageReadStatus> messageReadStatuses = new ArrayList<>();
 
-    @OneToOne(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private VolunteerCertification volunteerCertification;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -91,6 +92,12 @@ public class Matching extends SoftDeletableEntity {
         this.matchingStatus = matchingStatus;
         this.certificationTracking = CertificationTracking.of(LocalDateTime.now().plusDays(2));
         initializeMatchingState();
+    }
+
+    public void validateCreateVolunteerCertification() {
+        if (this.volunteerCertification != null) {
+            throw VolunteerCertificationAlreadyExistsException.EXCEPTION;
+        }
     }
 
     public void addVolunteerCertification(VolunteerCertification volunteerCertification) {

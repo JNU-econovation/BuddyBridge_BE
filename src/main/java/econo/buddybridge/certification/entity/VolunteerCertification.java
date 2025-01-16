@@ -5,11 +5,9 @@ import econo.buddybridge.matching.entity.Matching;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -27,9 +25,6 @@ public class VolunteerCertification extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private Matching matching;
-
     @Embedded
     private VolunteerTime volunteerTime;
 
@@ -38,8 +33,7 @@ public class VolunteerCertification extends BaseEntity {
     private boolean isCertified;
 
     @Builder
-    private VolunteerCertification(Matching matching, VolunteerTime volunteerTime, String content, boolean isCertified) {
-        this.matching = matching;
+    private VolunteerCertification(VolunteerTime volunteerTime, String content, boolean isCertified) {
         this.volunteerTime = volunteerTime;
         this.content = content;
         this.isCertified = isCertified;
@@ -47,7 +41,6 @@ public class VolunteerCertification extends BaseEntity {
 
     public static VolunteerCertification of(Matching matching, VolunteerTime volunteerTime, String content) {
         VolunteerCertification certification = VolunteerCertification.builder()
-                .matching(matching)
                 .volunteerTime(volunteerTime)
                 .content(content)
                 .isCertified(false)
