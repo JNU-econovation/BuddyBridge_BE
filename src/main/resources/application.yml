@@ -132,3 +132,25 @@ logging:
     p6spy: warn
 
     econo.buddybridge.auth.client.kakao: error
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+
+  sql:
+    init:
+      mode: never
+
+logging:
+  level:
+    org.springframework:
+      transaction.interceptor: trace    # 트랜잭션 로그 설정
+
+    p6spy: info
+
+    econo.buddybridge.auth.client.kakao: error
