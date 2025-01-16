@@ -14,9 +14,10 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RequiredArgsConstructor
 public class EmitterService {
 
+    private static final Long CONNECT_TIMEOUT = 1000L * 60 * 60;
+
     private final EmitterRepository emitterRepository;
     private final NotificationService notificationService;
-    private final Long CONNECT_TIMEOUT = 1000L * 60 * 60;
 
     public SseEmitter connect(String memberId, String lastEventId) {
         String eventId = generateEventIdByMemberId(memberId);
@@ -48,7 +49,7 @@ public class EmitterService {
             emitterRepository.deleteById(eventId);
         });
 
-        emitter.onError((error) -> {
+        emitter.onError(error -> {
             emitter.completeWithError(error);
             emitterRepository.deleteById(eventId);
         });
