@@ -1,5 +1,6 @@
 package econo.buddybridge.post.repository;
 
+import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.entity.Post;
 import java.util.List;
 import java.util.Optional;
@@ -33,4 +34,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("DELETE FROM Post p WHERE p IN :posts")
     void deleteAllIn(@Param("posts") List<Post> posts);
+
+    @Query("SELECT p FROM Post p WHERE p.author IN :members")
+    List<Post> findByMemberIn(List<Member> members);
 }
