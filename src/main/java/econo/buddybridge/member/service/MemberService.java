@@ -13,6 +13,7 @@ import econo.buddybridge.member.dto.MemberSignUpResDto;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.entity.Role;
+import econo.buddybridge.member.event.MemberDeleteEvent;
 import econo.buddybridge.member.exception.InvalidPasswordOrEmailException;
 import econo.buddybridge.member.exception.MemberEmailAlreadyExistsException;
 import econo.buddybridge.member.exception.MemberNicknameAlreadyExistsException;
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,16 +33,12 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional(readOnly = true)
     public MemberResDto findMemberById(Long memberId) {
         Member member = findMemberByIdOrThrow(memberId);
         return new MemberResDto(member);
-    }
-
-    @Transactional(readOnly = true)
-    public boolean existsById(Long memberId) {
-        return memberRepository.existsById(memberId);
     }
 
     // 존재하는 회원인지 확인
@@ -135,5 +133,16 @@ public class MemberService {
         boolean last = page >= totalPage - 1;
 
         return new MemberCustomPage(members, totalElements, last);
+    }
+
+    @Transactional
+    public void deleteMembers(List<Long> memberIds) {
+        List<Member> members = memberRepository.findByIdIn(memberIds);
+
+        if (members.size() != memberIds.size()) {
+            throw MemberNotFoundException.EXCEPTION;
+        }
+
+        publisher.publishEvent(MemberDeleteEvent.from(members));
     }
 }
