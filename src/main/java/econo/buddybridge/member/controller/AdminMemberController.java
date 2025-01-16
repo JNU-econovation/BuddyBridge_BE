@@ -2,6 +2,7 @@ package econo.buddybridge.member.controller;
 
 import econo.buddybridge.auth.resolver.MemberTokenId;
 import econo.buddybridge.member.dto.MemberCustomPage;
+import econo.buddybridge.member.dto.MemberDeleteRequest;
 import econo.buddybridge.member.entity.Role;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.utils.api.ApiResponse;
@@ -10,9 +11,12 @@ import econo.buddybridge.utils.api.ApiResponseGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,5 +39,15 @@ public class AdminMemberController {
     ) {
         MemberCustomPage members = memberService.getMembers(page, size, sort);
         return ApiResponseGenerator.success(members, HttpStatus.OK);
+    }
+
+    @Operation(summary = "회원 다중 삭제", description = "회원을 다중 삭제합니다.")
+    @DeleteMapping
+    public ApiResponse<CustomBody<Void>> deleteMembers(
+            @RequestBody @Valid MemberDeleteRequest memberDeleteRequest,
+            @Parameter(hidden = true) @MemberTokenId(allowedRoles = {Role.ADMIN}) Long memberId
+    ) {
+        memberService.deleteMembers(memberDeleteRequest.memberIds());
+        return ApiResponseGenerator.success(HttpStatus.NO_CONTENT);
     }
 }
