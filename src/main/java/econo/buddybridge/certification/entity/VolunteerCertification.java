@@ -1,5 +1,6 @@
 package econo.buddybridge.certification.entity;
 
+import econo.buddybridge.certification.exception.VolunteerCertificationAlreadyCertifiedException;
 import econo.buddybridge.certification.exception.VolunteerCertificationMatchingMismatchException;
 import econo.buddybridge.common.persistence.BaseEntity;
 import econo.buddybridge.matching.entity.Matching;
@@ -36,6 +37,8 @@ public class VolunteerCertification extends BaseEntity {
 
     private String content;
 
+    // True: 인증 완료, False: 인증 대기
+    // Default: False, 한 번 인증 완료 후 변경 불가
     private boolean isCertified;
 
     @Builder
@@ -66,8 +69,10 @@ public class VolunteerCertification extends BaseEntity {
         }
     }
 
-    public Boolean toggleCertified() {
-        this.isCertified = !this.isCertified;
-        return this.isCertified;
+    public Boolean certify() {
+        if (this.isCertified) {
+            throw VolunteerCertificationAlreadyCertifiedException.EXCEPTION;
+        }
+        return this.isCertified = true;
     }
 }
