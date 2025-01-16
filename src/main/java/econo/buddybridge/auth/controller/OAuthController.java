@@ -55,6 +55,7 @@ public class OAuthController {
     }
 
     @Operation(summary = "카카오 소셜 로그인 (코드로 로그인)", description = "Redirect URL이 백엔드 주소로 설정될 때 사용합니다.")
+    @AllowAnonymous
     @GetMapping("/login")
     public void login(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
         KakaoLoginParams params = new KakaoLoginParams(code);
@@ -84,6 +85,7 @@ public class OAuthController {
 
     // 소셜로그인 with JWT
     @Operation(summary = "카카오 소셜 로그인 (JWT)", description = "JWT를 이용하여 로그인합니다.")
+    @AllowAnonymous
     @PostMapping("/login/jwt")
     public ApiResponse<CustomBody<AuthToken>> loginWithToken(@RequestBody KakaoLoginParams params) {
         AuthToken authToken = oAuthLoginService.loginWithToken(params);
