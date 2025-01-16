@@ -69,10 +69,10 @@ public class VolunteerCertification extends BaseEntity {
         }
     }
 
-    public Boolean certify() {
+    public void certify() {
         if (this.isCertified) {
             throw VolunteerCertificationAlreadyCertifiedException.EXCEPTION;
         }
-        return this.isCertified = true;
+        this.isCertified = true;
     }
 }

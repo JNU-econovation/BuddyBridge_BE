@@ -63,11 +63,11 @@ public class AdminVolunteerCertificationController {
 
     @Operation(summary = "인증 폼 봉사 시간 부여 여부 변경", description = "인증 폼의 봉사 시간 부여 여부를 변경합니다. 부여 완료된 경우 변경은 불가능 합니다.(true 반환 값: 봉사 시간 부여)")
     @PostMapping("/certifications/{certification-id}/toggle")
-    public ApiResponse<CustomBody<Boolean>> certify(
+    public ApiResponse<CustomBody<Void>> certify(
             @PathVariable("certification-id") Long volunteerCertificationId,
             @Parameter(hidden = true) @MemberTokenId(allowedRoles = {Role.ADMIN}) Long memberId
     ) {
-        Boolean response = volunteerCertificationService.certify(volunteerCertificationId);
-        return ApiResponseGenerator.success(response, HttpStatus.OK);
+        volunteerCertificationService.certify(volunteerCertificationId);
+        return ApiResponseGenerator.success(HttpStatus.OK);
     }
 }

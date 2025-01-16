@@ -32,9 +32,9 @@ public class VolunteerCertificationService {
     private final VolunteerCertificationValidator volunteerCertificationValidator;
 
     @Transactional
-    public Boolean certify(Long volunteerCertificationId) {
+    public void certify(Long volunteerCertificationId) {
         VolunteerCertification volunteerCertification = findVolunteerCertificationByIdOrThrow(volunteerCertificationId);
-        return volunteerCertification.certify();
+        volunteerCertification.certify();
     }
 
     @Transactional(readOnly = true)
