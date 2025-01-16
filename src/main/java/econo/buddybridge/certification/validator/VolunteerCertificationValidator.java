@@ -13,7 +13,7 @@ public class VolunteerCertificationValidator {
 
     public void validateVolunteerCertification(Matching matching, Post post, Member member, VolunteerCertificationRequest request) {
         AssistanceType assistanceType = AssistanceType.fromValue(request.assistanceType());
-
+        matching.validateCreateVolunteerCertification();
         matching.validateCreateVolunteerer(member);
         post.validateCreateCertification(request.volunteerDate(), request.startTime(), request.endTime(), assistanceType);
     }

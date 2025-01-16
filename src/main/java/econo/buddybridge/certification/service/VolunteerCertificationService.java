@@ -60,12 +60,11 @@ public class VolunteerCertificationService {
     @Transactional
     public void submitVolunteerCertification(Long matchingId, VolunteerCertificationRequest request, Long memberId) {
         Member member = memberService.findMemberByIdOrThrow(memberId);
-        
+
         Matching matching = matchingService.findByIdWithMembersAndPost(matchingId);
         Post post = matching.getPost();
 
         volunteerCertificationValidator.validateVolunteerCertification(matching, post, member, request);
-        matching.validateCreateVolunteerCertification();
 
         matching.handleEvent(MatchingStatusChangeEvent.SUBMIT_VOLUNTEERING_VERIFICATION, MemberRole.GIVER);
 
