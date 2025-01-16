@@ -62,7 +62,8 @@ public class CommentController {
     public ApiResponse<CustomBody<CommentCustomPage>> getComments(
             @PathVariable("post-id") Long postId,
             @RequestParam("limit") Integer size,
-            @RequestParam(defaultValue = "desc") @EnumTypeValue(enumClass = PageOrder.class) String order,
+            @RequestParam(defaultValue = "desc") @EnumTypeValue(enumClass = PageOrder.class, message = "올바른 정렬 값으로 요청해주세요. desc, asc")
+            String order,
             @RequestParam(value = "cursor", required = false) Long cursor
     ) {
         CommentCustomPage comments = commentService.getComments(postId, size, order, cursor);
