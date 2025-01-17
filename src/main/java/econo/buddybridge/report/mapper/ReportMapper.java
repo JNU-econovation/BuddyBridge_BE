@@ -8,6 +8,7 @@ import econo.buddybridge.report.dto.PostReportDetailResponse;
 import econo.buddybridge.report.dto.ReportCustomPage;
 import econo.buddybridge.report.dto.ReportDetailResponse;
 import econo.buddybridge.report.dto.ReportListItem;
+import econo.buddybridge.report.dto.ReportWithBlackListInfo;
 import econo.buddybridge.report.entity.CommentReport;
 import econo.buddybridge.report.entity.MatchingReport;
 import econo.buddybridge.report.entity.PostReport;
@@ -21,7 +22,7 @@ public final class ReportMapper {
 
     private static final String REPORT_CONTENT_FORMAT = "%s - %s";
 
-    public static <T extends Report> ReportCustomPage toReportCustomPage(List<T> reports, Long totalElements, Integer page, Integer size) {
+    public static ReportCustomPage toReportCustomPage(List<ReportWithBlackListInfo> reports, Long totalElements, Integer page, Integer size) {
         long totalPage = (totalElements + size - 1) / size;
         boolean last = page >= totalPage - 1;
 
@@ -32,7 +33,8 @@ public final class ReportMapper {
         return new ReportCustomPage(content, totalElements, last);
     }
 
-    private static ReportListItem toReportListItem(Report report) {
+    private static ReportListItem toReportListItem(ReportWithBlackListInfo reportInfo) {
+        Report report = reportInfo.report();
         ParsedReportInfo parsedReportInfo = toParsedReportInfo(report);
 
         return new ReportListItem(
@@ -43,7 +45,8 @@ public final class ReportMapper {
                 report.getReporter().getName(),
                 report.getReported().getName(),
                 report.getReportType().getValue(),
-                report.getCreatedAt().toLocalDate()
+                report.getCreatedAt().toLocalDate(),
+                reportInfo.isBlackListed()  // 블랙리스트 정보 사용
         );
     }
 
