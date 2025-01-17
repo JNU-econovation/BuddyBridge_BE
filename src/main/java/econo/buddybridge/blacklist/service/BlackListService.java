@@ -2,6 +2,8 @@ package econo.buddybridge.blacklist.service;
 
 import econo.buddybridge.blacklist.dto.BlackListRequest;
 import econo.buddybridge.blacklist.entity.BlackList;
+import econo.buddybridge.blacklist.exception.BlackListAlreadyExistsException;
+import econo.buddybridge.blacklist.exception.BlackListNotFoundException;
 import econo.buddybridge.blacklist.repository.BlackListRepository;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
@@ -21,7 +23,7 @@ public class BlackListService {
         Member reportedMember = memberService.findMemberByIdOrThrow(request.reportedMemberId());
 
         if (isBlackListed(request.reportedMemberId())) {
-            throw new IllegalArgumentException("이미 블랙리스트에 등록된 회원입니다.");
+            throw BlackListAlreadyExistsException.EXCEPTION;
         }
 
         BlackList blackList = BlackList.builder()
@@ -36,7 +38,7 @@ public class BlackListService {
         Member reportedMember = memberService.findMemberByIdOrThrow(request.reportedMemberId());
 
         if (!isBlackListed(request.reportedMemberId())) {
-            throw new IllegalArgumentException("블랙리스트에 등록되지 않은 회원입니다.");
+            throw BlackListNotFoundException.EXCEPTION;
         }
 
         blackListRepository.deleteByReportedMember(reportedMember);
