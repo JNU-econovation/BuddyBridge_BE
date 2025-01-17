@@ -7,6 +7,7 @@ import econo.buddybridge.report.entity.CommentReport;
 import java.util.List;
 import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface CommentReportRepository extends JpaRepository<CommentReport, Long> {
@@ -18,4 +19,8 @@ public interface CommentReportRepository extends JpaRepository<CommentReport, Lo
 
     @Query("SELECT cr.reportedComment FROM CommentReport cr WHERE cr.reportedComment IN :comments")
     Set<Comment> findByReportedCommentIn(List<Comment> comments);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM CommentReport cr WHERE cr.reportedComment.post IN :posts")
+    void deleteAllByPostIn(List<Post> posts);
 }

@@ -1,5 +1,6 @@
 package econo.buddybridge.post.repository;
 
+import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.entity.PostLike;
 import java.util.List;
@@ -12,4 +13,8 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long>, PostL
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("DELETE FROM PostLike pl WHERE pl.post IN :posts")
     void deleteAllByPostIn(List<Post> posts);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM PostLike pl WHERE pl.member IN :members")
+    void deleteAllByMemberIn(List<Member> members);
 }

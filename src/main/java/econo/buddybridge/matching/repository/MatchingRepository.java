@@ -39,4 +39,11 @@ public interface MatchingRepository extends JpaRepository<Matching, Long>, Match
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE Matching m SET m.deleted = true WHERE m.post IN :reportedPosts")
     void softDeleteAllByPostIn(Set<Post> reportedPosts);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM Matching m WHERE m IN :matchings")
+    void deleteAllIn(List<Matching> matchings);
+
+    @Query("SELECT m FROM Matching m WHERE m.giver IN :members OR m.taker IN :members")
+    List<Matching> findByMemberIn(List<Member> members);
 }
