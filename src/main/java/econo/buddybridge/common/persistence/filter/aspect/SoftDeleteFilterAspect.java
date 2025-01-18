@@ -13,14 +13,14 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class WithDeletedContentAspect {
+public class SoftDeleteFilterAspect {
 
     private static final String DELETED_FILTER = "deletedFilter";
     private static final String DELETED_PARAM = "isDeleted";
 
     private final SessionFilterManager sessionFilterManager;
 
-    @Around("execution(* econo.buddybridge.*.service.*Service.*(..))")
+    @Around("@within(econo.buddybridge.common.persistence.filter.annotation.SoftDeletableService)")
     public Object handleFilter(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
@@ -31,7 +31,7 @@ public class WithDeletedContentAspect {
             return joinPoint.proceed();
         }
 
-        // 이미 활성화된 필터가 있는 경우
+        // 이미 활성화된 필터가 있는 경우 필터를 재활성화하지 않음
         if (sessionFilterManager.isFilterEnabled(DELETED_FILTER)) {
             return joinPoint.proceed();
         }
