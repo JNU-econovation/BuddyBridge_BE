@@ -3,6 +3,7 @@ package econo.buddybridge.auth.service;
 import econo.buddybridge.auth.dto.LoginReqDto;
 import econo.buddybridge.auth.jwt.AuthToken;
 import econo.buddybridge.auth.jwt.service.AuthTokenService;
+import econo.buddybridge.blacklist.service.BlackListService;
 import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.dto.MemberSignUpReqDto;
 import econo.buddybridge.member.dto.MemberSignUpResDto;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private final BlackListService blackListService;
     private final MemberService memberService;
     private final AuthTokenService authTokenService;
 
@@ -26,6 +28,7 @@ public class AuthService {
     @Transactional
     public AuthToken loginWithToken(LoginReqDto params) {
         MemberResDto member = memberService.findMemberByEmailAndPassword(params);
+        blackListService.validateBlackListed(member.memberId());
         return authTokenService.generateAuthToken(member.memberId());
     }
 
