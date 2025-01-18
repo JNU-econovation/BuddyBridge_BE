@@ -95,8 +95,11 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                     .select(matching.post.id)
                     .from(matching)
                     .where(
-                            matching.post.id.eq(post.id),
-                            matching.matchingStatus.eq(MatchingStatus.DONE)
+                            matching.matchingStatus.in(
+                                    MatchingStatus.DONE,
+                                    MatchingStatus.VOLUNTEERING_COMPLETED,
+                                    MatchingStatus.VOLUNTEERING_VERIFIED
+                            )
                     )
                     .fetch();
         }
