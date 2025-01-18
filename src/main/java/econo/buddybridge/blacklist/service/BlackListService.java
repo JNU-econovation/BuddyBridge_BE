@@ -44,7 +44,7 @@ public class BlackListService {
         blackListRepository.deleteByReportedMember(reportedMember);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean isBlackListed(Long reportedMemberId) {
         Member reportedMember = memberService.findMemberByIdOrThrow(reportedMemberId);
         return blackListRepository.existsByReportedMember(reportedMember);
