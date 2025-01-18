@@ -7,6 +7,7 @@ import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
 import econo.buddybridge.chat.chatmessage.repository.MessageReadStatusRepository;
 import econo.buddybridge.comment.entity.Comment;
 import econo.buddybridge.comment.service.CommentService;
+import econo.buddybridge.common.persistence.filter.annotation.SoftDeletableService;
 import econo.buddybridge.matching.dto.MatchingParticipants;
 import econo.buddybridge.matching.dto.MatchingReqDto;
 import econo.buddybridge.matching.dto.MatchingUpdateDto;
@@ -30,10 +31,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@SoftDeletableService
 @RequiredArgsConstructor
 public class MatchingService {
 
