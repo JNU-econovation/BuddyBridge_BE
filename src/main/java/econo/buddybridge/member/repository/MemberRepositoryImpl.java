@@ -1,5 +1,6 @@
 package econo.buddybridge.member.repository;
 
+import static econo.buddybridge.blacklist.entity.QBlackList.blackList;
 import static econo.buddybridge.member.entity.QMember.member;
 import static econo.buddybridge.report.entity.QReport.report;
 
@@ -29,7 +30,12 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                         JPAExpressions
                                 .select(report.count())
                                 .from(report)
-                                .where(report.reported.eq(member))
+                                .where(report.reported.eq(member)),
+                        JPAExpressions
+                                .selectOne()
+                                .from(blackList)
+                                .where(blackList.reportedMember.eq(member))
+                                .exists()
                 ))
                 .from(member)
                 .offset((long) page * size)

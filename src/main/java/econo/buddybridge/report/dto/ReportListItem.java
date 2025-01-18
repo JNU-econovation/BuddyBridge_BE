@@ -12,7 +12,8 @@ public record ReportListItem(
         String reporter,
         String reported,
         String reportType,
-        LocalDate reportDate
+        LocalDate reportDate,
+        Boolean isBlackListed
 ) {
 
     @QueryProjection

@@ -1,10 +1,12 @@
 package econo.buddybridge.certification.repository;
 
+import static econo.buddybridge.blacklist.entity.QBlackList.blackList;
 import static econo.buddybridge.certification.entity.QVolunteerCertification.volunteerCertification;
 import static econo.buddybridge.matching.entity.QMatching.matching;
 import static econo.buddybridge.post.entity.QPost.post;
 
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import econo.buddybridge.certification.dto.AdminVolunteerCertificationDetailResponse;
 import econo.buddybridge.certification.dto.QAdminCertificationDetailResponse;
@@ -120,7 +122,12 @@ public class VolunteerCertificationCustomRepositoryImpl implements VolunteerCert
                         matching.post.id,
                         matching.post.postType,
                         volunteerCertification.isCertified,
-                        volunteerCertification.createdAt
+                        volunteerCertification.createdAt,
+                        JPAExpressions
+                                .selectOne()
+                                .from(blackList)
+                                .where(blackList.reportedMember.eq(matching.giver))
+                                .exists()
                 ))
                 .from(matching)
                 .leftJoin(matching.volunteerCertification, volunteerCertification)

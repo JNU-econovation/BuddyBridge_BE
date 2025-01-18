@@ -3,8 +3,10 @@ package econo.buddybridge.report.service;
 import static econo.buddybridge.report.mapper.ReportMapper.toReportCustomPage;
 import static econo.buddybridge.report.mapper.ReportMapper.toReportDetailResponse;
 
+import econo.buddybridge.blacklist.service.BlackListService;
 import econo.buddybridge.report.dto.ReportCustomPage;
 import econo.buddybridge.report.dto.ReportDetailResponse;
+import econo.buddybridge.report.dto.ReportWithBlackListInfo;
 import econo.buddybridge.report.entity.CommentReport;
 import econo.buddybridge.report.entity.MatchingReport;
 import econo.buddybridge.report.entity.PostReport;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ReportService {
 
+    private final BlackListService blackListService;
     private final ReportRepository reportRepository;
 
     @Transactional(readOnly = true)
@@ -33,7 +36,9 @@ public class ReportService {
         List<Report> reports = reportRepository.findReports(page, size, sort);
         Long totalReports = reportRepository.totalReports();
 
-        return toReportCustomPage(reports, totalReports, page, size);
+        List<ReportWithBlackListInfo> reportsWithBlackListInfo = enrichReportsWithBlackListInfo(reports);
+
+        return toReportCustomPage(reportsWithBlackListInfo, totalReports, page, size);
     }
 
     @Transactional(readOnly = true)
@@ -41,7 +46,9 @@ public class ReportService {
         List<PostReport> reports = reportRepository.findPostReports(page, size, sort);
         Long totalReports = reportRepository.totalPostReports();
 
-        return toReportCustomPage(reports, totalReports, page, size);
+        List<ReportWithBlackListInfo> reportsWithBlackListInfo = enrichReportsWithBlackListInfo(reports);
+
+        return toReportCustomPage(reportsWithBlackListInfo, totalReports, page, size);
     }
 
     @Transactional(readOnly = true)
@@ -49,7 +56,9 @@ public class ReportService {
         List<CommentReport> reports = reportRepository.findCommentReports(page, size, sort);
         Long totalReports = reportRepository.totalCommentReports();
 
-        return toReportCustomPage(reports, totalReports, page, size);
+        List<ReportWithBlackListInfo> reportsWithBlackListInfo = enrichReportsWithBlackListInfo(reports);
+
+        return toReportCustomPage(reportsWithBlackListInfo, totalReports, page, size);
     }
 
     @Transactional(readOnly = true)
@@ -57,7 +66,9 @@ public class ReportService {
         List<MatchingReport> reports = reportRepository.findMatchingReports(page, size, sort);
         Long totalReports = reportRepository.totalMatchingReports();
 
-        return toReportCustomPage(reports, totalReports, page, size);
+        List<ReportWithBlackListInfo> reportsWithBlackListInfo = enrichReportsWithBlackListInfo(reports);
+
+        return toReportCustomPage(reportsWithBlackListInfo, totalReports, page, size);
     }
 
     @Transactional
@@ -69,5 +80,14 @@ public class ReportService {
     private Report findReportByIdOrThrow(Long reportId) {
         return reportRepository.findById(reportId)
                 .orElseThrow(() -> ReportNotFoundException.EXCEPTION);
+    }
+
+    private <T extends Report> List<ReportWithBlackListInfo> enrichReportsWithBlackListInfo(List<T> reports) {
+        return reports.stream()
+                .map(report -> new ReportWithBlackListInfo(
+                        report,
+                        blackListService.isBlackListed(report.getReported().getId())
+                ))
+                .toList();
     }
 }
