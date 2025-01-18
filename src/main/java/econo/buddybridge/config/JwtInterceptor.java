@@ -1,6 +1,7 @@
 package econo.buddybridge.config;
 
 import econo.buddybridge.auth.jwt.service.JwtTokenProvider;
+import econo.buddybridge.blacklist.service.BlackListService;
 import econo.buddybridge.common.annotation.AllowAnonymous;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +21,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 
     private static final String REISSUE_URI = "/api/auth/reissue";
 
+    private final BlackListService blackListService;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
@@ -47,6 +49,10 @@ public class JwtInterceptor implements HandlerInterceptor {
 
         // Access Token에서 memberId 추출 후 Refresh Token이 tokenRepository에 존재하는지 확인
         Long memberId = jwtTokenProvider.getMemberIdFromAccessToken(token);
+
+        // 블랙리스트에 존재하는 멤버인지 확인
+        blackListService.validateBlackListed(memberId);
+
         return jwtTokenProvider.existsByMemberIdOrThrow(memberId);
     }
 }
