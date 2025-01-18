@@ -25,7 +25,7 @@ public record VolunteerCertificationResponse(
 
         LocalTime endTime,
 
-        String volunteerContent
+        String content
 ) {
 
     @QueryProjection
