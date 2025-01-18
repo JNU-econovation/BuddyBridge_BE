@@ -4,6 +4,7 @@ import econo.buddybridge.chat.chatmessage.dto.ChatMessageCustomPage;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessageResDto;
 import econo.buddybridge.chat.chatmessage.dto.ChatMessagesWithCursor;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
+import econo.buddybridge.common.persistence.filter.annotation.SoftDeletableService;
 import econo.buddybridge.common.persistence.filter.annotation.WithDeletedContent;
 import econo.buddybridge.matching.dto.MatchingCustomPage;
 import econo.buddybridge.matching.dto.ReceiverDto;
@@ -18,10 +19,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@SoftDeletableService
 @RequiredArgsConstructor
 public class MatchingRoomService {
 
