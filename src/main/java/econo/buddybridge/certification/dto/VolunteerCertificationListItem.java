@@ -19,7 +19,9 @@ public record VolunteerCertificationListItem(
         boolean isCertified,
 
         @JsonFormat(pattern = "yyyy-MM-dd")
-        LocalDateTime certificationCreatedDate
+        LocalDateTime certificationCreatedDate,
+        
+        Boolean isBlackListed
 ) {
 
     @QueryProjection
