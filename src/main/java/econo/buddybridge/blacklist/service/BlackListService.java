@@ -4,6 +4,7 @@ import econo.buddybridge.blacklist.dto.BlackListRequest;
 import econo.buddybridge.blacklist.entity.BlackList;
 import econo.buddybridge.blacklist.exception.BlackListAlreadyExistsException;
 import econo.buddybridge.blacklist.exception.BlackListNotFoundException;
+import econo.buddybridge.blacklist.exception.BlackListRequestForbidden;
 import econo.buddybridge.blacklist.repository.BlackListRepository;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
@@ -48,5 +49,12 @@ public class BlackListService {
     public boolean isBlackListed(Long reportedMemberId) {
         Member reportedMember = memberService.findMemberByIdOrThrow(reportedMemberId);
         return blackListRepository.existsByReportedMember(reportedMember);
+    }
+
+    @Transactional(readOnly = true)
+    public void validateBlackListed(Long reportedMemberId) {
+        if (blackListRepository.existsByReportedMemberId(reportedMemberId)) {
+            throw BlackListRequestForbidden.EXCEPTION;
+        }
     }
 }
