@@ -12,7 +12,8 @@ public record MemberListItem(
         Integer age,
         DisabilityType disabilityType,
         String email,
-        Long reportedCount
+        Long reportedCount,
+        Boolean isBlackListed
 ) {
 
     @QueryProjection
