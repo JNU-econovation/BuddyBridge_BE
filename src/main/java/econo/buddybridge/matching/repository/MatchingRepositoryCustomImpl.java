@@ -143,7 +143,8 @@ public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
                                 post.assistanceTime.assistanceStartTime,
                                 post.assistanceTime.assistanceEndTime
                         ),
-                        matching.matchingStatus
+                        matching.matchingStatus,
+                        matching.certificationTracking.requestedAt.lt(LocalDateTime.now().minusDays(1))
                 ))
                 .from(matching)
                 .leftJoin(matching.post, post)
