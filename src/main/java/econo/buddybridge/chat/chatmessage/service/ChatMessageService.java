@@ -10,7 +10,6 @@ import econo.buddybridge.chat.chatmessage.entity.MessageType;
 import econo.buddybridge.chat.chatmessage.repository.ChatMessageRepository;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.matching.exception.MatchingUnauthorizedAccessException;
-import econo.buddybridge.matching.repository.CertificationTrackingRepository;
 import econo.buddybridge.matching.service.MatchingService;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
@@ -36,7 +35,6 @@ public class ChatMessageService {
     private final MatchingService matchingService;
     private final SimpUserRegistry simpUserRegistry;
     private final MessageReadStatusService messageReadStatusService;
-    private final CertificationTrackingRepository certificationTrackingRepository;
 
     @Transactional
     public ChatMessageResDto sendVolunteerCompletionRequest(Long matchingId, Long memberId) {

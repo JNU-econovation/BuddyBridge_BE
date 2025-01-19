@@ -2,6 +2,7 @@ package econo.buddybridge.post.service;
 
 import static econo.buddybridge.post.mapper.PostMapper.toEntity;
 
+import econo.buddybridge.common.persistence.filter.annotation.SoftDeletableService;
 import econo.buddybridge.common.persistence.filter.annotation.WithDeletedContent;
 import econo.buddybridge.matching.repository.MatchingRepository;
 import econo.buddybridge.member.entity.DisabilityType;
@@ -25,11 +26,10 @@ import econo.buddybridge.post.repository.PostRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-@Service
+@SoftDeletableService
 @RequiredArgsConstructor
 public class PostService {
 

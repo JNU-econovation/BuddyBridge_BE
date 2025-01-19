@@ -21,7 +21,8 @@ public record CompletedVolunteerPostDto(
         DisabilityType disabilityType,
         AssistanceType assistanceType,
         CompletedVolunteerScheduleDto schedule,
-        MatchingStatus matchingStatus
+        MatchingStatus matchingStatus,
+        Boolean canVerificationRequest
 ) {
 
     @QueryProjection

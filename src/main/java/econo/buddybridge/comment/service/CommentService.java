@@ -14,6 +14,7 @@ import econo.buddybridge.comment.exception.CommentAlreadyWrittenException;
 import econo.buddybridge.comment.exception.CommentNotFoundException;
 import econo.buddybridge.comment.exception.CommentUpdateNotAllowedException;
 import econo.buddybridge.comment.repository.CommentRepository;
+import econo.buddybridge.common.persistence.filter.annotation.SoftDeletableService;
 import econo.buddybridge.common.persistence.filter.annotation.WithDeletedContent;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
@@ -28,10 +29,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@SoftDeletableService
 @RequiredArgsConstructor
 public class CommentService {
 
