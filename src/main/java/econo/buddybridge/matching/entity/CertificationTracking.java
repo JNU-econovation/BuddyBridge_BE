@@ -46,6 +46,6 @@ public class CertificationTracking {
 
     public boolean isRequestedWithinOneDay() {
         LocalDateTime now = LocalDateTime.now();
-        return this.requestedAt.plusDays(1).isBefore(now);
+        return this.requestedAt.isBefore(now.minusDays(1));
     }
 }

@@ -6,10 +6,10 @@ import econo.buddybridge.certification.dto.VolunteerCertificationResponse;
 import econo.buddybridge.certification.entity.VolunteerCertification;
 import econo.buddybridge.member.entity.Member;
 
-public interface VolunteerCertificationCustomRepository {
+public interface VolunteerCertificationRepositoryCustom {
 
     VolunteerCertificationResponse findVolunteerCertificationByMemberAndVolunteerCertification(Member member, VolunteerCertification volunteerCertification);
-    
+
     AdminVolunteerCertificationDetailResponse findAdminVolunteerCertification(VolunteerCertification volunteerCertification);
 
     VolunteerCertificationCustomPage findAdminVolunteerCertifications(Integer page, Integer size, String sort);

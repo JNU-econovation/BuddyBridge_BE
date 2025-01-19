@@ -1,15 +1,14 @@
 package econo.buddybridge.post.repository;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import econo.buddybridge.post.entity.PostLike;
-import lombok.RequiredArgsConstructor;
-
-import java.util.Optional;
-
 import static econo.buddybridge.post.entity.QPostLike.postLike;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import econo.buddybridge.post.entity.PostLike;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+
 @RequiredArgsConstructor
-public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
+public class PostLikeRepositoryImpl implements PostLikeRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
