@@ -104,7 +104,7 @@ public class Matching extends SoftDeletableEntity {
         this.volunteerCertification = volunteerCertification;
     }
 
-    public boolean canRequestCertification() {
+    public boolean canVerificationRequest() {
         return certificationTracking.isRequestedWithinOneDay();
     }
 

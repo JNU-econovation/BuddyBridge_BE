@@ -28,7 +28,7 @@ public record ChatMessageCustomPage(
                 .postAuthorId(post.getAuthor().getId())
                 .receiver(receiver)
                 .matchingStatus(matching.getMatchingStatus())
-                .canVerificationRequest(matching.canRequestCertification())
+                .canVerificationRequest(matching.canVerificationRequest())
                 .chatMessages(chatMessages)
                 .cursor(cursor)
                 .nextPage(nextPage)
