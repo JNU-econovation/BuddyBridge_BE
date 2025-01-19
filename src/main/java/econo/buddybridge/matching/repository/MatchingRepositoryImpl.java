@@ -36,7 +36,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class MatchingRepositoryCustomImpl implements MatchingRepositoryCustom {
+public class MatchingRepositoryImpl implements MatchingRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
