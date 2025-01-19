@@ -28,7 +28,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class VolunteerCertificationRepositoryImpl implements VolunteerCertificationCustomRepository {
+public class VolunteerCertificationRepositoryImpl implements VolunteerCertificationRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
