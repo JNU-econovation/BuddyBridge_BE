@@ -7,6 +7,7 @@ public enum BlackListErrorCode implements ErrorCode {
     BLACK_LIST_ALREADY_EXISTS("BL001", HttpStatus.BAD_REQUEST, "이미 블랙리스트에 등록된 회원입니다."),
     BLACK_LIST_NOT_FOUND("BL002", HttpStatus.NOT_FOUND, "블랙리스트에 등록되지 않은 회원입니다."),
     BLACK_LIST_REQUEST_FORBIDDEN("BL003", HttpStatus.FORBIDDEN, "블랙리스트에 등록된 회원입니다. 서비스를 이용할 수 없습니다."),
+    ADMIN_CANNOT_BE_BLACK_LISTED("BL004", HttpStatus.BAD_REQUEST, "관리자는 블랙리스트에 등록할 수 없습니다."),
     ;
 
     private final String code;
