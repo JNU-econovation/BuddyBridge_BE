@@ -71,7 +71,7 @@ public class Member extends BaseEntity {
         this.salt = salt;
     }
 
-    public void throwIfAdmin() {
+    public void validateBlackListRegistrationEligibility() {
         if (role.equals(Role.ADMIN)) {
             throw AdminCannotBeBlackListedException.EXCEPTION;
         }

@@ -24,7 +24,7 @@ public class BlackListService {
         Member reportedMember = memberService.findMemberByIdOrThrow(request.reportedMemberId());
 
         // Role이 ADMIN인 경우 BlackList 등록 불가
-        reportedMember.throwIfAdmin();
+        reportedMember.validateBlackListRegistrationEligibility();
 
         if (isBlackListed(request.reportedMemberId())) {
             throw BlackListAlreadyExistsException.EXCEPTION;
