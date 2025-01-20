@@ -4,6 +4,7 @@ import econo.buddybridge.blacklist.dto.BlackListRequest;
 import econo.buddybridge.blacklist.entity.BlackList;
 import econo.buddybridge.blacklist.exception.BlackListAlreadyExistsException;
 import econo.buddybridge.blacklist.exception.BlackListNotFoundException;
+import econo.buddybridge.blacklist.exception.BlackListRequestForbidden;
 import econo.buddybridge.blacklist.repository.BlackListRepository;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
@@ -21,6 +22,9 @@ public class BlackListService {
     @Transactional
     public void registerBlackListMember(BlackListRequest request) {
         Member reportedMember = memberService.findMemberByIdOrThrow(request.reportedMemberId());
+
+        // Role이 ADMIN인 경우 BlackList 등록 불가
+        reportedMember.validateBlackListRegistrationEligibility();
 
         if (isBlackListed(request.reportedMemberId())) {
             throw BlackListAlreadyExistsException.EXCEPTION;
@@ -48,5 +52,12 @@ public class BlackListService {
     public boolean isBlackListed(Long reportedMemberId) {
         Member reportedMember = memberService.findMemberByIdOrThrow(reportedMemberId);
         return blackListRepository.existsByReportedMember(reportedMember);
+    }
+
+    @Transactional(readOnly = true)
+    public void validateBlackListed(Long reportedMemberId) {
+        if (blackListRepository.existsByReportedMemberId(reportedMemberId)) {
+            throw BlackListRequestForbidden.EXCEPTION;
+        }
     }
 }

@@ -5,6 +5,7 @@ import econo.buddybridge.auth.dto.OAuthLoginParams;
 import econo.buddybridge.auth.dto.kakao.UserInfoWithKakaoToken;
 import econo.buddybridge.auth.jwt.AuthToken;
 import econo.buddybridge.auth.jwt.service.AuthTokenService;
+import econo.buddybridge.blacklist.service.BlackListService;
 import econo.buddybridge.member.dto.MemberResDto;
 import econo.buddybridge.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class OAuthLoginService {
 
+    private final BlackListService blackListService;
     private final OAuthInfoService oAuthInfoService;
     private final MemberService memberService;
     private final AuthTokenService authTokenService;
@@ -27,6 +29,7 @@ public class OAuthLoginService {
     public AuthToken loginWithToken(OAuthLoginParams params) {
         UserInfoWithKakaoToken userInfo = oAuthInfoService.getUserInfo(params);
         MemberResDto member = memberService.findOrCreateMemberByEmail(userInfo);
+        blackListService.validateBlackListed(member.memberId());
         return authTokenService.generateAuthToken(member.memberId());
     }
 

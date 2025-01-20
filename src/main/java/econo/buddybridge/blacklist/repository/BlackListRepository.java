@@ -9,4 +9,6 @@ public interface BlackListRepository extends JpaRepository<BlackList, Long> {
     void deleteByReportedMember(Member reportedMember);
 
     boolean existsByReportedMember(Member reportedMember);
+
+    boolean existsByReportedMemberId(Long reportedMemberId);
 }

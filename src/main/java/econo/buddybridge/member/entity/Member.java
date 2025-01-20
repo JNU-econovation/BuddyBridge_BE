@@ -1,5 +1,6 @@
 package econo.buddybridge.member.entity;
 
+import econo.buddybridge.blacklist.exception.AdminCannotBeBlackListedException;
 import econo.buddybridge.common.persistence.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -68,6 +69,12 @@ public class Member extends BaseEntity {
         this.kakaoToken = kakaoToken;
         this.password = password;
         this.salt = salt;
+    }
+
+    public void validateBlackListRegistrationEligibility() {
+        if (role.equals(Role.ADMIN)) {
+            throw AdminCannotBeBlackListedException.EXCEPTION;
+        }
     }
 
     public void updateKakaoToken(String kakaoToken) {
