@@ -3,6 +3,7 @@ package econo.buddybridge.chat.chatmessage.entity;
 import econo.buddybridge.common.persistence.BaseEntity;
 import econo.buddybridge.matching.entity.Matching;
 import econo.buddybridge.member.entity.Member;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -39,6 +40,7 @@ public class ChatMessage extends BaseEntity {
     @JoinColumn(name = "sender_id")
     private Member sender;
 
+    @Column(length = 300)
     private String content;
 
     @Enumerated(EnumType.STRING)

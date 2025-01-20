@@ -70,7 +70,7 @@ public class Post extends SoftDeletableEntity {
     @Enumerated(EnumType.STRING)
     private District district;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", length = 500)
     private String content;
 
     @Enumerated(EnumType.STRING)

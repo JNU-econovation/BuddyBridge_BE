@@ -36,6 +36,7 @@ public class VolunteerCertification extends BaseEntity {
     @Embedded
     private VolunteerTime volunteerTime;
 
+    @Column(length = 1000)
     private String content;
 
     // True: 인증 완료, False: 인증 대기
