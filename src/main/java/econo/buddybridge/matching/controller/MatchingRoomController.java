@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -36,7 +37,7 @@ public class MatchingRoomController {
     public ApiResponse<ApiResponse.CustomBody<MatchingCustomPage>> getAllMatchingRooms(
             @RequestParam("limit") Integer size,
             @RequestParam(value = "cursor", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime cursor,
-            @RequestParam(value = "matching-status", required = false) MatchingStatus matchingStatus,
+            @RequestParam(value = "matching-status", required = false) List<MatchingStatus> matchingStatus,
             @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
         MatchingCustomPage matchings = matchingRoomService.getMatchings(memberId, size, cursor, matchingStatus);

@@ -7,11 +7,12 @@ import econo.buddybridge.member.entity.MemberRole;
 import econo.buddybridge.post.dto.CompletedVolunteerPostPage;
 import econo.buddybridge.post.entity.Post;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 public interface MatchingRepositoryCustom {
 
-    MatchingCustomPage findMatchings(Long memberId, Integer size, LocalDateTime cursor, MatchingStatus matchingStatus, Pageable pageable);
+    MatchingCustomPage findMatchings(Long memberId, Integer size, LocalDateTime cursor, List<MatchingStatus> matchingStatus, Pageable pageable);
 
     boolean existsCompletedMatchingByPost(Post post);
 
