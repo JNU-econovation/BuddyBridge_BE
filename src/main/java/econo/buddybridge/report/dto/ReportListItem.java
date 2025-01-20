@@ -9,8 +9,10 @@ public record ReportListItem(
         Long postId,
         PostType postType,
         String reportContent,
-        String reporter,
-        String reported,
+        Long reporterId,
+        String reporterName,
+        Long reportedId,
+        String reportedName,
         String reportType,
         LocalDate reportDate,
         Boolean isBlackListed
