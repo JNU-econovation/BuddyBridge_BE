@@ -3,6 +3,7 @@ package econo.buddybridge.member.dto;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.member.entity.Role;
 import lombok.Builder;
 
 @Builder
@@ -14,7 +15,8 @@ public record MemberResDto(
         String email,
         Integer age,
         Gender gender,
-        DisabilityType disabilityType
+        DisabilityType disabilityType,
+        Role role
 ) {
 
     public MemberResDto(Member member) {
@@ -26,7 +28,8 @@ public record MemberResDto(
                 member.getEmail(),
                 member.getAge(),
                 member.getGender(),
-                member.getDisabilityType()
+                member.getDisabilityType(),
+                member.getRole()
         );
     }
 }
