@@ -78,7 +78,7 @@ public class Matching extends SoftDeletableEntity {
     @OneToMany(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<MessageReadStatus> messageReadStatuses = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "matching", cascade = CascadeType.ALL, orphanRemoval = true)
     private VolunteerCertification volunteerCertification;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -98,10 +98,6 @@ public class Matching extends SoftDeletableEntity {
         if (this.volunteerCertification != null) {
             throw VolunteerCertificationAlreadyExistsException.EXCEPTION;
         }
-    }
-
-    public void addVolunteerCertification(VolunteerCertification volunteerCertification) {
-        this.volunteerCertification = volunteerCertification;
     }
 
     public boolean canVerificationRequest() {
