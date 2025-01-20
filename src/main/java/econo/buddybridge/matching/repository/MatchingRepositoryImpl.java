@@ -41,7 +41,7 @@ public class MatchingRepositoryImpl implements MatchingRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public MatchingCustomPage findMatchings(Long memberId, Integer size, LocalDateTime cursor, MatchingStatus matchingStatus, Pageable page) {
+    public MatchingCustomPage findMatchings(Long memberId, Integer size, LocalDateTime cursor, List<MatchingStatus> matchingStatus, Pageable page) {
         int pageSize = page.getPageSize();
 
         QChatMessage subChatMessage = new QChatMessage("subChatMessage");
@@ -197,8 +197,8 @@ public class MatchingRepositoryImpl implements MatchingRepositoryCustom {
         return cursor == null ? null : chatMessage.createdAt.lt(cursor);
     }
 
-    private BooleanExpression buildMatchingStatusExpression(MatchingStatus matchingStatus) {
-        return matchingStatus == null ? null : matching.matchingStatus.eq(matchingStatus);
+    private BooleanExpression buildMatchingStatusExpression(List<MatchingStatus> matchingStatus) {
+        return matchingStatus == null ? null : matching.matchingStatus.in(matchingStatus);
     }
 
     private OrderSpecifier<?> buildOrderSpecifier(String sort, QPost post) {
