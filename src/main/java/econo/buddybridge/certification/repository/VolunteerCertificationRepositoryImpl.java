@@ -129,18 +129,16 @@ public class VolunteerCertificationRepositoryImpl implements VolunteerCertificat
                                 .where(blackList.reportedMember.eq(matching.giver))
                                 .exists()
                 ))
-                .from(matching)
-                .leftJoin(matching.volunteerCertification, volunteerCertification)
-                .where(matching.volunteerCertification.isNotNull())
+                .from(volunteerCertification)
+                .leftJoin(volunteerCertification.matching, matching)
                 .offset((long) page * size)
                 .limit(size)
                 .orderBy(volunteerCertification.createdAt.desc())
                 .fetch();
 
         Long totalElements = queryFactory
-                .select(matching.volunteerCertification.count())
-                .from(matching)
-                .where(matching.volunteerCertification.isNotNull())
+                .select(volunteerCertification.count())
+                .from(volunteerCertification)
                 .fetchOne();
 
         long totalPage = (totalElements + size - 1) / size;
