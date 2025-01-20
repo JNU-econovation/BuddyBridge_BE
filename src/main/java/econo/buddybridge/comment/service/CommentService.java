@@ -15,7 +15,6 @@ import econo.buddybridge.comment.exception.CommentNotFoundException;
 import econo.buddybridge.comment.exception.CommentUpdateNotAllowedException;
 import econo.buddybridge.comment.repository.CommentRepository;
 import econo.buddybridge.common.persistence.filter.annotation.SoftDeletableService;
-import econo.buddybridge.common.persistence.filter.annotation.WithDeletedContent;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.notification.entity.NotificationType;
@@ -51,14 +50,6 @@ public class CommentService {
         Post post = postService.findPostByIdOrThrow(postId);
         PageRequest page = PageRequest.of(0, size, Sort.by(Direction.fromString(order), "id"));
         return commentRepository.findByPost(post, cursor, page);
-    }
-
-    @Transactional(readOnly = true) // 신고된 댓글 조회
-    @WithDeletedContent
-    public CommentResDto findReportedComment(Long commentId) {
-        Comment comment = commentRepository.findByIdWithAuthor(commentId)
-                .orElseThrow(() -> CommentNotFoundException.EXCEPTION);
-        return toCommentResDto(comment);
     }
 
     public CommentResDto toCommentResDto(Comment comment) {
