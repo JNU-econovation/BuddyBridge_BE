@@ -125,8 +125,8 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public MemberCustomPage getMembers(Integer page, Integer size, String sort) {
-        List<MemberListItem> members = memberRepository.findMembers(page, size, sort);
+    public MemberCustomPage getMembers(Integer page, Integer size, String sort, String searchKeyword) {
+        List<MemberListItem> members = memberRepository.findMembers(page, size, sort, searchKeyword);
         Long totalElements = memberRepository.totalElements();
 
         long totalPage = (totalElements + size - 1) / size;
