@@ -29,6 +29,7 @@ public class Comment extends SoftDeletableEntity {
     @Column(name = "comment_id")
     private Long id;
 
+    @Column(length = 100)
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
