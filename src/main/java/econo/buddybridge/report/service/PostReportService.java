@@ -7,10 +7,12 @@ import econo.buddybridge.post.entity.Post;
 import econo.buddybridge.post.service.PostService;
 import econo.buddybridge.report.dto.ReportRequest;
 import econo.buddybridge.report.entity.PostReport;
+import econo.buddybridge.report.event.ReportCreatedEvent;
 import econo.buddybridge.report.exception.ReportNotFoundException;
 import econo.buddybridge.report.exception.ReportPostAlreadyExistsException;
 import econo.buddybridge.report.repository.PostReportRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ public class PostReportService {
     private final PostReportRepository postReportRepository;
     private final PostService postService;
     private final MemberService memberService;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     public void reportPost(Long postId, ReportRequest reportRequest, Long memberId) {
@@ -31,12 +34,15 @@ public class PostReportService {
             throw ReportPostAlreadyExistsException.EXCEPTION;
         }
 
-        postReportRepository.save(PostReport.of(
+        PostReport report = PostReport.of(
                 post,
                 member,
                 reportRequest.reportType(),
                 reportRequest.reportReason()
-        ));
+        );
+        postReportRepository.save(report);
+        
+        publisher.publishEvent(ReportCreatedEvent.from(report));
     }
 
     @Transactional(readOnly = true)
