@@ -6,6 +6,7 @@ import static econo.buddybridge.report.entity.QPostReport.postReport;
 import static econo.buddybridge.report.entity.QReport.report;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.report.entity.CommentReport;
 import econo.buddybridge.report.entity.MatchingReport;
 import econo.buddybridge.report.entity.PostReport;
@@ -87,6 +88,15 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
         return queryFactory
                 .select(matchingReport.count())
                 .from(matchingReport)
+                .fetchOne();
+    }
+
+    @Override
+    public Long totalReportsByReported(Member reported) {
+        return queryFactory
+                .select(report.count())
+                .from(report)
+                .where(report.reported.eq(reported))
                 .fetchOne();
     }
 }

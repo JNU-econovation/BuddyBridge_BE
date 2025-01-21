@@ -1,5 +1,6 @@
 package econo.buddybridge.report.repository;
 
+import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.report.entity.CommentReport;
 import econo.buddybridge.report.entity.MatchingReport;
 import econo.buddybridge.report.entity.PostReport;
@@ -23,4 +24,6 @@ public interface ReportRepositoryCustom {
     Long totalCommentReports();
 
     Long totalMatchingReports();
+
+    Long totalReportsByReported(Member reported);
 }
