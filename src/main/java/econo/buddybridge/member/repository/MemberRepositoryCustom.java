@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface MemberRepositoryCustom {
 
-    List<MemberListItem> findMembers(Integer page, Integer size, String sort);
+    List<MemberListItem> findMembers(Integer page, Integer size, String sort, String searchKeyword);
 
     Long totalElements();
 }

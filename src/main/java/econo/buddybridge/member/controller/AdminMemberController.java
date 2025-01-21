@@ -35,9 +35,10 @@ public class AdminMemberController {
             @RequestParam("page") Integer page,
             @RequestParam("size") Integer size,
             @RequestParam(defaultValue = "desc", required = false) String sort,
+            @RequestParam(value = "search-keyword", required = false) String searchKeyword,
             @Parameter(hidden = true) @MemberTokenId(allowedRoles = {Role.ADMIN}) Long memberId
     ) {
-        MemberCustomPage members = memberService.getMembers(page, size, sort);
+        MemberCustomPage members = memberService.getMembers(page, size, sort, searchKeyword);
         return ApiResponseGenerator.success(members, HttpStatus.OK);
     }
 
