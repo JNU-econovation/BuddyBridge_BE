@@ -29,7 +29,7 @@ class MemberServiceTest {
         String sort = "desc";
 
         //when
-        MemberCustomPage members = memberService.getMembers(page, size, sort);
+        MemberCustomPage members = memberService.getMembers(page, size, sort, "");
 
         //then
         List<MemberListItem> content = members.content();
