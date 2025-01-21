@@ -1,0 +1,37 @@
+package econo.buddybridge.report.event.handler;
+
+import econo.buddybridge.blacklist.entity.BlackList;
+import econo.buddybridge.blacklist.repository.BlackListRepository;
+import econo.buddybridge.member.entity.Member;
+import econo.buddybridge.report.event.ReportCreatedEvent;
+import econo.buddybridge.report.repository.ReportRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
+
+@Component
+@RequiredArgsConstructor
+public class ReportCreatedEventHandler {
+
+    private static final int BLACK_LIST_REPORT_THRESHOLD = 3;
+
+    private final ReportRepository reportRepository;
+    private final BlackListRepository blackListRepository;
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    public void handleReportCreatedEvent(ReportCreatedEvent event) {
+        Member reportedMember = event.getReportedMember();
+
+        if (blackListRepository.existsByReportedMember(reportedMember)) {
+            return;
+        }
+
+        if (reportRepository.totalReportsByReported(reportedMember) >= BLACK_LIST_REPORT_THRESHOLD) {
+            BlackList blackList = BlackList.builder()
+                    .reportedMember(reportedMember)
+                    .build();
+            blackListRepository.save(blackList);
+        }
+    }
+}
