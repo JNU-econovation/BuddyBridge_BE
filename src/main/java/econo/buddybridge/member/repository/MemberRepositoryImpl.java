@@ -4,6 +4,7 @@ import static econo.buddybridge.blacklist.entity.QBlackList.blackList;
 import static econo.buddybridge.member.entity.QMember.member;
 import static econo.buddybridge.report.entity.QReport.report;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import econo.buddybridge.member.dto.MemberListItem;
@@ -17,7 +18,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<MemberListItem> findMembers(Integer page, Integer size, String sort) {
+    public List<MemberListItem> findMembers(Integer page, Integer size, String sort, String searchKeyword) {
         return queryFactory
                 .select(new QMemberListItem(
                         member.id,
@@ -38,10 +39,15 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                                 .exists()
                 ))
                 .from(member)
+                .where(buildSearchKeywordPredicate(searchKeyword))
                 .offset((long) page * size)
                 .limit(size)
                 .orderBy(member.createdAt.desc())
                 .fetch();
+    }
+
+    private BooleanExpression buildSearchKeywordPredicate(String searchKeyword) {
+        return searchKeyword == null ? null : member.name.contains(searchKeyword);
     }
 
     @Override
