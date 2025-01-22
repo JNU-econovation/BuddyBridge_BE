@@ -11,10 +11,12 @@ import econo.buddybridge.report.entity.CommentReport;
 import econo.buddybridge.report.entity.MatchingReport;
 import econo.buddybridge.report.entity.PostReport;
 import econo.buddybridge.report.entity.Report;
+import econo.buddybridge.report.event.ReportDeletedEvent;
 import econo.buddybridge.report.exception.ReportNotFoundException;
 import econo.buddybridge.report.repository.ReportRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ public class ReportService {
 
     private final BlackListService blackListService;
     private final ReportRepository reportRepository;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional(readOnly = true)
     public ReportDetailResponse getReport(Long reportId) {
@@ -75,6 +78,8 @@ public class ReportService {
     public void deleteReport(Long reportId) {
         Report report = findReportByIdOrThrow(reportId);
         reportRepository.delete(report);
+
+        publisher.publishEvent(ReportDeletedEvent.from(report));
     }
 
     private Report findReportByIdOrThrow(Long reportId) {

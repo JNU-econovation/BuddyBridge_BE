@@ -10,10 +10,12 @@ import econo.buddybridge.post.service.PostService;
 import econo.buddybridge.report.dto.ReportRequest;
 import econo.buddybridge.report.dto.ReportedCommentWithPostResponse;
 import econo.buddybridge.report.entity.CommentReport;
+import econo.buddybridge.report.event.ReportCreatedEvent;
 import econo.buddybridge.report.exception.ReportCommentAlreadyExistsException;
 import econo.buddybridge.report.exception.ReportNotFoundException;
 import econo.buddybridge.report.repository.CommentReportRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class CommentReportService {
     private final CommentService commentService;
     private final MemberService memberService;
     private final PostService postService;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     public void reportComment(Long commentId, ReportRequest reportRequest, Long memberId) {
@@ -35,12 +38,15 @@ public class CommentReportService {
             throw ReportCommentAlreadyExistsException.EXCEPTION;
         }
 
-        commentReportRepository.save(CommentReport.of(
+        CommentReport report = CommentReport.of(
                 comment,
                 member,
                 reportRequest.reportType(),
                 reportRequest.reportReason()
-        ));
+        );
+        commentReportRepository.save(report);
+        
+        publisher.publishEvent(ReportCreatedEvent.from(report));
     }
 
     @Transactional(readOnly = true)

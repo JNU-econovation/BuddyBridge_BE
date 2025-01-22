@@ -8,10 +8,12 @@ import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.member.service.MemberService;
 import econo.buddybridge.report.dto.ReportRequest;
 import econo.buddybridge.report.entity.MatchingReport;
+import econo.buddybridge.report.event.ReportCreatedEvent;
 import econo.buddybridge.report.exception.ReportMatchingAlreadyExistsException;
 import econo.buddybridge.report.exception.ReportNotFoundException;
 import econo.buddybridge.report.repository.MatchingReportRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ public class MatchingReportService {
     private final MatchingService matchingService;
     private final MatchingRoomService matchingRoomService;
     private final MemberService memberService;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     public void reportMatching(Long matchingId, ReportRequest reportRequest, Long memberId) {
@@ -33,12 +36,15 @@ public class MatchingReportService {
             throw ReportMatchingAlreadyExistsException.EXCEPTION;
         }
 
-        matchingReportRepository.save(MatchingReport.of(
+        MatchingReport report = MatchingReport.of(
                 matching,
                 member,
                 reportRequest.reportType(),
                 reportRequest.reportReason()
-        ));
+        );
+        matchingReportRepository.save(report);
+
+        publisher.publishEvent(ReportCreatedEvent.from(report));
     }
 
     @Transactional(readOnly = true)
