@@ -90,6 +90,7 @@ public final class ReportMapper {
     private static PostReportDetailResponse toPostReportDetailResponse(PostReport postReport) {
         return new PostReportDetailResponse(
                 postReport.getId(),
+                postReport.getReportedPost().getPostType(),
                 postReport.getReportedPost().getId(),
                 String.format(REPORT_CONTENT_FORMAT, "게시글", postReport.getReportedPost().getTitle()),
                 postReport.getReporter().getId(),
@@ -105,6 +106,7 @@ public final class ReportMapper {
     private static CommentReportDetailResponse toCommentReportDetailResponse(CommentReport commentReport) {
         return new CommentReportDetailResponse(
                 commentReport.getId(),
+                commentReport.getReportedComment().getPost().getPostType(),
                 commentReport.getReportedComment().getPost().getId(),
                 commentReport.getReportedComment().getId(),
                 String.format(REPORT_CONTENT_FORMAT, "댓글", commentReport.getReportedComment().getContent()),
@@ -121,6 +123,7 @@ public final class ReportMapper {
     private static MatchingReportDetailResponse toMatchingReportDetailResponse(MatchingReport matchingReport) {
         return new MatchingReportDetailResponse(
                 matchingReport.getId(),
+                matchingReport.getReportedMatching().getPost().getPostType(),
                 matchingReport.getReportedMatching().getPost().getId(),
                 matchingReport.getReportedMatching().getId(),
                 String.format(REPORT_CONTENT_FORMAT, "채팅방", matchingReport.getReportedMatching().getId()),
