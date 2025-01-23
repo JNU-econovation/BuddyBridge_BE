@@ -159,7 +159,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         List<Post> posts = queryFactory
                 .select(postLike.post)
                 .from(postLike)
-                .where(postLike.member.id.eq(memberId), buildPostTypeExpression(postType, postLike.post))
+                .where(
+                        postLike.member.id.eq(memberId),
+                        buildPostTypeExpression(postType, postLike.post)
+                )
                 .offset((long) page * size)
                 .orderBy(buildOrderSpecifier(sort, postLike.post))
                 .fetch();
@@ -169,7 +172,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         Long totalElements = queryFactory
                 .select(postLike.count())
                 .from(postLike)
-                .where(postLike.member.id.eq(memberId))
+                .where(
+                        postLike.member.id.eq(memberId),
+                        buildPostTypeExpression(postType, postLike.post)
+                )
                 .fetchOne();
 
         long totalPage = (totalElements + size - 1) / size;
