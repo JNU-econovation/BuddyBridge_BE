@@ -9,7 +9,7 @@ public enum ReportType implements ValueEnum<String> {
     불쾌한_표현("불쾌한 표현"),
     스팸_홍보_도배글("스팸/홍보/도배글"),
     불법정보_포함("불법정보 포함"),
-    기타("기타")
+    기타("기타 (신고 내용을 필수로 작성해주세요!)")
     ;
 
     private final String value;

@@ -101,12 +101,31 @@ public class ChatMessageService {
     }
 
     private void sendNotification(Member receiver, Member sender, ChatMessage chatMessage, Matching matching) {
-        emitterService.send(    // 채팅을 받는 사용자에게 알림 전송
+        // SimpUserRegistry를 사용하여 상대방이 채팅방에 접속 중인지 확인
+        String destination = SUBSCRIBE_DESTINATION + matching.getId();
+        boolean isReceiverConnected = isReceiverConnected(receiver, destination);
+
+        // 상대방이 채팅방에 접속 중이라면 알림 전송하지 않음
+        if (isReceiverConnected) {
+            return;
+        }
+
+        // 채팅방에 참여하지 않은 경우 알림 전송
+        emitterService.send(
                 receiver,
                 String.format(CHAT_NOTIFICATION_MESSAGE, sender.getName(), chatMessage.getContent()),
                 String.format(CHAT_NOTIFICATION_URL, matching.getId()),
                 NotificationType.CHAT
         );
+    }
+
+    private boolean isReceiverConnected(Member receiver, String destination) {
+        return simpUserRegistry.findSubscriptions(sub -> sub.getDestination().equals(destination))
+                .stream()
+                .anyMatch(sub -> {
+                    WebSocketPrincipal principal = (WebSocketPrincipal) sub.getSession().getUser().getPrincipal();
+                    return principal.getSenderId().equals(receiver.getId());
+                });
     }
 
     private Long getReceiverId(Long senderId, Long matchingId) {

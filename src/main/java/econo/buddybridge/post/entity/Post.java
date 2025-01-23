@@ -5,10 +5,12 @@ import econo.buddybridge.certification.exception.VolunteerCertificationAssistanc
 import econo.buddybridge.certification.exception.VolunteerCertificationAssistanceTypeMismatchException;
 import econo.buddybridge.certification.exception.VolunteerCertificationScheduleDateMismatchException;
 import econo.buddybridge.comment.entity.Comment;
+import econo.buddybridge.comment.exception.CommentNotAllowedFinishedPostException;
 import econo.buddybridge.comment.exception.CommentSameGenderOnlyException;
 import econo.buddybridge.comment.exception.CommentSelfNotAllowedException;
 import econo.buddybridge.common.persistence.SoftDeletableEntity;
 import econo.buddybridge.matching.entity.Matching;
+import econo.buddybridge.matching.entity.MatchingStatus;
 import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.member.entity.Member;
@@ -156,6 +158,12 @@ public class Post extends SoftDeletableEntity {
 
         if (this.gender != author.getGender()) {
             throw CommentSameGenderOnlyException.EXCEPTION;
+        }
+
+        // 상태 확인해 모집완료된 게시글에는 댓글 작성 불가
+        boolean isRecruiting = this.matchings.stream().allMatch(matching -> matching.getMatchingStatus() == MatchingStatus.PENDING);
+        if (!isRecruiting) {
+            throw CommentNotAllowedFinishedPostException.EXCEPTION;
         }
     }
 
