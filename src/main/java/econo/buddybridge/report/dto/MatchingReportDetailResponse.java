@@ -1,9 +1,11 @@
 package econo.buddybridge.report.dto;
 
+import econo.buddybridge.post.entity.PostType;
 import java.time.LocalDate;
 
 public record MatchingReportDetailResponse(
         Long id,
+        PostType postType,
         Long postId,
         Long matchingId,
         String reportedContent,
