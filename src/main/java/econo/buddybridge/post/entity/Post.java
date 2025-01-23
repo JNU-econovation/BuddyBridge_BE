@@ -41,7 +41,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
@@ -49,7 +48,6 @@ import org.hibernate.annotations.DynamicUpdate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
-@DynamicUpdate
 public class Post extends SoftDeletableEntity {
 
     @Id
@@ -168,37 +166,24 @@ public class Post extends SoftDeletableEntity {
     }
 
     public void updatePost(PostUpdateReqDto postUpdateReqDto) {
-        Schedule updateSchedule = null;
-        AssistanceTime updateAssistanceTime = null;
+        Schedule updateSchedule = new Schedule(
+                postUpdateReqDto.startDate(),
+                postUpdateReqDto.endDate(),
+                ScheduleType.fromValue(postUpdateReqDto.scheduleType()),
+                postUpdateReqDto.scheduleDetails()
+        );
 
-        if (postUpdateReqDto.startDate() != null || postUpdateReqDto.endDate() != null ||
-                postUpdateReqDto.scheduleType() != null || postUpdateReqDto.scheduleDetails() != null) {
-            updateSchedule = new Schedule(
-                    postUpdateReqDto.startDate() != null ? postUpdateReqDto.startDate() : this.schedule.getStartDate(),
-                    postUpdateReqDto.endDate() != null ? postUpdateReqDto.endDate() : this.schedule.getEndDate(),
-                    postUpdateReqDto.scheduleType() != null ? postUpdateReqDto.scheduleType() : this.schedule.getScheduleType(),
-                    postUpdateReqDto.scheduleDetails() != null ? postUpdateReqDto.scheduleDetails() : this.schedule.getScheduleDetails()
-            );
-        }
+        AssistanceTime updateAssistanceTime = new AssistanceTime(
+                postUpdateReqDto.assistanceStartTime(),
+                postUpdateReqDto.assistanceEndTime()
+        );
 
-        if (postUpdateReqDto.assistanceStartTime() != null || postUpdateReqDto.assistanceEndTime() != null) {
-
-            updateAssistanceTime = new AssistanceTime(
-                    postUpdateReqDto.assistanceStartTime() != null ? postUpdateReqDto.assistanceStartTime()
-                            : this.assistanceTime.getAssistanceStartTime(),
-                    postUpdateReqDto.assistanceEndTime() != null ? postUpdateReqDto.assistanceEndTime() : this.assistanceTime.getAssistanceEndTime()
-            );
-        }
-
-        this.title = postUpdateReqDto.title() != null ? postUpdateReqDto.title() : this.title;
-        this.assistanceType = postUpdateReqDto.assistanceType() != null ? AssistanceType.fromValue(postUpdateReqDto.assistanceType()) : this.assistanceType;
-        this.schedule = updateSchedule != null ? updateSchedule : this.schedule;
-        this.district = postUpdateReqDto.district() != null ? postUpdateReqDto.district() : this.district;
-        this.content = postUpdateReqDto.content() != null ? postUpdateReqDto.content() : this.content;
-        this.disabilityType = postUpdateReqDto.disabilityType() != null ? DisabilityType.fromValue(postUpdateReqDto.disabilityType()) : this.disabilityType;
-        this.gender = postUpdateReqDto.gender() != null ? postUpdateReqDto.gender() : this.gender;
-        this.age = postUpdateReqDto.age() != null ? postUpdateReqDto.age() : this.age;
-        this.assistanceTime = updateAssistanceTime != null ? updateAssistanceTime : this.assistanceTime;
+        this.title = postUpdateReqDto.title();
+        this.assistanceType = AssistanceType.fromValue(postUpdateReqDto.assistanceType());
+        this.schedule = updateSchedule;
+        this.district = postUpdateReqDto.district();
+        this.content = postUpdateReqDto.content();
+        this.assistanceTime = updateAssistanceTime;
     }
 
 }
