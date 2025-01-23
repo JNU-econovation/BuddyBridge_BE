@@ -12,7 +12,6 @@ public enum PostErrorCode implements ErrorCode {
     POST_TYPE_INVALID("P006", HttpStatus.BAD_REQUEST, "유효하지 않은 게시글 타입 유형입니다."),
     ASSISTANCE_TYPE_INVALID("P007", HttpStatus.BAD_REQUEST, "유효하지 않은 도움 유형입니다."),
     SCHEDULE_TYPE_INVALID("P008", HttpStatus.BAD_REQUEST, "유효하지 않은 일정 유형입니다."),
-    COMMENT_NOT_ALLOWED_FINISHED_POST("P009", HttpStatus.FORBIDDEN, "모집완료된 게시글에는 댓글을 작성할 수 없습니다."),
     ;
 
     private final String code;

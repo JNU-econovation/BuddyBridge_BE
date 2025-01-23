@@ -5,6 +5,7 @@ import econo.buddybridge.certification.exception.VolunteerCertificationAssistanc
 import econo.buddybridge.certification.exception.VolunteerCertificationAssistanceTypeMismatchException;
 import econo.buddybridge.certification.exception.VolunteerCertificationScheduleDateMismatchException;
 import econo.buddybridge.comment.entity.Comment;
+import econo.buddybridge.comment.exception.CommentNotAllowedFinishedPostException;
 import econo.buddybridge.comment.exception.CommentSameGenderOnlyException;
 import econo.buddybridge.comment.exception.CommentSelfNotAllowedException;
 import econo.buddybridge.common.persistence.SoftDeletableEntity;
@@ -14,7 +15,6 @@ import econo.buddybridge.member.entity.DisabilityType;
 import econo.buddybridge.member.entity.Gender;
 import econo.buddybridge.member.entity.Member;
 import econo.buddybridge.post.dto.PostUpdateReqDto;
-import econo.buddybridge.post.exception.CommentNotAllowedFinishedPostException;
 import econo.buddybridge.post.exception.PostDeleteNotAllowedException;
 import econo.buddybridge.post.exception.PostUnauthorizedAccessException;
 import econo.buddybridge.post.exception.PostUpdateNotAllowedException;
