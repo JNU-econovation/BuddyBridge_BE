@@ -1,6 +1,7 @@
 package econo.buddybridge.member.dto;
 
 import econo.buddybridge.member.entity.Gender;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,4 +31,14 @@ public record MemberSignUpReqDto(
         String password
 ) {
 
+    private static final int MIN_AGE = 16;
+    private static final int MAX_AGE = 100;
+
+    @AssertTrue(message = "만 16세 이상 100세 이하만 가능합니다.")
+    private boolean isValidAge() {
+        LocalDate now = LocalDate.now();
+        LocalDate maxBirthDate = now.minusYears(MIN_AGE);
+        LocalDate minBirthDate = now.minusYears(MAX_AGE);
+        return birthDate.isBefore(maxBirthDate) && !birthDate.isBefore(minBirthDate);
+    }
 }
