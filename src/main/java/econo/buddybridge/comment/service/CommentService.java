@@ -89,8 +89,8 @@ public class CommentService {
     }
 
     private void sendNotificationToPostAuthor(Member member, Comment comment, Post post) {
-        // 알림 내용은 댓글 작성자 이름과 댓글 내용
-        String notificationContent = String.format(COMMENT_NOTIFICATION_MESSAGE, member.getName(), comment.getContent());
+        // 알림 내용은 댓글 작성자 닉네임과 댓글 내용
+        String notificationContent = String.format(COMMENT_NOTIFICATION_MESSAGE, member.getNickname(), comment.getContent());
         String notificationUrl = getCommentNotificationUrl(post.getPostType(), post.getId());
 
         // 댓글 알림은 게시글 작성자에게 전송
