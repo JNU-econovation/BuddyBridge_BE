@@ -5,13 +5,14 @@ import econo.buddybridge.post.entity.AssistanceType;
 import econo.buddybridge.post.entity.District;
 import econo.buddybridge.post.entity.PostType;
 import econo.buddybridge.post.entity.ScheduleType;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import lombok.Builder;
 
 @Builder
 public record PostReqDto(
@@ -53,5 +54,23 @@ public record PostReqDto(
         @NotNull(message = "봉사 종료 시간을 입력해주세요.")
         LocalTime assistanceEndTime
 ) {
+    
+    @AssertTrue(message = "시작일은 현재 날짜 부터 가능합니다.")
+    private boolean isStartDateValid() {
+        LocalDate startLocalDate = startDate.toLocalDate();
+        LocalDate date = LocalDate.now();
+        return !startLocalDate.isBefore(date);
+    }
 
+    @AssertTrue(message = "종료일은 시작일 이후여야 합니다.")
+    private boolean isEndDateValid() {
+        LocalDate startLocalDate = startDate.toLocalDate();
+        LocalDate endLocalDate = endDate.toLocalDate();
+        return !endLocalDate.isBefore(startLocalDate);
+    }
+
+    @AssertTrue(message = "봉사 종료 시간은 시작 시간 보다 나중에 와야 합니다.")
+    private boolean isAssistanceTimeValid() {
+        return assistanceEndTime.isAfter(assistanceStartTime);
+    }
 }

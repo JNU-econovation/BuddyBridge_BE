@@ -89,7 +89,7 @@ public class PostController {
     @PatchMapping("/{post-id}")
     public ApiResponse<ApiResponse.CustomBody<Long>> updatePost(
             @PathVariable("post-id") Long postId,
-            @RequestBody PostUpdateReqDto postUpdateReqDto,
+            @Valid @RequestBody PostUpdateReqDto postUpdateReqDto,
             @Parameter(hidden = true) @MemberTokenId Long memberId
     ) {
         Long updatedPostId = postService.updatePost(postId, postUpdateReqDto, memberId);
